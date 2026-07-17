@@ -6,6 +6,7 @@ import * as actions from './actions.js';
 import { startWebSocket, onMessage } from './ws.js';
 import { toastSuccess, toastError } from './components/toast.js';
 import { startKeynav } from './keynav.js';
+import { startMetrics } from './metrics.js';
 
 import './components/dock.js';
 import './views/home.js';
@@ -37,6 +38,8 @@ async function boot() {
     actions.queryProfile().catch(() => console.error('Failed to load profile')),
     actions.queryUiVersion(),
     actions.queryDiskUsage().catch(() => {}),
+    actions.refreshApps().catch(() => {}),
+    actions.refreshTerminals().catch(() => {}),
   ]);
 
   startRouter();
@@ -50,6 +53,9 @@ async function boot() {
 
   startKeynav();
   startWebSocket();
+  const maybeStartMetrics = () => { if (!store.state.meta.is_anonymous) startMetrics(); };
+  store.subscribe('meta', maybeStartMetrics);
+  maybeStartMetrics();
   onMessage('app_install_error', (m) => toastError(`Failed to install app ${m.name}`, m.error));
   onMessage('backup_update', (m) => {
     if (m?.error) toastError('Backup failed', m.error);

@@ -13,10 +13,11 @@ With --proxy, /core is forwarded to a real shard instead of mocked.
 
 import argparse
 import asyncio
-import copy
 import json
+import math
+import random
 import sys
-import uuid
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -230,6 +231,18 @@ def make_mock_routes() -> list[web.RouteDef]:
     @r.get("/core/protected/stats/disk")
     async def disk(req):
         return json_response(STATE["disk"])
+
+    @r.get("/core/protected/stats")
+    async def stats(req):
+        # Mock of the freeshard#155 snapshot endpoint: a slow random walk.
+        t = time.time()
+        cpu = max(2, min(97, 30 + 25 * math.sin(t / 40) + random.uniform(-8, 8)))
+        mem = int(1.6e9 + 0.5e9 * math.sin(t / 90) + random.uniform(-8e7, 8e7))
+        return json_response({
+            "cpu_pct": round(cpu, 1),
+            "memory_bytes": mem,
+            "memory_limit_bytes": 4 * 2**30,
+        })
 
     @r.get("/core/protected/help/tours")
     async def tours(req):

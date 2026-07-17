@@ -24,11 +24,15 @@ Steps 1-4 (Discovery, Scaffold, API client, App shell) DONE → Step 5 (parity v
   generated client, dev mock server (`just serve`, :8021, subpath at /sundial/),
   headless-chromium verified. Views are placeholders.
 
+- Step 5 parity views committed (d21383c). All 9 views implemented + verified
+  headless (light mode, desktop). Banner component NOT yet ported (blob cnc/banners.json)
+  — do in polish pass.
+
 ## In flight
 
-- Step 5: implement parity views (order: home, welcome, pair, terminals, apps,
-  public, settings, peers, restart) against agents.md inventory checklist.
-  Verify each with dev server + headless chromium screenshot.
+- Interaction verification pass: modals (feedback, app detail, pairing QR, usage
+  prompt), dark mode, mobile viewport, keyboard nav. Then Step 6 new features:
+  resource monitor sparkline, app-store metadata proposal doc, 4K layout.
 
 ## Blockers
 
