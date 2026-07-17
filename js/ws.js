@@ -4,6 +4,7 @@
 // consumers subscribe to specific message types via onMessage().
 
 import { store } from './store.js';
+import { queryProfile } from './actions.js';
 
 const bus = new EventTarget();
 let socket = null;
@@ -25,6 +26,9 @@ function handle(message) {
       break;
     case 'disk_usage_update':
       store.set({ disk_usage: { ...body, disk_space_warning: body.free_gb < 5 } });
+      break;
+    case 'subscription_updated':
+      queryProfile({ refresh: true }).catch(() => {});
       break;
   }
   bus.dispatchEvent(new CustomEvent(type, { detail: body }));
