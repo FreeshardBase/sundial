@@ -1,0 +1,4109 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Shard Core",
+  "description": "Core software stack that manages all aspects of a Shard",
+  "version": "0.40.0"
+ },
+ "paths": {
+  "/internal/app_error/{status}": {
+   "get": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "App Error",
+    "operationId": "app_error_internal_app_error__status__get",
+    "parameters": [
+     {
+      "name": "status",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "title": "Status"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/internal/authenticate_terminal": {
+   "get": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Authenticate Terminal",
+    "operationId": "authenticate_terminal_internal_authenticate_terminal_get",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "cookie",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/internal/authenticate_management": {
+   "get": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Authenticate Management",
+    "operationId": "authenticate_management_internal_authenticate_management_get",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/internal/auth": {
+   "get": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Authenticate And Authorize",
+    "operationId": "authenticate_and_authorize_internal_auth_get",
+    "parameters": [
+     {
+      "name": "x-forwarded-host",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "X-Forwarded-Host"
+      }
+     },
+     {
+      "name": "x-forwarded-uri",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "X-Forwarded-Uri"
+      }
+     },
+     {
+      "name": "authorization",
+      "in": "cookie",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/internal/call_backend/{rest}": {
+   "post": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Backend",
+    "operationId": "call_backend_internal_call_backend__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Backend",
+    "operationId": "call_backend_internal_call_backend__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Backend",
+    "operationId": "call_backend_internal_call_backend__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Backend",
+    "operationId": "call_backend_internal_call_backend__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "head": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Backend",
+    "operationId": "call_backend_internal_call_backend__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "options": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Backend",
+    "operationId": "call_backend_internal_call_backend__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "connect": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Backend",
+    "operationId": "call_backend_internal_call_backend__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Backend",
+    "operationId": "call_backend_internal_call_backend__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "trace": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Backend",
+    "operationId": "call_backend_internal_call_backend__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/internal/call_peer/{id_}/{rest}": {
+   "post": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Peer",
+    "operationId": "call_peer_internal_call_peer__id____rest__post",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     },
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Peer",
+    "operationId": "call_peer_internal_call_peer__id____rest__post",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     },
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Peer",
+    "operationId": "call_peer_internal_call_peer__id____rest__post",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     },
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Peer",
+    "operationId": "call_peer_internal_call_peer__id____rest__post",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     },
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "head": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Peer",
+    "operationId": "call_peer_internal_call_peer__id____rest__post",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     },
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "options": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Peer",
+    "operationId": "call_peer_internal_call_peer__id____rest__post",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     },
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "connect": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Peer",
+    "operationId": "call_peer_internal_call_peer__id____rest__post",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     },
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Peer",
+    "operationId": "call_peer_internal_call_peer__id____rest__post",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     },
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "trace": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Call Peer",
+    "operationId": "call_peer_internal_call_peer__id____rest__post",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     },
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/public/health": {
+   "get": {
+    "tags": [
+     "/public"
+    ],
+    "summary": "Health",
+    "operationId": "health_public_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Health"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/public/meta/whoareyou": {
+   "get": {
+    "tags": [
+     "/public"
+    ],
+    "summary": "Who Are You",
+    "operationId": "who_are_you_public_meta_whoareyou_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OutputIdentity"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/public/meta/avatar": {
+   "get": {
+    "tags": [
+     "/public"
+    ],
+    "summary": "Get Default Avatar",
+    "operationId": "get_default_avatar_public_meta_avatar_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/public/meta/whoami": {
+   "get": {
+    "tags": [
+     "/public"
+    ],
+    "summary": "Who Am I",
+    "operationId": "who_am_i_public_meta_whoami_get",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "cookie",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OutputWhoAmI"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/public/pair/terminal": {
+   "post": {
+    "tags": [
+     "/public"
+    ],
+    "summary": "Add Terminal",
+    "operationId": "add_terminal_public_pair_terminal_post",
+    "parameters": [
+     {
+      "name": "code",
+      "in": "query",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Code"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/InputTerminal"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/apps": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "List All Apps",
+    "operationId": "list_all_apps_protected_apps_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/InstalledAppWithMeta"
+         },
+         "type": "array",
+         "title": "Response List All Apps Protected Apps Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Install Custom App",
+    "operationId": "install_custom_app_protected_apps_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_install_custom_app_protected_apps_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/apps/{name}": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get App",
+    "operationId": "get_app_protected_apps__name__get",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/InstalledAppWithMeta"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Uninstall App",
+    "operationId": "uninstall_app_protected_apps__name__delete",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Install App",
+    "operationId": "install_app_protected_apps__name__post",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/apps/{name}/icon": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get App Icon",
+    "operationId": "get_app_icon_protected_apps__name__icon_get",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/apps/{name}/reinstall": {
+   "post": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Reinstall App",
+    "operationId": "reinstall_app_protected_apps__name__reinstall_post",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/backup/info": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Backup Info",
+    "operationId": "get_backup_info_protected_backup_info_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/BackupInfoResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/backup/passphrase": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Backup Passphrase",
+    "operationId": "get_backup_passphrase_protected_backup_passphrase_get",
+    "parameters": [
+     {
+      "name": "x-ptl-client-id",
+      "in": "header",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "X-Ptl-Client-Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/BackupPassphraseResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/backup/start": {
+   "post": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Start Backup",
+    "operationId": "start_backup_protected_backup_start_post",
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     }
+    }
+   }
+  },
+  "/protected/feedback/quick": {
+   "post": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Post Quick Feedback",
+    "operationId": "post_quick_feedback_protected_feedback_quick_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/QuickFeedbackInput"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/identities": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "List All Identities",
+    "operationId": "list_all_identities_protected_identities_get",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/OutputIdentity"
+         },
+         "title": "Response List All Identities Protected Identities Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Put Identity",
+    "operationId": "put_identity_protected_identities_put",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/InputIdentity"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OutputIdentity"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/identities/default": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Default Identity",
+    "operationId": "get_default_identity_protected_identities_default_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OutputIdentity"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/identities/{id}": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Identity By Id",
+    "operationId": "get_identity_by_id_protected_identities__id__get",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "title": "Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OutputIdentity"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/identities/default/avatar": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Default Avatar",
+    "operationId": "get_default_avatar_protected_identities_default_avatar_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Put Default Avatar",
+    "operationId": "put_default_avatar_protected_identities_default_avatar_put",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_put_default_avatar_protected_identities_default_avatar_put"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Delete Default Avatar",
+    "operationId": "delete_default_avatar_protected_identities_default_avatar_delete",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/identities/{id}/avatar": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Avatar By Identity",
+    "operationId": "get_avatar_by_identity_protected_identities__id__avatar_get",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "title": "Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Put Avatar",
+    "operationId": "put_avatar_protected_identities__id__avatar_put",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_put_avatar_protected_identities__id__avatar_put"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Delete Avatar",
+    "operationId": "delete_avatar_protected_identities__id__avatar_delete",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/identities/{id}/make-default": {
+   "post": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Make Identity Default",
+    "operationId": "make_identity_default_protected_identities__id__make_default_post",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "title": "Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/peers": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "List All Peers",
+    "operationId": "list_all_peers_protected_peers_get",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/Peer"
+         },
+         "title": "Response List All Peers Protected Peers Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Put Peer",
+    "operationId": "put_peer_protected_peers_put",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/InputPeer"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Peer"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/peers/{id}": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Peer By Id",
+    "operationId": "get_peer_by_id_protected_peers__id__get",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "title": "Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Peer"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Delete Peer",
+    "operationId": "delete_peer_protected_peers__id__delete",
+    "parameters": [
+     {
+      "name": "id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "title": "Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/terminals": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "List All Terminals",
+    "operationId": "list_all_terminals_protected_terminals_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Terminal"
+         },
+         "type": "array",
+         "title": "Response List All Terminals Protected Terminals Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/terminals/id/{id_}": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Terminal By Id",
+    "operationId": "get_terminal_by_id_protected_terminals_id__id___get",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Edit Terminal",
+    "operationId": "edit_terminal_protected_terminals_id__id___put",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/InputTerminal"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Delete Terminal By Id",
+    "operationId": "delete_terminal_by_id_protected_terminals_id__id___delete",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/terminals/name/{name}": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Terminal By Name",
+    "operationId": "get_terminal_by_name_protected_terminals_name__name__get",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Terminal"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/terminals/pairing-code": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "New Pairing Code",
+    "operationId": "new_pairing_code_protected_terminals_pairing_code_get",
+    "parameters": [
+     {
+      "name": "deadline",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "title": "Deadline"
+      }
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PairingCode"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/help/tours": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "List Tours",
+    "operationId": "list_tours_protected_help_tours_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Tour"
+         },
+         "type": "array",
+         "title": "Response List Tours Protected Help Tours Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Put Tour",
+    "operationId": "put_tour_protected_help_tours_put",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/Tour"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Reset Tours",
+    "operationId": "reset_tours_protected_help_tours_delete",
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     }
+    }
+   }
+  },
+  "/protected/help/tours/{name}": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Tour",
+    "operationId": "get_tour_protected_help_tours__name__get",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Tour"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/management/profile": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Profile",
+    "operationId": "get_profile_protected_management_profile_get",
+    "parameters": [
+     {
+      "name": "refresh",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "default": false,
+       "title": "Refresh"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Profile"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/management/{rest}": {
+   "post": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Call Management",
+    "operationId": "call_management_protected_management__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Call Management",
+    "operationId": "call_management_protected_management__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "patch": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Call Management",
+    "operationId": "call_management_protected_management__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Call Management",
+    "operationId": "call_management_protected_management__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "head": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Call Management",
+    "operationId": "call_management_protected_management__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "options": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Call Management",
+    "operationId": "call_management_protected_management__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "connect": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Call Management",
+    "operationId": "call_management_protected_management__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Call Management",
+    "operationId": "call_management_protected_management__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "trace": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Call Management",
+    "operationId": "call_management_protected_management__rest__post",
+    "parameters": [
+     {
+      "name": "rest",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Rest"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/settings/prune-images": {
+   "post": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Prune Images",
+    "description": "Prune all unused docker images.",
+    "operationId": "prune_images_protected_settings_prune_images_post",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/stats/disk": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Disk Usage",
+    "operationId": "disk_usage_protected_stats_disk_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DiskUsage"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/stats/tasks": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Tasks",
+    "operationId": "tasks_protected_stats_tasks_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     }
+    }
+   }
+  },
+  "/management/apps/{name}": {
+   "post": {
+    "tags": [
+     "/management"
+    ],
+    "summary": "Install App",
+    "operationId": "install_app_management_apps__name__post",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/management/notify": {
+   "post": {
+    "tags": [
+     "/management"
+    ],
+    "summary": "Notify",
+    "operationId": "notify_management_notify_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/NotifyRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/management/pairing_code": {
+   "get": {
+    "tags": [
+     "/management"
+    ],
+    "summary": "New Pairing Code",
+    "operationId": "new_pairing_code_management_pairing_code_get",
+    "parameters": [
+     {
+      "name": "deadline",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "title": "Deadline"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PairingCode"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "Access": {
+    "type": "string",
+    "enum": [
+     "public",
+     "private",
+     "peer"
+    ],
+    "title": "Access"
+   },
+   "AppMeta": {
+    "properties": {
+     "v": {
+      "type": "string",
+      "title": "V"
+     },
+     "app_version": {
+      "type": "string",
+      "title": "App Version"
+     },
+     "upstream_repo": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Upstream Repo"
+     },
+     "homepage": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Homepage"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "pretty_name": {
+      "type": "string",
+      "title": "Pretty Name"
+     },
+     "icon": {
+      "type": "string",
+      "title": "Icon"
+     },
+     "entrypoints": {
+      "items": {
+       "$ref": "#/components/schemas/Entrypoint"
+      },
+      "type": "array",
+      "title": "Entrypoints"
+     },
+     "paths": {
+      "additionalProperties": {
+       "$ref": "#/components/schemas/Path"
+      },
+      "type": "object",
+      "title": "Paths"
+     },
+     "lifecycle": {
+      "$ref": "#/components/schemas/Lifecycle",
+      "default": {
+       "always_on": false,
+       "skip_pause": false
+      }
+     },
+     "minimum_portal_size": {
+      "$ref": "#/components/schemas/VMSize",
+      "default": "xs"
+     },
+     "store_info": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/StoreInfo"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "type": "object",
+    "required": [
+     "v",
+     "app_version",
+     "name",
+     "pretty_name",
+     "icon",
+     "entrypoints",
+     "paths"
+    ],
+    "title": "AppMeta"
+   },
+   "BackupInfoResponse": {
+    "properties": {
+     "last_report": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/BackupReport"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "last_passphrase_access_info": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/BackupPassphraseLastAccessInfoResponse"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "type": "object",
+    "required": [
+     "last_report",
+     "last_passphrase_access_info"
+    ],
+    "title": "BackupInfoResponse"
+   },
+   "BackupPassphraseLastAccessInfoResponse": {
+    "properties": {
+     "time": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Time"
+     },
+     "terminal_id": {
+      "type": "string",
+      "title": "Terminal Id"
+     },
+     "terminal_name": {
+      "type": "string",
+      "title": "Terminal Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "time",
+     "terminal_id",
+     "terminal_name"
+    ],
+    "title": "BackupPassphraseLastAccessInfoResponse"
+   },
+   "BackupPassphraseResponse": {
+    "properties": {
+     "passphrase": {
+      "type": "string",
+      "title": "Passphrase"
+     }
+    },
+    "type": "object",
+    "required": [
+     "passphrase"
+    ],
+    "title": "BackupPassphraseResponse"
+   },
+   "BackupReport": {
+    "properties": {
+     "directories": {
+      "items": {
+       "$ref": "#/components/schemas/BackupStats"
+      },
+      "type": "array",
+      "title": "Directories"
+     },
+     "startTime": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Starttime"
+     },
+     "endTime": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Endtime"
+     }
+    },
+    "type": "object",
+    "required": [
+     "directories",
+     "startTime",
+     "endTime"
+    ],
+    "title": "BackupReport"
+   },
+   "BackupStats": {
+    "properties": {
+     "directory": {
+      "type": "string",
+      "title": "Directory"
+     },
+     "startTime": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Starttime"
+     },
+     "endTime": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Endtime"
+     },
+     "rclone_stats": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Rclone Stats"
+     }
+    },
+    "type": "object",
+    "required": [
+     "directory",
+     "startTime",
+     "endTime",
+     "rclone_stats"
+    ],
+    "title": "BackupStats"
+   },
+   "Body_install_custom_app_protected_apps_post": {
+    "properties": {
+     "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "title": "File"
+     }
+    },
+    "type": "object",
+    "required": [
+     "file"
+    ],
+    "title": "Body_install_custom_app_protected_apps_post"
+   },
+   "Body_put_avatar_protected_identities__id__avatar_put": {
+    "properties": {
+     "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "title": "File"
+     }
+    },
+    "type": "object",
+    "required": [
+     "file"
+    ],
+    "title": "Body_put_avatar_protected_identities__id__avatar_put"
+   },
+   "Body_put_default_avatar_protected_identities_default_avatar_put": {
+    "properties": {
+     "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "title": "File"
+     }
+    },
+    "type": "object",
+    "required": [
+     "file"
+    ],
+    "title": "Body_put_default_avatar_protected_identities_default_avatar_put"
+   },
+   "ClientType": {
+    "type": "string",
+    "enum": [
+     "terminal",
+     "peer",
+     "anonymous"
+    ],
+    "title": "ClientType"
+   },
+   "DiskUsage": {
+    "properties": {
+     "total_gb": {
+      "type": "number",
+      "title": "Total Gb"
+     },
+     "free_gb": {
+      "type": "number",
+      "title": "Free Gb"
+     },
+     "disk_space_low": {
+      "type": "boolean",
+      "title": "Disk Space Low"
+     }
+    },
+    "type": "object",
+    "required": [
+     "total_gb",
+     "free_gb",
+     "disk_space_low"
+    ],
+    "title": "DiskUsage"
+   },
+   "Entrypoint": {
+    "properties": {
+     "container_name": {
+      "type": "string",
+      "title": "Container Name"
+     },
+     "container_port": {
+      "type": "integer",
+      "title": "Container Port"
+     },
+     "entrypoint_port": {
+      "$ref": "#/components/schemas/EntrypointPort"
+     }
+    },
+    "type": "object",
+    "required": [
+     "container_name",
+     "container_port",
+     "entrypoint_port"
+    ],
+    "title": "Entrypoint"
+   },
+   "EntrypointPort": {
+    "type": "string",
+    "enum": [
+     "http",
+     "mqtt"
+    ],
+    "title": "EntrypointPort"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "Health": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "title": "Status"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status"
+    ],
+    "title": "Health"
+   },
+   "Icon": {
+    "type": "string",
+    "enum": [
+     "unknown",
+     "smartphone",
+     "tablet",
+     "notebook",
+     "desktop"
+    ],
+    "title": "Icon"
+   },
+   "InputIdentity": {
+    "properties": {
+     "id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Id"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name",
+      "default": ""
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email",
+      "default": ""
+     },
+     "description": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Description",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "title": "InputIdentity"
+   },
+   "InputPeer": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id"
+    ],
+    "title": "InputPeer"
+   },
+   "InputTerminal": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "icon": {
+      "$ref": "#/components/schemas/Icon",
+      "default": "unknown"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "InputTerminal"
+   },
+   "InstallationReason": {
+    "type": "string",
+    "enum": [
+     "unknown",
+     "config",
+     "custom",
+     "store"
+    ],
+    "title": "InstallationReason"
+   },
+   "InstalledAppWithMeta": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "installation_reason": {
+      "$ref": "#/components/schemas/InstallationReason",
+      "default": "unknown"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status",
+      "default": "unknown"
+     },
+     "last_access": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Access"
+     },
+     "meta": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/AppMeta"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "meta"
+    ],
+    "title": "InstalledAppWithMeta"
+   },
+   "Lifecycle": {
+    "properties": {
+     "always_on": {
+      "type": "boolean",
+      "title": "Always On",
+      "default": false
+     },
+     "skip_pause": {
+      "type": "boolean",
+      "title": "Skip Pause",
+      "default": false
+     },
+     "idle_for_pause": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Idle For Pause"
+     },
+     "idle_for_stop": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Idle For Stop"
+     }
+    },
+    "type": "object",
+    "title": "Lifecycle"
+   },
+   "NotifyRequest": {
+    "properties": {
+     "type": {
+      "type": "string",
+      "title": "Type"
+     }
+    },
+    "type": "object",
+    "required": [
+     "type"
+    ],
+    "title": "NotifyRequest"
+   },
+   "OutputIdentity": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "description": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Description"
+     },
+     "is_default": {
+      "type": "boolean",
+      "title": "Is Default"
+     },
+     "public_key_pem": {
+      "type": "string",
+      "title": "Public Key Pem"
+     },
+     "domain": {
+      "type": "string",
+      "title": "Domain"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name",
+     "is_default",
+     "public_key_pem",
+     "domain"
+    ],
+    "title": "OutputIdentity"
+   },
+   "OutputWhoAmI": {
+    "properties": {
+     "type": {
+      "$ref": "#/components/schemas/ClientType"
+     },
+     "id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Id"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "type"
+    ],
+    "title": "OutputWhoAmI"
+   },
+   "PairingCode": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "created": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created"
+     },
+     "valid_until": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Valid Until"
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "created",
+     "valid_until"
+    ],
+    "title": "PairingCode"
+   },
+   "Path": {
+    "properties": {
+     "access": {
+      "$ref": "#/components/schemas/Access"
+     },
+     "headers": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "string"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Headers"
+     }
+    },
+    "type": "object",
+    "required": [
+     "access"
+    ],
+    "title": "Path"
+   },
+   "Peer": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "public_bytes_b64": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Public Bytes B64"
+     },
+     "is_reachable": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Is Reachable",
+      "default": true
+     }
+    },
+    "type": "object",
+    "required": [
+     "id"
+    ],
+    "title": "Peer"
+   },
+   "Profile": {
+    "properties": {
+     "vm_id": {
+      "type": "string",
+      "title": "Vm Id"
+     },
+     "owner": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Owner"
+     },
+     "owner_email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Owner Email"
+     },
+     "time_created": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Time Created"
+     },
+     "time_assigned": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Time Assigned"
+     },
+     "delete_after": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Delete After"
+     },
+     "vm_size": {
+      "$ref": "#/components/schemas/VMSize"
+     },
+     "max_vm_size": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/VMSize"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "volume_size_gb": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Volume Size Gb"
+     },
+     "subscription": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ShardSubscriptionSummary"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "billing_enabled": {
+      "type": "boolean",
+      "title": "Billing Enabled",
+      "default": false
+     },
+     "paypal_client_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Paypal Client Id"
+     },
+     "paypal_environment": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Paypal Environment"
+     }
+    },
+    "type": "object",
+    "required": [
+     "vm_id",
+     "time_created",
+     "vm_size"
+    ],
+    "title": "Profile"
+   },
+   "QuickFeedbackInput": {
+    "properties": {
+     "text": {
+      "type": "string",
+      "title": "Text"
+     }
+    },
+    "type": "object",
+    "required": [
+     "text"
+    ],
+    "title": "QuickFeedbackInput"
+   },
+   "ShardSubscriptionSummary": {
+    "properties": {
+     "status": {
+      "$ref": "#/components/schemas/SubscriptionStatus"
+     },
+     "price_cents": {
+      "type": "integer",
+      "title": "Price Cents"
+     },
+     "currency": {
+      "type": "string",
+      "title": "Currency"
+     },
+     "next_billing_date": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Billing Date"
+     },
+     "last_payment_failed_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Payment Failed At"
+     },
+     "ended": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ended"
+     },
+     "payer_email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Payer Email"
+     },
+     "pending_vm_size": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/VmSize"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "pending_price_cents": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Pending Price Cents"
+     },
+     "paypal_manage_url": {
+      "type": "string",
+      "title": "Paypal Manage Url"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status",
+     "price_cents",
+     "currency",
+     "paypal_manage_url"
+    ],
+    "title": "ShardSubscriptionSummary"
+   },
+   "StoreInfo": {
+    "properties": {
+     "description_short": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Description Short"
+     },
+     "description_long": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Description Long"
+     },
+     "hint": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hint"
+     },
+     "is_featured": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Is Featured"
+     }
+    },
+    "type": "object",
+    "title": "StoreInfo"
+   },
+   "SubscriptionStatus": {
+    "type": "string",
+    "enum": [
+     "active",
+     "grace",
+     "ended",
+     "error"
+    ],
+    "title": "SubscriptionStatus"
+   },
+   "Terminal": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "icon": {
+      "$ref": "#/components/schemas/Icon",
+      "default": "unknown"
+     },
+     "last_connection": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Connection"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name"
+    ],
+    "title": "Terminal"
+   },
+   "Tour": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "status": {
+      "$ref": "#/components/schemas/TourStatus"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "status"
+    ],
+    "title": "Tour"
+   },
+   "TourStatus": {
+    "type": "string",
+    "enum": [
+     "seen",
+     "unseen"
+    ],
+    "title": "TourStatus"
+   },
+   "VMSize": {
+    "type": "string",
+    "enum": [
+     "xs",
+     "s",
+     "m",
+     "l",
+     "xl"
+    ],
+    "title": "VMSize"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "VmSize": {
+    "type": "string",
+    "enum": [
+     "xs",
+     "s",
+     "m",
+     "l",
+     "xl"
+    ],
+    "title": "VmSize"
+   }
+  }
+ }
+}

@@ -1,0 +1,62 @@
+// Boot: register views, hydrate the store (load-all-upfront), route, connect WS.
+
+import { defineRoutes, startRouter, navigate, currentRoute } from './router.js';
+import { store } from './store.js';
+import * as actions from './actions.js';
+import { startWebSocket, onMessage } from './ws.js';
+import { toastSuccess, toastError } from './components/toast.js';
+import { startKeynav } from './keynav.js';
+
+import './components/dock.js';
+import './views/home.js';
+import './views/welcome.js';
+import './views/pair.js';
+import './views/terminals.js';
+import './views/apps.js';
+import './views/peers.js';
+import './views/public.js';
+import './views/settings.js';
+import './views/restart.js';
+
+defineRoutes({
+  '': { tag: 'view-home' },
+  welcome: { tag: 'view-welcome' },
+  pair: { tag: 'view-pair' },
+  terminals: { tag: 'view-terminals' },
+  apps: { tag: 'view-apps' },
+  peers: { tag: 'view-peers' },
+  public: { tag: 'view-public' },
+  settings: { tag: 'view-settings' },
+  restart: { tag: 'view-restart' },
+});
+
+async function boot() {
+  await Promise.all([
+    actions.queryMetaData().catch((e) => console.log('meta', e)),
+    actions.queryTours().catch(() => console.error('Failed to load tours')),
+    actions.queryProfile().catch(() => console.error('Failed to load profile')),
+    actions.queryUiVersion(),
+    actions.queryDiskUsage().catch(() => {}),
+  ]);
+
+  startRouter();
+
+  if (store.state.meta.is_anonymous && !['pair', 'welcome'].includes(currentRoute())) {
+    navigate('welcome', { replace: true });
+  }
+
+  document.getElementById('splash').remove();
+  document.getElementById('dock-slot').replaceChildren(document.createElement('fs-dock'));
+
+  startKeynav();
+  startWebSocket();
+  onMessage('app_install_error', (m) => toastError(`Failed to install app ${m.name}`, m.error));
+  onMessage('backup_update', (m) => {
+    if (m?.error) toastError('Backup failed', m.error);
+    else toastSuccess('Backup completed');
+  });
+
+  setInterval(() => actions.queryUiVersion(), 60_000);
+}
+
+boot();

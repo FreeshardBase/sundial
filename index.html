@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Shard</title>
+  <script>
+    // Subpath-aware base: the app may be served at "/" or "/sundial/" (or any
+    // prefix). Routes are flat (single segment), so the app root is the document
+    // path up to the last "/". A <base> tag injected before any <link>/<script>
+    // makes every relative URL (assets, import map, router) resolve against it.
+    (() => {
+      let root = location.pathname.replace(/[^/]*$/, '');
+      const base = document.createElement('base');
+      base.href = location.origin + root;
+      document.head.appendChild(base);
+      window.SUNDIAL_BASE = root;
+    })();
+  </script>
+  <script type="importmap">
+    {
+      "imports": {
+        "marked": "./vendor/marked.esm.js",
+        "lean-qr": "./vendor/lean-qr.mjs"
+      }
+    }
+  </script>
+  <link rel="icon" href="assets/img/favicon.png">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/fs-components.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/ui.css">
+  <script>
+    // Apply persisted theme before first paint (avoids flash).
+    try {
+      const t = localStorage.getItem('sundial.theme');
+      if (t === 'dark' || (t === null && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+    } catch (e) { /* storage unavailable */ }
+  </script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <div id="splash" aria-hidden="true">
+    <img src="assets/img/shard_logo.png" alt="">
+    <span class="fs-label">loading</span>
+  </div>
+  <main id="view"></main>
+  <div id="dock-slot"></div>
+  <div id="overlay-slot"></div>
+</body>
+</html>
