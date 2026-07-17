@@ -149,7 +149,9 @@ class ViewTerminals extends FsElement {
       return;
     }
 
-    const link = `${shardHref()}/pair?code=${code.code}`;
+    // Classic-app hash route — resolves on any shard, with or without Sundial
+    // installed alongside (the classic UI owns "/" during coexistence).
+    const link = `${shardHref()}/#/pair?code=${code.code}`;
     const validStart = parseUtc(code.created).getTime();
     const validEnd = parseUtc(code.valid_until).getTime();
 

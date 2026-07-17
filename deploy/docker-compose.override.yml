@@ -1,0 +1,10 @@
+# Personal-shard override (Max's shard only — NOT a fleet default).
+# Placed next to ${FREESHARD_DIR}/docker-compose.yml; docker compose merges
+# override files automatically, so core-version updates that rewrite the main
+# compose file leave this in place. Mounts Sundial's static files into the
+# stock web-terminal nginx and swaps in a config with the /sundial/ location.
+services:
+  web-terminal:
+    volumes:
+      - /home/freeshard/freeshard/sundial/app:/srv/sundial:ro
+      - /home/freeshard/freeshard/sundial/nginx-sundial.conf:/etc/nginx/conf.d/default.conf:ro
