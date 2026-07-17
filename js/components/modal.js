@@ -5,7 +5,12 @@
 // openModal({ title, body, footer, size, onClose }) → { close, el }
 // body/footer: HTMLElement | html string.
 
+import { onRouteChange } from '../router.js';
+
 let stack = [];
+
+// Navigating away closes any open modals.
+onRouteChange(() => { while (stack.length) stack.at(-1).close(); });
 
 function pageLayers() {
   return [document.getElementById('view'), document.getElementById('dock-slot')];

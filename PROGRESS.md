@@ -5,7 +5,7 @@ Spec: `~/knowledge_base/freeshard/sundial-rewrite-spec.md` (read fully on resume
 
 ## Phase / execution-order step
 
-Step 1 (Discovery) DONE → starting Step 2 (Scaffold).
+Steps 1-4 (Discovery, Scaffold, API client, App shell) DONE → Step 5 (parity views).
 
 ## Done
 
@@ -20,9 +20,15 @@ Step 1 (Discovery) DONE → starting Step 2 (Scaffold).
   Max's shard geszt8 (id 337) STOPPED + expired → live-API testing and deploy blocked
   (fallback: run shard_core locally via its docker-compose/uv for integration testing).
 
+- Scaffold + shell committed (a981d90): store/router/keynav/modal/toast/dock/badge,
+  generated client, dev mock server (`just serve`, :8021, subpath at /sundial/),
+  headless-chromium verified. Views are placeholders.
+
 ## In flight
 
-- Scaffold: index.html + import map + tokens + store + router + hello view + justfile serve.
+- Step 5: implement parity views (order: home, welcome, pair, terminals, apps,
+  public, settings, peers, restart) against agents.md inventory checklist.
+  Verify each with dev server + headless chromium screenshot.
 
 ## Blockers
 
