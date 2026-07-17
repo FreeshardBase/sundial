@@ -192,3 +192,16 @@ textarea.fs-input { line-height: 1.45; }
 .alert--danger { border-color: var(--danger); color: var(--danger); }
 .alert--info { border-color: var(--border-cool); }
 .alert a { color: inherit; }
+
+/* ---- banner strip ---- */
+
+.banner {
+  padding: var(--space-2) var(--space-4);
+  text-align: center;
+  font-size: var(--fs-small);
+  border-bottom: var(--border-w) solid var(--border);
+  background: var(--surface);
+}
+.banner--warning { border-bottom-color: var(--accent); }
+.banner--danger { border-bottom-color: var(--danger); }
+.banner p { margin: 0; }
