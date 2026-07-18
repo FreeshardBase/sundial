@@ -1,0 +1,14 @@
+{
+  "name": "sundial-dev",
+  "private": true,
+  "type": "module",
+  "description": "Dev-only test tooling for Sundial. The served app has no build step and never touches node_modules.",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "node --test tests/unit/",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
+  }
+}

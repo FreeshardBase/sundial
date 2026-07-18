@@ -1,61 +1,76 @@
-# PROGRESS — Sundial i18n (autonomous session, feat/i18n)
+# PROGRESS — Sundial tests + CI (autonomous session, feat/tests-ci)
 
 Resume contract: re-read this file + agents.md, continue from "In flight".
-Spec: `~/knowledge_base/freeshard/sundial-i18n-spec.md`.
-Previous session (rewrite, steps 1–8) is complete; its progress notes are in
-git history of this file (commit 04f760c) — deploy still blocked on Max.
+Spec: `~/knowledge_base/freeshard/sundial-tests-ci-spec.md`.
+Branch: feat/tests-ci (off feat/i18n). Local only — never push.
+Previous sessions (rewrite + i18n) complete; their notes in git history.
 
 ## Plan (locked by spec)
 
-1. `js/i18n.js` — t(key, params), catalog loading (fetch en/de JSON), locale
-   detection (GET /protected/preferences → localStorage → navigator.language
-   → en; 404/HTML response expected while freeshard#168 unshipped), setLocale
-   (store + localStorage + PUT prefs), Intl format helpers bound to locale.
-2. `js/api/preferences.js` — isolated hand-written GET/PUT client, graceful
-   on 404/non-JSON (mock server returns index.html for unknown /core GETs).
-3. store: `locale` key; base.js `watch()` auto-subscribes 'locale' so every
-   view re-renders on switch; dock adds 'locale' to its subscribe list.
-4. Full string extraction: all views + dock, app-tile, resource-monitor,
-   usage-prompt, editable-text, modal, toasts in main.js, util.js device
-   name + relative time, pricing (currency via Intl), metrics formatBytes.
-5. Catalogs `js/i18n/en.json` + `js/i18n/de.json` (DE is AI-generated —
-   needs native review by Max).
-6. Settings language switcher card (EN/DE buttons, size-picker pattern).
-7. `tools/check_i18n.py` — scan t('...') keys vs catalogs (both directions).
-8. Verify by driving: EN default w/ 404 fallback, live DE switch re-renders,
-   DE persists across location.reload(), Intl per locale, PUT attempted
-   (check via performance resource entries). EN+DE screenshots.
-9. Update agents.md (i18n architecture + how to add a language), commit.
+1. npm dev scaffolding: package.json (dev-only, no build script),
+   @playwright/test, gitignore node_modules. No-build invariant: tooling
+   never touches the served app.
+2. Unit tests (node:test, tests/unit/*.test.js): store (set/subscribe/
+   unsub/getters), router (href/navigate/subpath BASE via fresh import +
+   window stubs), i18n (t() lookup/escape/{!raw}/plurals/fallback, Intl
+   fmt per locale, detection order, setLocale), api/preferences (404 +
+   HTML fallback → null), api/client (call(): query build, ApiError
+   detail extraction).
+3. Playwright e2e (tests/e2e/*.spec.js) vs mock dev server on :8021
+   (webServer w/ reuseExistingServer locally): boot/hydrate, routing,
+   resource-monitor sparklines, app store cards + detail (Azure blob
+   stubbed via page.route), language switcher EN↔DE + persistence,
+   responsive (mobile 390x844 + large 2560x1440), /sundial/ subpath.
+4. No-build smoke (e2e spec): served files byte-equal disk files; no
+   build config/artifacts in repo; modules load natively.
+5. CI: .github/workflows/ci.yml — setup uv + node, npm ci, playwright
+   install chromium, unit + e2e (server via playwright webServer).
+6. Teeth proof: break code → red → restore, for ≥2 checks (one unit,
+   one e2e). Record here.
+7. Update agents.md (test commands), commit.
 
 ## Done
 
-- Read spec, agents.md, all js sources; string inventory complete.
-- Steps 1–7: i18n.js + preferences client + store locale + watch('locale')
-  auto-subscribe + full extraction (all views/components/toasts/util/pricing/
-  metrics) + en.json/de.json + settings language card + tools/check_i18n.py.
-- `just check` passes (all modules parse); check_i18n.py: 224 keys, 0 problems.
-- Step 8 verified by driving the real app (mock server + CDP):
-  - EN default: prefs endpoint absent (mock answers 200 HTML SPA-fallback,
-    handled same as 404) → navigator.language → EN. Dock/home all English.
-  - DE switch in Settings: whole UI re-renders live (title, dock, cards),
-    `PUT /core/protected/preferences` actually sent (fetch spy),
-    localStorage['sundial.locale']='de'.
-  - DE persists across client-side nav AND location.reload().
-  - Intl per locale: "in 12 days"/"in 12 Tagen", "12,20 GiB", "41,5 %",
-    "21,78 €/Monat", plural "2 running"/"2 laufen".
-  - Route sweep home/apps/terminals/public/peers/welcome in DE: zero leaked
-    i18n keys, all titles translated. Pairing modal {!link} renders as a real
-    link (no escaped HTML); feedback modal DE. EN back-switch works.
-  - Screenshots: docs/shots/i18n-{en-home,de-home,de-settings,
-    de-language-card,de-pairing-modal}.png
-- agents.md updated (i18n architecture + how to add a language).
+- Read tests-ci spec, rewrite spec, agents.md, all relevant js sources,
+  dev_server.py. Branch feat/tests-ci created.
+- Step 1: package.json (type:module, dev-only) + @playwright/test 1.61.1
+  (chromium-1228 already cached), .gitignore: node_modules/, test-results/,
+  playwright-report/.
+- Step 2: unit tests green — 45 pass, 0 fail (`npm run test:unit`).
+  tests/unit/{store,router,i18n,client,preferences}.test.js +
+  helpers/env.js (DOM/global stubs; router fresh-imported per BASE via
+  query-suffix dynamic import). Note: client.js non-JSON error detail
+  falls back to statusText (json() consumes body; text() retry dead) —
+  test asserts actual behavior.
+
+- Steps 3+4: e2e green — 27 pass (`npm run test:e2e`; dev server
+  running via background task, PID on :8021; playwright.config.js has
+  webServer w/ reuseExistingServer locally). Specs: boot, routing,
+  monitor (sparklines; assert path `d` attr, not visibility — 1-sample
+  path has zero bbox), appstore (blob stubbed via page.route; modal
+  selector [role=dialog]), i18n EN↔DE, responsive (390x844 + 2560x1440),
+  subpath /sundial/, nobuild smoke (byte-compare served vs disk, no
+  build tooling). Gotchas hit: fs-label text is lowercase in DOM (CSS
+  uppercases); title.apps = "…- Apps".
+
+- Step 5: .github/workflows/ci.yml — setup-node (cache npm) + setup-uv,
+  npm ci, Playwright chromium (cache keyed on package-lock), check_i18n,
+  unit, e2e (webServer starts dev server), report artifact on failure.
+  YAML validated; can't execute until Max pushes (expected).
+- Step 6 teeth proofs (break→red→restore, all restored + re-verified):
+  - store.js notify commented out → 5/6 store unit tests fail.
+  - metrics.js startMetrics no-op → both monitor e2e specs fail.
+  - i18n.js setLocale no-op → all 3 i18n e2e specs fail.
+  - package.json fake "build" script → nobuild smoke fails.
+- Step 7: agents.md Testing section + justfile test recipes added.
+- Full suite re-verified green after restores: 45 unit + 27 e2e.
 
 ## In flight
 
-- Nothing — i18n done and verified. **DE catalog is AI-generated (du-form)
-  and needs a native review by Max** (js/i18n/de.json).
+- nothing — DONE. Committed on feat/tests-ci (local only, not pushed;
+  Max pushes later — CI runs then). Final state: 45 unit + 27 e2e green,
+  teeth proven, agents.md/justfile document `npm test` / `just test`.
 
 ## Blockers
 
-- None. (Deploy-to-shard from previous session still blocked on Max; not
-  part of this task.)
+- none

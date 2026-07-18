@@ -13,6 +13,18 @@ serve-proxy shard_origin:
 serve-anon:
     uv run tools/dev_server.py --anonymous
 
+# Unit + e2e + no-build smoke (Playwright starts the dev server itself)
+test:
+    npm test
+
+# Unit tests only (node:test)
+test-unit:
+    npm run test:unit
+
+# E2e + no-build smoke only (Playwright vs mock-API dev server)
+test-e2e:
+    npm run test:e2e
+
 # Regenerate the API client from the committed OpenAPI spec
 gen-client:
     python3 tools/gen_client.py
