@@ -1,5 +1,7 @@
 // Small shared helpers (replaces moment / mobile-device-detect).
 
+import { t, intlTag } from './i18n.js';
+
 // "YYYY-MM-DD HH:mm" in local time; backend timestamps are UTC ISO strings
 // (sometimes without a Z suffix — treat those as UTC, as moment.utc did).
 export function parseUtc(value) {
@@ -27,22 +29,22 @@ export function formatRelative(value, now = Date.now()) {
     ['hour', 3600e3],
     ['minute', 60e3],
   ];
-  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  const rtf = new Intl.RelativeTimeFormat(intlTag(), { numeric: 'auto' });
   for (const [unit, size] of units) {
     if (abs >= size) return rtf.format(Math.round(ms / size), unit);
   }
-  return ms <= 0 ? 'just now' : 'in moments';
+  return ms <= 0 ? t('common.justNow') : t('common.inMoments');
 }
 
 // Device object for pairing, from the user agent (replaces mobile-device-detect).
 export function makeDeviceObject() {
   const ua = navigator.userAgent;
-  let browser = 'Browser';
+  let browser = t('pair.genericBrowser');
   if (/firefox/i.test(ua)) browser = 'Firefox';
   else if (/edg\//i.test(ua)) browser = 'Edge';
   else if (/chrome|chromium|crios/i.test(ua)) browser = 'Chrome';
   else if (/safari/i.test(ua)) browser = 'Safari';
-  let os = 'Unknown OS';
+  let os = t('pair.unknownOs');
   if (/windows/i.test(ua)) os = 'Windows';
   else if (/android/i.test(ua)) os = 'Android';
   else if (/iphone|ipad|ipod/i.test(ua)) os = 'iOS';
@@ -51,7 +53,7 @@ export function makeDeviceObject() {
   const isTablet = /ipad|tablet/i.test(ua);
   const isMobile = !isTablet && /mobi|iphone|android/i.test(ua);
   return {
-    name: `${browser} on ${os}`,
+    name: t('pair.deviceName', { browser, os }),
     icon: isMobile ? 'smartphone' : isTablet ? 'tablet' : 'notebook',
   };
 }

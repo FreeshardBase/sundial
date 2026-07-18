@@ -1,63 +1,61 @@
-# PROGRESS — Sundial build (autonomous session)
+# PROGRESS — Sundial i18n (autonomous session, feat/i18n)
 
 Resume contract: re-read this file + agents.md, continue from "In flight".
-Spec: `~/knowledge_base/freeshard/sundial-rewrite-spec.md`.
+Spec: `~/knowledge_base/freeshard/sundial-i18n-spec.md`.
+Previous session (rewrite, steps 1–8) is complete; its progress notes are in
+git history of this file (commit 04f760c) — deploy still blocked on Max.
 
-## Phase / execution-order step
+## Plan (locked by spec)
 
-Steps 1–7 DONE. Step 8 (alongside install on Max's shard) is fully prepared but
-**blocked on a Max-manual step** (see Blockers). Buildable work is complete.
+1. `js/i18n.js` — t(key, params), catalog loading (fetch en/de JSON), locale
+   detection (GET /protected/preferences → localStorage → navigator.language
+   → en; 404/HTML response expected while freeshard#168 unshipped), setLocale
+   (store + localStorage + PUT prefs), Intl format helpers bound to locale.
+2. `js/api/preferences.js` — isolated hand-written GET/PUT client, graceful
+   on 404/non-JSON (mock server returns index.html for unknown /core GETs).
+3. store: `locale` key; base.js `watch()` auto-subscribes 'locale' so every
+   view re-renders on switch; dock adds 'locale' to its subscribe list.
+4. Full string extraction: all views + dock, app-tile, resource-monitor,
+   usage-prompt, editable-text, modal, toasts in main.js, util.js device
+   name + relative time, pricing (currency via Intl), metrics formatBytes.
+5. Catalogs `js/i18n/en.json` + `js/i18n/de.json` (DE is AI-generated —
+   needs native review by Max).
+6. Settings language switcher card (EN/DE buttons, size-picker pattern).
+7. `tools/check_i18n.py` — scan t('...') keys vs catalogs (both directions).
+8. Verify by driving: EN default w/ 404 fallback, live DE switch re-renders,
+   DE persists across location.reload(), Intl per locale, PUT attempted
+   (check via performance resource entries). EN+DE screenshots.
+9. Update agents.md (i18n architecture + how to add a language), commit.
 
 ## Done
 
-- Discovery: parity inventory + API surface + WS protocol + deployment mechanics
-  in `agents.md`. OpenAPI dumped from shard_core → `js/api/openapi.json`.
-- Scaffold + shell: no-build ESM app, subpath-aware base injection, tiny store,
-  History router, keynav (arrows + Alt hints, tier-1/tier-2), modal system with
-  page-recede, toasts, bottom dock with fingerprint shard badge, theme toggle,
-  self-hosted fonts, tokens verbatim.
-- Generated API client (`tools/gen_client.py` → `js/api/client.js`, 50 ops).
-- All parity views (home, welcome, pair, terminals, apps, public, settings,
-  peers, restart) + banner + usage prompt + editable text/avatar. App-store
-  branch switching deliberately dropped per spec.
-- New features: resource monitor (fs-sparkline port of the designed component,
-  metrics poller against the #155 snapshot shape, honest unsupported state,
-  WS-stream seam), redesigned store cards + detail modal, shard summary card,
-  responsive extremes (mobile dock, ≥1400px two-column home, ≥2200px wider),
-  dark "dusk" theme verified.
-- Docs: `docs/app-store-metadata-proposal.md`, `README.md`, `deploy/README.md`.
-- Deploy artifacts: nginx conf (verified in real nginx:alpine — classic at /,
-  /sundial redirect + SPA fallback), compose override, `install-on-shard.sh`.
-- Verified by driving the real UI (tools/drive.py, CDP): anonymous→welcome,
-  pair-with-code→home, usage prompt, install flow with live WS transitions
-  (installing→running) across views, feedback send, inline identity edit,
-  Alt hints + arrow focus, subpath deep-links, dark + mobile + 4K screenshots.
-- Dock decision reflected back into ui-style/DECISIONS.md.
+- Read spec, agents.md, all js sources; string inventory complete.
+- Steps 1–7: i18n.js + preferences client + store locale + watch('locale')
+  auto-subscribe + full extraction (all views/components/toasts/util/pricing/
+  metrics) + en.json/de.json + settings language card + tools/check_i18n.py.
+- `just check` passes (all modules parse); check_i18n.py: 224 keys, 0 problems.
+- Step 8 verified by driving the real app (mock server + CDP):
+  - EN default: prefs endpoint absent (mock answers 200 HTML SPA-fallback,
+    handled same as 404) → navigator.language → EN. Dock/home all English.
+  - DE switch in Settings: whole UI re-renders live (title, dock, cards),
+    `PUT /core/protected/preferences` actually sent (fetch spy),
+    localStorage['sundial.locale']='de'.
+  - DE persists across client-side nav AND location.reload().
+  - Intl per locale: "in 12 days"/"in 12 Tagen", "12,20 GiB", "41,5 %",
+    "21,78 €/Monat", plural "2 running"/"2 laufen".
+  - Route sweep home/apps/terminals/public/peers/welcome in DE: zero leaked
+    i18n keys, all titles translated. Pairing modal {!link} renders as a real
+    link (no escaped HTML); feedback modal DE. EN back-switch works.
+  - Screenshots: docs/shots/i18n-{en-home,de-home,de-settings,
+    de-language-card,de-pairing-modal}.png
+- agents.md updated (i18n architecture + how to add a language).
 
 ## In flight
 
-- Nothing. Awaiting Max for the deploy step below.
+- Nothing — i18n done and verified. **DE catalog is AI-generated (du-form)
+  and needs a native review by Max** (js/i18n/de.json).
 
-## Blockers (Max-manual)
+## Blockers
 
-**Deploy to personal shard blocked: geszt8.freeshard.cloud (controller id 337)
-is STOPPED and past its trial `delete_after` (2026-07-14).** The VM does not
-answer (SSH/HTTPS time out), so the alongside install cannot run and Sundial
-could not be tested against a live shard API (mock + generated-from-spec client
-used instead).
-
-When a live shard exists, the deploy is one command:
-
-    deploy/install-on-shard.sh <ssh-user>@<shard-domain>
-
-(needs SSH access to the shard VM; installs to $FREESHARD_DIR/sundial/, adds a
-compose override + nginx conf, restarts web-terminal, curl-verifies both UIs).
-Afterwards: quick smoke of pair/apps/settings against the real API; expect the
-resource monitor to show "not available yet" until freeshard#155 lands.
-
-## Follow-ups (not blockers)
-
-- Classic-side "Try the new UI" link + sticky `freeshard.ui` redirect — needs a
-  FreeshardBase/web-terminal release (deliberately not done from this repo).
-- Metrics API #155 server-side; then optionally WS `/protected/stats/stream`.
-- App-store metadata pipeline per `docs/app-store-metadata-proposal.md`.
+- None. (Deploy-to-shard from previous session still blocked on Max; not
+  part of this task.)

@@ -5,14 +5,14 @@ import { FsElement, esc } from '../components/base.js';
 import { shortShardId } from '../store.js';
 import * as api from '../api/client.js';
 import { icon } from '../components/icons.js';
+import { t } from '../i18n.js';
 
 class ViewPeers extends FsElement {
   #peers = [];
   #adding = false;
 
   async connectedCallback() {
-    document.title = `Shard [${shortShardId()}] - Peers`;
-    this.render();
+    this.watch('locale', () => this.render());
     await this.refresh();
   }
 
@@ -22,27 +22,28 @@ class ViewPeers extends FsElement {
   }
 
   render() {
+    document.title = t('title.peers', { id: shortShardId() });
     this.innerHTML = `
       <div class="page-title">
-        <h1>Peers</h1>
+        <h1>${t('peers.title')}</h1>
         ${this.#adding
           ? `<form class="peer-add-form">
-               <input class="fs-input mono" placeholder="peer id" autofocus>
-               <button type="submit" class="fs-btn fs-btn--primary">${icon('plus')} Add</button>
+               <input class="fs-input mono" placeholder="${t('peers.idPlaceholder')}" autofocus>
+               <button type="submit" class="fs-btn fs-btn--primary">${icon('plus')} ${t('peers.add')}</button>
              </form>`
-          : `<button class="fs-btn fs-btn--primary fs-focusable peer-add">${icon('plus')} Add peer</button>`}
+          : `<button class="fs-btn fs-btn--primary fs-focusable peer-add">${icon('plus')} ${t('peers.addPeer')}</button>`}
       </div>
       <div class="peer-list">
         ${this.#peers.map((p) => `
           <div class="peer-row" data-id="${esc(p.id)}">
-            <span class="peer-name">${esc(p.name || '[Unknown]')}</span>
+            <span class="peer-name">${esc(p.name || t('peers.unknown'))}</span>
             <a class="mono" href="https://${esc(p.id.substring(0, 6))}.freeshard.cloud" target="_blank" rel="noopener">${esc(p.id.substring(0, 6))}</a>
             <span class="peer-actions">
-              <button class="icon-btn" data-act="refresh" aria-label="Refresh peer">${icon('refresh')}</button>
-              <button class="icon-btn icon-btn--danger" data-act="delete" aria-label="Delete peer">${icon('trash')}</button>
+              <button class="icon-btn" data-act="refresh" aria-label="${t('peers.refreshPeer')}">${icon('refresh')}</button>
+              <button class="icon-btn icon-btn--danger" data-act="delete" aria-label="${t('peers.deletePeer')}">${icon('trash')}</button>
             </span>
           </div>`).join('')}
-        ${this.#peers.length === 0 ? '<p class="muted">No peers yet.</p>' : ''}
+        ${this.#peers.length === 0 ? `<p class="muted">${t('peers.none')}</p>` : ''}
       </div>`;
 
     this.querySelector('.peer-add')?.addEventListener('click', () => {

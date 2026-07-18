@@ -6,6 +6,7 @@ import { FsElement, esc } from './base.js';
 import { store } from '../store.js';
 import { openModal } from './modal.js';
 import { href } from '../router.js';
+import { t } from '../i18n.js';
 
 export const BUSY_STATUSES = [
   'installation_queued', 'installing',
@@ -43,7 +44,7 @@ class FsAppTile extends FsElement {
     const blocked = !canBeStarted(app);
     this.innerHTML = `
       <button class="app-tile fs-focusable ${busy ? 'app-tile--busy' : ''} ${blocked ? 'app-tile--blocked' : ''}"
-              data-keyseq aria-label="Open ${esc(appDisplayName(app))}">
+              data-keyseq aria-label="${t('home.openApp', { name: appDisplayName(app) })}">
         <span class="app-tile__glyph">
           ${busy
             ? '<span class="fs-spinner"></span>'
@@ -52,7 +53,7 @@ class FsAppTile extends FsElement {
         </span>
         <span class="app-tile__status">
           ${app.status === 'running' ? '<span class="fs-dot" data-live="true"></span>' : ''}
-          ${app.status === 'error' ? '<span class="app-tile__error" title="App is in error state">!</span>' : ''}
+          ${app.status === 'error' ? `<span class="app-tile__error" title="${t('apps.errorState')}">!</span>` : ''}
         </span>
         <span class="app-tile__name">${esc(appDisplayName(app))}</span>
       </button>`;
@@ -62,10 +63,11 @@ class FsAppTile extends FsElement {
       if (blocked) {
         openModal({
           title: appDisplayName(app),
-          body: `<p>This app requires a shard of size
-                 <b>${esc((app.meta?.minimum_vm_size || '?').toUpperCase())}</b> or larger —
-                 current size: <b>${esc((store.state.profile?.vm_size || '?').toUpperCase())}</b>.</p>
-                 <p><a href="${href('settings', 'section=size')}">Upgrade your shard</a></p>`,
+          body: `<p>${t('home.sizeBlocked', {
+            min: `<b>${esc((app.meta?.minimum_vm_size || '?').toUpperCase())}</b>`,
+            current: `<b>${esc((store.state.profile?.vm_size || '?').toUpperCase())}</b>`,
+          })}</p>
+                 <p><a href="${href('settings', 'section=size')}">${t('home.upgradeShard')}</a></p>`,
         });
         return;
       }

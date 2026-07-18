@@ -10,14 +10,15 @@ import { openModal } from './modal.js';
 import { bindAlt } from '../keynav.js';
 import { postQuickFeedback } from '../api/client.js';
 import { VERSION } from '../version.js';
+import { t } from '../i18n.js';
 import './shard-badge.js';
 
 const NAV = [
-  { route: '', label: 'Home', glyph: 'home', key: 'h' },
-  { route: 'apps', label: 'Apps', glyph: 'apps', key: 'a' },
-  { route: 'terminals', label: 'Devices', glyph: 'devices', key: 'd' },
-  { route: 'public', label: 'Public', glyph: 'person', key: 'p' },
-  { route: 'settings', label: 'Settings', glyph: 'gear', key: 's' },
+  { route: '', labelKey: 'dock.home', glyph: 'home', key: 'h' },
+  { route: 'apps', labelKey: 'dock.apps', glyph: 'apps', key: 'a' },
+  { route: 'terminals', labelKey: 'dock.devices', glyph: 'devices', key: 'd' },
+  { route: 'public', labelKey: 'dock.public', glyph: 'person', key: 'p' },
+  { route: 'settings', labelKey: 'dock.settings', glyph: 'gear', key: 's' },
 ];
 
 const HIDDEN_ROUTES = ['welcome', 'pair', 'restart'];
@@ -30,7 +31,7 @@ class FsDock extends HTMLElement {
     this.render();
     this.#unsubs.push(
       onRouteChange(() => this.render()),
-      store.subscribe(['meta', 'ws', 'version', 'disk_usage'], () => this.render()),
+      store.subscribe(['meta', 'ws', 'version', 'disk_usage', 'locale'], () => this.render()),
     );
     // WS-disconnect warning only after a 5s grace period (old-app behavior).
     setTimeout(() => { this.#warnTimerDone = true; this.render(); }, 5000);
@@ -60,8 +61,8 @@ class FsDock extends HTMLElement {
     const atSubpath = BASE !== '/';
 
     this.innerHTML = `
-      <nav class="dock" aria-label="Main">
-        <a class="dock-badge" href="${href('')}" data-route="" aria-label="Home">
+      <nav class="dock" aria-label="${t('dock.mainNav')}">
+        <a class="dock-badge" href="${href('')}" data-route="" aria-label="${t('dock.home')}">
           <fs-shard-badge shard-id="${esc(shortShardId())}"></fs-shard-badge>
         </a>
         <div class="dock-nav">
@@ -71,22 +72,22 @@ class FsDock extends HTMLElement {
                ${active === item.route ? 'aria-current="page"' : ''}>
               <span class="fs-keyhint">${item.key.toUpperCase()}</span>
               ${icon(item.glyph)}
-              <span class="dock-label">${item.label}</span>
+              <span class="dock-label">${t(item.labelKey)}</span>
             </a>`).join('')}
         </div>
         <div class="dock-utils">
-          ${wsWarn ? `<span class="dock-status dock-status--warn" title="No connection to Shard, retrying...">${icon('warn')}</span>` : ''}
-          ${updateAvail ? `<button class="dock-status dock-update fs-focusable" title="Refresh to update to ${esc(state.version)}">${icon('update')}</button>` : ''}
-          ${diskLow ? `<a class="dock-status dock-status--danger fs-focusable" href="${href('settings')}" title="Disk space critically low. All apps are stopped.">${icon('disk')}</a>` : ''}
-          ${diskWarn ? `<a class="dock-status dock-status--warn fs-focusable" href="${href('settings')}" title="Disk space is getting low.">${icon('disk')}</a>` : ''}
-          <button class="dock-item dock-feedback fs-focusable" title="Feedback">
-            <span class="fs-keyhint">F</span>${icon('feedback')}<span class="dock-label">Feedback</span>
+          ${wsWarn ? `<span class="dock-status dock-status--warn" title="${t('dock.noConnection')}">${icon('warn')}</span>` : ''}
+          ${updateAvail ? `<button class="dock-status dock-update fs-focusable" title="${t('dock.refreshUpdate', { version: state.version })}">${icon('update')}</button>` : ''}
+          ${diskLow ? `<a class="dock-status dock-status--danger fs-focusable" href="${href('settings')}" title="${t('dock.diskLow')}">${icon('disk')}</a>` : ''}
+          ${diskWarn ? `<a class="dock-status dock-status--warn fs-focusable" href="${href('settings')}" title="${t('dock.diskWarn')}">${icon('disk')}</a>` : ''}
+          <button class="dock-item dock-feedback fs-focusable" title="${t('dock.feedback')}">
+            <span class="fs-keyhint">F</span>${icon('feedback')}<span class="dock-label">${t('dock.feedback')}</span>
           </button>
-          <button class="dock-item dock-theme fs-focusable" title="Switch to ${dark ? 'light' : 'dark'} theme">
+          <button class="dock-item dock-theme fs-focusable" title="${dark ? t('dock.themeLight') : t('dock.themeDark')}">
             <span class="fs-keyhint">T</span>${icon(dark ? 'sun' : 'moon')}
           </button>
-          ${atSubpath ? `<a class="dock-item dock-classic fs-focusable" href="/" title="Back to the classic UI">
-            <span class="dock-label">Classic UI</span>
+          ${atSubpath ? `<a class="dock-item dock-classic fs-focusable" href="/" title="${t('dock.classicTitle')}">
+            <span class="dock-label">${t('dock.classic')}</span>
           </a>` : ''}
         </div>
       </nav>`;
@@ -111,26 +112,23 @@ class FsDock extends HTMLElement {
   openFeedback() {
     const body = document.createElement('div');
     body.innerHTML = `
-      <textarea class="fs-input feedback-text" rows="4" placeholder="What's on your mind?"></textarea>
-      <p class="muted feedback-note">What you write here is a one-off message for us and
-        currently we have no way of responding directly to it. For more elaborate feedback
-        or a dialogue, you can <a href="mailto:contact@freeshard.net">write us</a> or visit
-        our <a href="https://discord.gg/ZXQDuTGcCf" target="_blank" rel="noopener">Discord</a>.</p>`;
+      <textarea class="fs-input feedback-text" rows="4" placeholder="${t('feedback.placeholder')}"></textarea>
+      <p class="muted feedback-note">${t('feedback.note')}</p>`;
     const footer = document.createElement('div');
-    footer.innerHTML = `<button class="fs-btn fs-btn--primary" disabled>Send</button>`;
+    footer.innerHTML = `<button class="fs-btn fs-btn--primary" disabled>${t('feedback.send')}</button>`;
     const send = footer.querySelector('button');
-    const modal = openModal({ title: 'Quick feedback', body, footer });
+    const modal = openModal({ title: t('feedback.title'), body, footer });
     const text = body.querySelector('textarea');
     text.addEventListener('input', () => { send.disabled = text.value.length === 0; });
     send.addEventListener('click', async () => {
       send.disabled = true;
-      send.textContent = 'Sending…';
+      send.textContent = t('feedback.sending');
       try {
         await postQuickFeedback({ text: text.value });
-        send.textContent = '✓ Sent';
+        send.textContent = t('feedback.sent');
         setTimeout(() => modal.close(), 900);
       } catch (e) {
-        send.textContent = 'Failed — retry';
+        send.textContent = t('feedback.failedRetry');
         send.disabled = false;
       }
     });

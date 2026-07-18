@@ -12,6 +12,7 @@ import { toastError, errorMessage } from '../components/toast.js';
 import { fetchStoreApps, storeIconUrl, storeInfo } from '../appstore.js';
 import { BUSY_STATUSES, VM_SIZES, appDisplayName, canBeStarted, openApp } from '../components/app-tile.js';
 import { href } from '../router.js';
+import { t } from '../i18n.js';
 
 function minimumVmSize(app) {
   return app.meta?.minimum_vm_size || app.minimum_vm_size || app.minimum_portal_size;
@@ -29,7 +30,6 @@ class ViewApps extends FsElement {
   #loading = true;
 
   connectedCallback() {
-    document.title = `Shard [${shortShardId()}] - Apps`;
     this.watch(['apps'], () => this.render());
     this.refresh();
   }
@@ -76,42 +76,42 @@ class ViewApps extends FsElement {
   }
 
   render() {
+    document.title = t('title.apps', { id: shortShardId() });
     const installed = this.installedApps();
     const available = this.availableApps();
     const updates = this.appsWithUpdates();
 
     this.innerHTML = `
       <div class="page-title">
-        <h1>Apps</h1>
+        <h1>${t('apps.title')}</h1>
         <span class="page-title__actions">
-          <button class="icon-btn fs-focusable" data-act="refresh" aria-label="Refresh app store" title="Refresh app store">${icon('refresh')}</button>
-          <button class="icon-btn fs-focusable" data-act="dev-tools" aria-label="Tools for app developers" title="Tools for app developers">${icon('upload')}</button>
+          <button class="icon-btn fs-focusable" data-act="refresh" aria-label="${t('apps.refreshStore')}" title="${t('apps.refreshStore')}">${icon('refresh')}</button>
+          <button class="icon-btn fs-focusable" data-act="dev-tools" aria-label="${t('apps.devTools')}" title="${t('apps.devTools')}">${icon('upload')}</button>
         </span>
       </div>
 
       ${updates.length > 0 ? `
         <p class="alert alert--warn store-update-alert">
-          ${updates.length === 1 ? 'There is one app with an update available.'
-            : `There are ${updates.length} apps with updates available.`}
-          <button class="fs-btn" data-act="update-all">${icon('update')} Update ${updates.length === 1 ? '' : 'all'}</button>
+          ${t('apps.updatesAvailable', { count: updates.length })}
+          <button class="fs-btn" data-act="update-all">${icon('update')} ${t('apps.updateAll', { count: updates.length })}</button>
         </p>` : ''}
 
       <section>
-        <h2 class="store-section-title"><span class="fs-label">installed</span><span class="hairline-grow"></span></h2>
+        <h2 class="store-section-title"><span class="fs-label">${t('apps.installedLabel')}</span><span class="hairline-grow"></span></h2>
         <div class="store-grid">
           ${installed.map((app) => this.cardHtml(app, true)).join('')
-            || '<p class="muted">No apps installed yet.</p>'}
+            || `<p class="muted">${t('apps.noneInstalled')}</p>`}
         </div>
       </section>
 
       <section>
-        <h2 class="store-section-title"><span class="fs-label">available</span><span class="hairline-grow"></span></h2>
+        <h2 class="store-section-title"><span class="fs-label">${t('apps.availableLabel')}</span><span class="hairline-grow"></span></h2>
         ${this.#loading && available.length === 0 ? '<p><span class="fs-spinner"></span></p>' : ''}
         <div class="store-grid">
           ${available.map((app) => this.cardHtml(app, false)).join('')}
         </div>
         ${!this.#loading && available.length === 0 && this.#storeApps.length === 0
-          ? '<p class="alert alert--warn">The app store could not be loaded.</p>' : ''}
+          ? `<p class="alert alert--warn">${t('apps.storeLoadFailed')}</p>` : ''}
       </section>`;
 
     this.querySelector('[data-act="refresh"]').addEventListener('click', () => this.refresh({ refreshStore: true }));
@@ -143,10 +143,10 @@ class ViewApps extends FsElement {
         <span class="store-card__body">
           <span class="store-card__name">
             ${esc(appDisplayName(app))}
-            ${info.is_featured ? `<span class="store-card__mark store-card__mark--featured" title="Featured app">${icon('star')}</span>` : ''}
-            ${app.update_available ? `<span class="store-card__mark store-card__mark--update" title="Update available">${icon('update')}</span>` : ''}
-            ${!sizeCompatible(app) ? `<span class="store-card__mark store-card__mark--warn" title="Requires a larger shard">${icon('warn')}</span>` : ''}
-            ${app.status === 'error' ? `<span class="store-card__mark store-card__mark--error" title="App is in error state">${icon('warn')}</span>` : ''}
+            ${info.is_featured ? `<span class="store-card__mark store-card__mark--featured" title="${t('apps.featured')}">${icon('star')}</span>` : ''}
+            ${app.update_available ? `<span class="store-card__mark store-card__mark--update" title="${t('apps.updateAvailable')}">${icon('update')}</span>` : ''}
+            ${!sizeCompatible(app) ? `<span class="store-card__mark store-card__mark--warn" title="${t('apps.needsLarger')}">${icon('warn')}</span>` : ''}
+            ${app.status === 'error' ? `<span class="store-card__mark store-card__mark--error" title="${t('apps.errorState')}">${icon('warn')}</span>` : ''}
           </span>
           <span class="store-card__desc">${esc(info.description_short || '')}</span>
           ${isInstalled ? `<span class="store-card__status mono">${esc(app.status || '')}</span>` : ''}
@@ -170,16 +170,16 @@ class ViewApps extends FsElement {
         <div>
           <h2>${esc(appDisplayName(app))}</h2>
           <p class="muted mono app-detail__status">
-            ${isInstalled ? esc(app.status) : 'not installed'}
+            ${isInstalled ? esc(app.status) : t('apps.notInstalled')}
             ${app.meta?.app_version || app.app_version ? ` · v${esc(app.meta?.app_version || app.app_version)}` : ''}
           </p>
-          ${app.installation_reason === 'custom' ? '<p class="muted">Custom app</p>' : ''}
-          ${app.installation_reason === 'config' ? '<p class="muted">Preconfigured app</p>' : ''}
-          ${info.is_featured ? `<p class="muted">${icon('star')} Featured — well integrated with Freeshard and recommended by us.</p>` : ''}
+          ${app.installation_reason === 'custom' ? `<p class="muted">${t('apps.customApp')}</p>` : ''}
+          ${app.installation_reason === 'config' ? `<p class="muted">${t('apps.preconfiguredApp')}</p>` : ''}
+          ${info.is_featured ? `<p class="muted">${icon('star')} ${t('apps.featuredNote')}</p>` : ''}
         </div>
       </div>
       ${longDesc.map((p) => `<p>${esc(p)}</p>`).join('')}
-      ${hints.length ? `<div class="alert alert--info"><b>Hints</b><ul>${hints.map((h) => `<li>${esc(h)}</li>`).join('')}</ul></div>` : ''}
+      ${hints.length ? `<div class="alert alert--info"><b>${t('apps.hints')}</b><ul>${hints.map((h) => `<li>${esc(h)}</li>`).join('')}</ul></div>` : ''}
       <p class="app-detail__error muted"></p>`;
 
     const footer = document.createElement('div');
@@ -193,19 +193,20 @@ class ViewApps extends FsElement {
       }
       if (!sizeCompatible(app)) {
         footer.innerHTML = `
-          <p class="muted">${icon('warn')} You need to
-            <a href="${href('settings', 'section=size')}">upgrade your shard</a>
-            at least to size <b>${esc((minimumVmSize(app) || '?').toUpperCase())}</b> to use this app.</p>`;
+          <p class="muted">${icon('warn')} ${t('apps.upgradeNeeded', {
+            link: `<a href="${href('settings', 'section=size')}">${t('apps.upgradeLinkText')}</a>`,
+            size: (minimumVmSize(app) || '?').toUpperCase(),
+          })}</p>`;
         return;
       }
       if (isInstalled) {
         footer.innerHTML = `
-          ${app.update_available ? `<button class="fs-btn" data-act="update">${icon('update')} Update</button>` : ''}
-          ${app.status === 'error' && !app.update_available ? `<button class="fs-btn" data-act="update">${icon('refresh')} Reinstall</button>` : ''}
-          <button class="fs-btn fs-btn--danger" data-act="remove">Remove</button>
-          ${app.status !== 'error' ? `<button class="fs-btn fs-btn--primary" data-act="open">${icon('open')} Open</button>` : ''}`;
+          ${app.update_available ? `<button class="fs-btn" data-act="update">${icon('update')} ${t('apps.update')}</button>` : ''}
+          ${app.status === 'error' && !app.update_available ? `<button class="fs-btn" data-act="update">${icon('refresh')} ${t('apps.reinstall')}</button>` : ''}
+          <button class="fs-btn fs-btn--danger" data-act="remove">${t('apps.remove')}</button>
+          ${app.status !== 'error' ? `<button class="fs-btn fs-btn--primary" data-act="open">${icon('open')} ${t('apps.open')}</button>` : ''}`;
       } else {
-        footer.innerHTML = `<button class="fs-btn fs-btn--primary" data-act="install">${icon('plus')} Install</button>`;
+        footer.innerHTML = `<button class="fs-btn fs-btn--primary" data-act="install">${icon('plus')} ${t('apps.install')}</button>`;
       }
       const run = (message, fn, closeAfter = false) => async () => {
         renderFooter(message);
@@ -219,11 +220,11 @@ class ViewApps extends FsElement {
         }
       };
       footer.querySelector('[data-act="install"]')
-        ?.addEventListener('click', run(`Installing ${app.name}...`, () => api.installApp(app.name), true));
+        ?.addEventListener('click', run(t('apps.installing', { name: app.name }), () => api.installApp(app.name), true));
       footer.querySelector('[data-act="remove"]')
-        ?.addEventListener('click', run(`Removing ${app.name}...`, () => api.uninstallApp(app.name), true));
+        ?.addEventListener('click', run(t('apps.removing', { name: app.name }), () => api.uninstallApp(app.name), true));
       footer.querySelector('[data-act="update"]')
-        ?.addEventListener('click', run(`Updating ${app.name}...`, () => api.reinstallApp(app.name), true));
+        ?.addEventListener('click', run(t('apps.updating', { name: app.name }), () => api.reinstallApp(app.name), true));
       footer.querySelector('[data-act="open"]')?.addEventListener('click', () => openApp(app));
     };
     renderFooter();
@@ -232,16 +233,14 @@ class ViewApps extends FsElement {
   openCustomAppModal() {
     const body = document.createElement('div');
     body.innerHTML = `
-      <p>Custom apps are apps that are not in the app store. See the documentation on how to
-        <a href="https://docs.freeshard.net/developer_docs/custom_apps/" target="_blank" rel="noopener">create</a> one.</p>
-      <p class="alert alert--danger">Custom apps are not verified by us. They can cause serious
-        harm to your Shard instance. Make sure you trust the source of the app.</p>
+      <p>${t('apps.customIntro')}</p>
+      <p class="alert alert--danger">${t('apps.customWarning')}</p>
       <input type="file" multiple class="custom-app-files">
       <p class="custom-app-error muted"></p>`;
     const footer = document.createElement('div');
-    footer.innerHTML = `<button class="fs-btn fs-btn--primary" disabled>${icon('upload')} Install</button>`;
+    footer.innerHTML = `<button class="fs-btn fs-btn--primary" disabled>${icon('upload')} ${t('apps.install')}</button>`;
     const installBtn = footer.querySelector('button');
-    const modal = openModal({ title: 'Install custom app', body, footer });
+    const modal = openModal({ title: t('apps.customTitle'), body, footer });
 
     const files = body.querySelector('.custom-app-files');
     files.addEventListener('change', () => { installBtn.disabled = files.files.length === 0; });

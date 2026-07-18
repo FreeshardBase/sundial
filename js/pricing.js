@@ -15,11 +15,6 @@ export function computeMonthlyPrice(vmSize, volumeSizeGb) {
   return Math.round(total * 100) / 100;
 }
 
-export function formatPrice(amount) {
-  if (amount == null) return '€—';
-  return `€${amount.toFixed(2)}`;
-}
-
 export function centsToEur(cents) {
   if (cents == null) return null;
   return Math.round(cents) / 100;

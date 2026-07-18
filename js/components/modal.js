@@ -6,6 +6,7 @@
 // body/footer: HTMLElement | html string.
 
 import { onRouteChange } from '../router.js';
+import { t } from '../i18n.js';
 
 let stack = [];
 
@@ -31,7 +32,7 @@ export function openModal({ title = '', body, footer, size = '', onClose } = {})
     heading.textContent = title;
     const x = document.createElement('button');
     x.className = 'modal-close';
-    x.setAttribute('aria-label', 'Close');
+    x.setAttribute('aria-label', t('common.close'));
     x.innerHTML = '&#10005;';
     x.addEventListener('click', () => api.close());
     h.append(heading, x);

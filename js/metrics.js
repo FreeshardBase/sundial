@@ -7,6 +7,7 @@
 
 import { store } from './store.js';
 import { call, ApiError } from './api/client.js';
+import { fmtNumber } from './i18n.js';
 
 export const SAMPLE_INTERVAL_MS = 5000;
 export const HISTORY_LENGTH = 120;   // 10 min at 5s
@@ -65,6 +66,6 @@ export function startMetrics() {
 export function formatBytes(bytes) {
   if (bytes == null) return '—';
   const gib = bytes / 2 ** 30;
-  if (gib >= 1) return `${gib.toFixed(1)} GiB`;
-  return `${(bytes / 2 ** 20).toFixed(0)} MiB`;
+  if (gib >= 1) return `${fmtNumber(gib, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} GiB`;
+  return `${fmtNumber(bytes / 2 ** 20, { maximumFractionDigits: 0 })} MiB`;
 }

@@ -5,24 +5,23 @@ import { FsElement, esc } from '../components/base.js';
 import { store } from '../store.js';
 import { whoAreYou } from '../api/client.js';
 import { BASE } from '../router.js';
+import { t } from '../i18n.js';
 import '../components/shard-badge.js';
-
-const SUPPORT = '<a href="mailto:contact@freeshard.net">contact support</a>';
 
 function message(phase, seconds) {
   if (phase === 'pending') {
-    if (seconds < 10) return 'Shard restart was triggered';
-    if (seconds < 30) return 'Restarting Shard soon';
-    if (seconds < 50) return 'Any second now...';
-    return `Shard is still alive and kicking. Maybe something went wrong. Try again or ${SUPPORT}.`;
+    if (seconds < 10) return t('restart.triggered');
+    if (seconds < 30) return t('restart.soon');
+    if (seconds < 50) return t('restart.anySecond');
+    return t('restart.stillAlive');
   }
-  if (seconds < 45) return 'Shard went down, waiting for restart';
-  if (seconds < 90) return 'Be patient, sometimes it may take a moment';
-  if (seconds < 60 * 4) return 'Perhaps this time there is a lot to do...';
-  if (seconds < 60 * 7) return 'Something is strange, it usually does not take so long';
-  if (seconds < 60 * 12) return `It seems like something went wrong. Better ${SUPPORT}.`;
-  if (seconds < 60 * 20) return `Wow, you are really patient. But this Shard is most probably broken. You should really ${SUPPORT}.`;
-  return `Knock knock! Is someone there? This Shard broke down and needs help. Please ${SUPPORT}.`;
+  if (seconds < 45) return t('restart.wentDown');
+  if (seconds < 90) return t('restart.bePatient');
+  if (seconds < 60 * 4) return t('restart.lotToDo');
+  if (seconds < 60 * 7) return t('restart.strange');
+  if (seconds < 60 * 12) return t('restart.wentWrong');
+  if (seconds < 60 * 20) return t('restart.reallyPatient');
+  return t('restart.knockKnock');
 }
 
 class ViewRestart extends FsElement {
@@ -30,8 +29,7 @@ class ViewRestart extends FsElement {
   #seconds = 0;
 
   connectedCallback() {
-    document.title = `Shard [${store.state.meta.identity.id.substring(0, 6)}] - Restarting`;
-    this.render();
+    this.watch('locale', () => this.render());
     this.every(1000, () => { this.#seconds += 1; this.renderMessage(); });
     this.every(2000, () => this.retry());
   }
@@ -51,9 +49,10 @@ class ViewRestart extends FsElement {
   }
 
   render() {
+    document.title = t('title.restart', { id: store.state.meta.identity.id.substring(0, 6) });
     this.innerHTML = `
       <div class="center-page">
-        <h1>Restarting Shard</h1>
+        <h1>${t('restart.title')}</h1>
         <fs-shard-badge shard-id="${esc(store.state.meta.identity.id.substring(0, 6))}"></fs-shard-badge>
         <div class="restart-spinner"><span class="fs-spinner fs-spinner--lg"></span></div>
         <p class="restart-message muted"></p>

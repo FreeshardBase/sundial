@@ -1,0 +1,314 @@
+{
+  "title": {
+    "home": "Shard [{id}] - Home",
+    "welcome": "Shard [{id}] - Welcome",
+    "pair": "Shard [{id}] - Hello",
+    "terminals": "Shard [{id}] - Devices",
+    "apps": "Shard [{id}] - Apps",
+    "settings": "Shard [{id}] - Settings",
+    "peers": "Shard [{id}] - Peers",
+    "public": "Shard [{id}] - Profile",
+    "restart": "Shard [{id}] - Restarting"
+  },
+  "common": {
+    "justNow": "just now",
+    "inMoments": "in moments",
+    "cancel": "Cancel",
+    "save": "Save",
+    "refresh": "Refresh",
+    "close": "Close",
+    "unknown": "unknown"
+  },
+  "dock": {
+    "mainNav": "Main",
+    "home": "Home",
+    "apps": "Apps",
+    "devices": "Devices",
+    "public": "Public",
+    "settings": "Settings",
+    "noConnection": "No connection to Shard, retrying...",
+    "refreshUpdate": "Refresh to update to {version}",
+    "diskLow": "Disk space critically low. All apps are stopped.",
+    "diskWarn": "Disk space is getting low.",
+    "feedback": "Feedback",
+    "themeLight": "Switch to light theme",
+    "themeDark": "Switch to dark theme",
+    "classic": "Classic UI",
+    "classicTitle": "Back to the classic UI"
+  },
+  "feedback": {
+    "title": "Quick feedback",
+    "placeholder": "What's on your mind?",
+    "note": "What you write here is a one-off message for us and currently we have no way of responding directly to it. For more elaborate feedback or a dialogue, you can <a href=\"mailto:contact@freeshard.net\">write us</a> or visit our <a href=\"https://discord.gg/ZXQDuTGcCf\" target=\"_blank\" rel=\"noopener\">Discord</a>.",
+    "send": "Send",
+    "sending": "Sending…",
+    "sent": "✓ Sent",
+    "failedRetry": "Failed — retry"
+  },
+  "home": {
+    "appsLabel": "apps",
+    "running": "{count} running",
+    "addApp": "Add app",
+    "shardLabel": "shard",
+    "diskLabel": "disk",
+    "devicesLabel": "devices",
+    "paired": "{count} paired",
+    "manage": "Manage",
+    "trialLabel": "trial",
+    "trialDelete": "shard is deleted {when}",
+    "subscribe": "Subscribe",
+    "openApp": "Open {name}",
+    "sizeBlocked": "This app requires a shard of size {!min} or larger — current size: {!current}.",
+    "upgradeShard": "Upgrade your shard"
+  },
+  "monitor": {
+    "label": "resources",
+    "window": "last {minutes} min",
+    "cpu": "cpu",
+    "memory": "memory",
+    "measuring": "Measuring…",
+    "unsupported": "Live CPU and memory monitoring needs a newer shard core — it will appear here once your shard supports it."
+  },
+  "welcome": {
+    "pair": "Pair",
+    "edit": "Edit",
+    "learnMore": "<a href=\"https://freeshard.net\" target=\"_blank\" rel=\"noopener\">Learn more</a> about Shard"
+  },
+  "pair": {
+    "title": "Pair this browser",
+    "thisShardIs": "This Shard is",
+    "enterCode": "Enter a pairing code",
+    "pairButton": "Pair",
+    "genericBrowser": "Browser",
+    "unknownOs": "Unknown OS",
+    "deviceName": "{browser} on {os}"
+  },
+  "terminals": {
+    "title": "Devices",
+    "pairNew": "Pair new device",
+    "thisBadge": "this",
+    "prevIcon": "Previous icon",
+    "nextIcon": "Next icon",
+    "editDevice": "Edit device",
+    "removeDevice": "Remove device",
+    "lastConnection": "Last connection: {when}",
+    "lastConnectionUnknown": "Last connection: unknown",
+    "scanQr": "Scan this QR-code with another device to pair it",
+    "qrLabel": "Pairing QR code",
+    "or": "or",
+    "navigateTo": "Navigate to {!link} and use the one-time pairing code",
+    "codeExpired": "Pairing code expired"
+  },
+  "apps": {
+    "title": "Apps",
+    "refreshStore": "Refresh app store",
+    "devTools": "Tools for app developers",
+    "updatesAvailable": {
+      "one": "There is one app with an update available.",
+      "other": "There are {count} apps with updates available."
+    },
+    "updateAll": {
+      "one": "Update",
+      "other": "Update all"
+    },
+    "installedLabel": "installed",
+    "availableLabel": "available",
+    "noneInstalled": "No apps installed yet.",
+    "storeLoadFailed": "The app store could not be loaded.",
+    "featured": "Featured app",
+    "updateAvailable": "Update available",
+    "needsLarger": "Requires a larger shard",
+    "errorState": "App is in error state",
+    "notInstalled": "not installed",
+    "customApp": "Custom app",
+    "preconfiguredApp": "Preconfigured app",
+    "featuredNote": "Featured — well integrated with Freeshard and recommended by us.",
+    "hints": "Hints",
+    "upgradeNeeded": "You need to {!link} at least to size <b>{size}</b> to use this app.",
+    "upgradeLinkText": "upgrade your shard",
+    "update": "Update",
+    "reinstall": "Reinstall",
+    "remove": "Remove",
+    "open": "Open",
+    "install": "Install",
+    "installing": "Installing {name}...",
+    "removing": "Removing {name}...",
+    "updating": "Updating {name}...",
+    "customTitle": "Install custom app",
+    "customIntro": "Custom apps are apps that are not in the app store. See the documentation on how to <a href=\"https://docs.freeshard.net/developer_docs/custom_apps/\" target=\"_blank\" rel=\"noopener\">create</a> one.",
+    "customWarning": "Custom apps are not verified by us. They can cause serious harm to your Shard instance. Make sure you trust the source of the app.",
+    "unknownApp": "Unknown App"
+  },
+  "peers": {
+    "title": "Peers",
+    "idPlaceholder": "peer id",
+    "add": "Add",
+    "addPeer": "Add peer",
+    "unknown": "[Unknown]",
+    "refreshPeer": "Refresh peer",
+    "deletePeer": "Delete peer",
+    "none": "No peers yet."
+  },
+  "public": {
+    "title": "Public view",
+    "visibleNote": "This information about yourself is visible on your {!link}.",
+    "publicPage": "public page",
+    "image": "Image",
+    "squareWarning": "Image must be square or it will be distorted.",
+    "upload": "Upload",
+    "clear": "Clear",
+    "name": "Name",
+    "email": "Email",
+    "description": "Description"
+  },
+  "settings": {
+    "title": "Settings",
+    "profileUnavailable": "Some of this Shard's metadata could not be loaded, so some settings are not available.",
+    "sub": {
+      "title": "Subscription",
+      "cancelled": "Subscription was cancelled. You can subscribe again any time.",
+      "willBeDeleted": "Your shard will be deleted {!when}.",
+      "subscribeToKeep": "Subscribe to keep your shard running.",
+      "activating": "Activating subscription…",
+      "plan": "Plan: {!size} — {price}/month",
+      "nextCharge": "Next charge {when}.",
+      "billedTo": "Billed to {email}.",
+      "upgradePending": "Upgrade pending: {!size} at {price}/month.",
+      "managePaypal": "Manage on PayPal",
+      "paymentFailed": "Payment failed {when}.",
+      "ended": "Subscription ended {when}.",
+      "inactive": "Subscription is no longer active.",
+      "willStop": "Your shard will stop {!when}.",
+      "subscribe": "Subscribe — {price}/month",
+      "reactivate": "Reactivate — {price}/month"
+    },
+    "disk": {
+      "title": "Disk space",
+      "usedLabel": "{pct} used",
+      "usage": "{used} GiB of {total} GiB used · {pct}",
+      "low": "Disk space critically low. All apps are stopped. Please upgrade your disk space or <a href=\"mailto:contact@freeshard.net\">contact us</a> for help.",
+      "warning": "Disk space is getting low. If it gets critical, all apps will be stopped to prevent data loss. You should prune unused data or upgrade your disk space.",
+      "pruneNote": "Prune unused data in order to free up disk space. This is also done automatically every night.",
+      "prune": "Prune",
+      "pruneDone": "Done",
+      "pruneError": "Error during pruning"
+    },
+    "backup": {
+      "title": "Backup",
+      "nightly": "A backup is done automatically every night. New backups overwrite the old ones. Even after your Shard is deleted, you can still access your backups.",
+      "selfService": "We are currently working on self-service access to your backups. Until then, please <a href=\"mailto:contact@freeshard.net\">contact us</a> if you need access, so we can guide you through the process.",
+      "showStats": "Show latest backup stats",
+      "startNow": "Start backup now",
+      "noneYet": "No backup was done yet.",
+      "passphraseNote": "Backups are encrypted on this Shard before being sent to the backup server. The encryption key is your personal passphrase. In order to access your backups later, it is essential to <b>write down your passphrase</b>. If you lose it, you will not be able to access your backups. There is no other way to recover them.",
+      "neverViewed": "You have never viewed your passphrase. Please write it down as soon as possible.",
+      "reveal": "Reveal passphrase",
+      "sensitive": "This is very sensitive information. Make sure no one else is watching!",
+      "yourPassphrase": "Your passphrase:",
+      "revealNow": "Reveal now",
+      "lastRevealed": "Your passphrase was last revealed {when} from device <i>{name}</i> (ID: {id})."
+    },
+    "size": {
+      "title": "Size",
+      "note": "Change the size of your Shard. This sets the number of CPUs and the amount of RAM your Shard can use.",
+      "unlock": "To unlock larger sizes, please <a href=\"mailto:contact@freeshard.net\">contact us</a>.",
+      "resize": "Resize to {size} and restart",
+      "pending": "A size change is already pending; new resizes are disabled until it completes."
+    },
+    "language": {
+      "title": "Language",
+      "note": "Choose the language of this interface.",
+      "en": "English",
+      "de": "Deutsch"
+    },
+    "tours": {
+      "title": "Reset welcome screen",
+      "note": "Reset the welcome screen so you can look at it again.",
+      "reset": "Reset"
+    },
+    "about": {
+      "title": "About",
+      "machineId": "Machine ID",
+      "shardId": "Shard ID",
+      "owner": "Owner",
+      "ownerEmail": "Owner email",
+      "created": "Created",
+      "assigned": "Assigned",
+      "scheduledDelete": "Scheduled to delete",
+      "never": "never",
+      "uiVersion": "UI version",
+      "publicKey": "Public key"
+    }
+  },
+  "restart": {
+    "title": "Restarting Shard",
+    "triggered": "Shard restart was triggered",
+    "soon": "Restarting Shard soon",
+    "anySecond": "Any second now...",
+    "stillAlive": "Shard is still alive and kicking. Maybe something went wrong. Try again or <a href=\"mailto:contact@freeshard.net\">contact support</a>.",
+    "wentDown": "Shard went down, waiting for restart",
+    "bePatient": "Be patient, sometimes it may take a moment",
+    "lotToDo": "Perhaps this time there is a lot to do...",
+    "strange": "Something is strange, it usually does not take so long",
+    "wentWrong": "It seems like something went wrong. Better <a href=\"mailto:contact@freeshard.net\">contact support</a>.",
+    "reallyPatient": "Wow, you are really patient. But this Shard is most probably broken. You should really <a href=\"mailto:contact@freeshard.net\">contact support</a>.",
+    "knockKnock": "Knock knock! Is someone there? This Shard broke down and needs help. Please <a href=\"mailto:contact@freeshard.net\">contact support</a>."
+  },
+  "usage": {
+    "title": "Welcome to your Shard!",
+    "question": "What would you like to do?",
+    "intro": "Your shard offers a variety of apps for many different use cases. Here are a few that are particularly useful. You can also install these and more from the app store.",
+    "alreadyInstalled": "{name} is already installed",
+    "installs": "Installs {name}",
+    "nevermind": "Nevermind",
+    "installSelected": "Install selected apps",
+    "cases": {
+      "vaultwarden": {
+        "title": "Manage Passwords",
+        "text": "Keep your passwords on Shard, securely encrypted with your master password. Fill them easily using the browser extension and smartphone app. Secure your online life by easily using a different and strong password for every website."
+      },
+      "paperless-ngx": {
+        "title": "Digitize Physical Documents",
+        "text": "Replace your filing cabinet with Shard. Store your scanned physical documents and access them from anywhere. Sort and organize them by correspondent, type, date, tags, and other metadata. Search for text inside your documents."
+      },
+      "navidrome": {
+        "title": "Listen to Your MP3 Collection",
+        "text": "Upload your MP3 collection to Shard and listen to it from anywhere. Use the browser-based music player or any Subsonic client."
+      },
+      "linkding": {
+        "title": "Organize Bookmarks",
+        "text": "Store and organize your bookmarks on Shard. Tag them for easy search and retrieval. Use the browser extension to access them and easily add new ones."
+      },
+      "immich": {
+        "title": "Keep Photos and Videos",
+        "text": "Backup and organize the photos from your phone. View them in a timeline, by location, or by tags. Share galleries with others and allow them to upload their photos as well."
+      },
+      "actual": {
+        "title": "Get a Handle on Your Finances",
+        "text": "Save real money by tracking your expenses and income. Import your bank statements, categorize your transactions, and create net worth and cash flow reports. Plan ahead by setting budgets and goals using envelope budgeting."
+      }
+    }
+  },
+  "editable": {
+    "empty": "[empty]",
+    "edit": "Edit {title}",
+    "markdownHint": "<a href=\"https://www.markdownguide.org/\" target=\"_blank\" rel=\"noopener\">Markdown</a> is supported: # heading, **bold**, *italic*, &gt; quote, 1. list, * list, `code`, --- rule, [link](https://example.com)"
+  },
+  "toast": {
+    "installFailed": "Failed to install app {name}",
+    "installFailedShort": "Install failed",
+    "backupFailed": "Backup failed",
+    "backupDone": "Backup completed",
+    "backupStarted": "Backup started.",
+    "backupStartError": "Error during starting",
+    "loadError": "Error during loading",
+    "subError": "Subscription error",
+    "noApprovalUrl": "No approval URL returned.",
+    "toursReset": "Welcome screen reset.",
+    "resetError": "Error during resetting",
+    "resizeError": "Error during resize",
+    "avatarUploadFailed": "Avatar upload failed",
+    "avatarClearFailed": "Avatar clear failed",
+    "updateFailed": "Update failed"
+  }
+}
