@@ -110,7 +110,7 @@ class FsSparkline extends HTMLElement {
       ? `<circle cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="2" fill="${tip}"/>` : '';
 
     this.innerHTML = `
-      <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block">
+      <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
         <defs>
           <linearGradient id="${this.#gid}" gradientUnits="userSpaceOnUse"
               x1="0" y1="${padT}" x2="0" y2="${H - padB}">
@@ -123,7 +123,7 @@ class FsSparkline extends HTMLElement {
         <path d="${d.trim()}" fill="none" stroke="url(#${this.#gid})"
               stroke-width="${compact ? 1.6 : 2}" stroke-linecap="round" stroke-linejoin="round"/>
         ${latestDot}
-        <g class="spark-hover" style="display:none">
+        <g class="spark-hover" display="none">
           <line y1="0" y2="${H}" stroke="var(--line)" stroke-width="1" opacity=".5"/>
           <circle r="3" fill="${tip}"/>
           <rect rx="5" width="44" height="18" fill="var(--surface)" stroke="var(--border)"/>
@@ -137,7 +137,7 @@ class FsSparkline extends HTMLElement {
     const g = this.querySelector('.spark-hover');
     if (!g || !this._render_state) return;
     if (e === null || this.hasAttribute('compact')) {
-      g.style.display = 'none';
+      g.setAttribute('display', 'none');
       return;
     }
     const { pts, fmt, W } = this._render_state;
@@ -150,7 +150,7 @@ class FsSparkline extends HTMLElement {
     }
     if (!best) return;
     const [px, py, v] = best;
-    g.style.display = '';
+    g.removeAttribute('display');
     const [line, dot, box, text] = [
       g.querySelector('line'), g.querySelector('circle'),
       g.querySelector('rect'), g.querySelector('text')];

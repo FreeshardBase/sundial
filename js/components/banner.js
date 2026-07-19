@@ -1,7 +1,7 @@
 // CMS banner strip — time-windowed announcements from the Freeshard blob
 // (cnc/banners.json), markdown content, shown at the top of the page.
 
-import { marked } from 'marked';
+import { renderMarkdown } from '../sanitize.js';
 
 const BANNERS_URL = 'https://storageaccountportab0da.blob.core.windows.net/cnc/banners.json';
 
@@ -21,8 +21,7 @@ class FsBanner extends HTMLElement {
       if ((from && now < from) || (to && now > to)) continue;
       const div = document.createElement('div');
       div.className = `banner banner--${banner.variant || 'info'}`;
-      div.innerHTML = marked.parse(banner.content_md || '');
-      for (const a of div.querySelectorAll('a')) a.target = '_blank';
+      div.innerHTML = renderMarkdown(banner.content_md);
       this.replaceChildren(div);
     }
   }

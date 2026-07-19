@@ -10,7 +10,7 @@ import { icon } from '../components/icons.js';
 import { openModal } from '../components/modal.js';
 import { toastError, errorMessage } from '../components/toast.js';
 import { fetchStoreApps, storeIconUrl, storeInfo } from '../appstore.js';
-import { BUSY_STATUSES, VM_SIZES, appDisplayName, canBeStarted, openApp } from '../components/app-tile.js';
+import { BUSY_STATUSES, VM_SIZES, appDisplayName, attachIconFallback, canBeStarted, openApp } from '../components/app-tile.js';
 import { href } from '../router.js';
 import { t } from '../i18n.js';
 
@@ -114,6 +114,7 @@ class ViewApps extends FsElement {
           ? `<p class="alert alert--warn">${t('apps.storeLoadFailed')}</p>` : ''}
       </section>`;
 
+    attachIconFallback(this, 'store-card__fallback');
     this.querySelector('[data-act="refresh"]').addEventListener('click', () => this.refresh({ refreshStore: true }));
     this.querySelector('[data-act="dev-tools"]').addEventListener('click', () => this.openCustomAppModal());
     this.querySelector('[data-act="update-all"]')?.addEventListener('click', async () => {
@@ -132,13 +133,12 @@ class ViewApps extends FsElement {
   cardHtml(app, isInstalled) {
     const info = storeInfo(app);
     const busy = BUSY_STATUSES.includes(app.status);
-    const iconUrl = isInstalled ? `/core/protected/apps/${esc(app.name)}/icon` : storeIconUrl(app);
+    const iconUrl = isInstalled ? `/core/protected/apps/${encodeURIComponent(app.name)}/icon` : storeIconUrl(app);
     return `
       <button class="store-card fs-focusable" data-name="${esc(app.name)}" data-installed="${isInstalled}">
         <span class="store-card__icon">
           ${busy ? '<span class="fs-spinner"></span>'
-            : `<img src="${esc(iconUrl)}" alt="" loading="lazy"
-                    onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'store-card__fallback'}))">`}
+            : `<img src="${esc(iconUrl)}" alt="" loading="lazy" data-icon-fallback>`}
         </span>
         <span class="store-card__body">
           <span class="store-card__name">
@@ -156,7 +156,7 @@ class ViewApps extends FsElement {
 
   openDetails(app, isInstalled) {
     const info = storeInfo(app);
-    const iconUrl = isInstalled ? `/core/protected/apps/${esc(app.name)}/icon` : storeIconUrl(app);
+    const iconUrl = isInstalled ? `/core/protected/apps/${encodeURIComponent(app.name)}/icon` : storeIconUrl(app);
     const longDesc = Array.isArray(info.description_long)
       ? info.description_long
       : info.description_long ? [info.description_long] : [info.description_short];
@@ -165,8 +165,7 @@ class ViewApps extends FsElement {
     const body = document.createElement('div');
     body.innerHTML = `
       <div class="app-detail__head">
-        <img class="app-detail__icon" src="${esc(iconUrl)}" alt=""
-             onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'store-card__fallback'}))">
+        <img class="app-detail__icon" src="${esc(iconUrl)}" alt="" data-icon-fallback>
         <div>
           <h2>${esc(appDisplayName(app))}</h2>
           <p class="muted mono app-detail__status">
@@ -181,6 +180,7 @@ class ViewApps extends FsElement {
       ${longDesc.map((p) => `<p>${esc(p)}</p>`).join('')}
       ${hints.length ? `<div class="alert alert--info"><b>${t('apps.hints')}</b><ul>${hints.map((h) => `<li>${esc(h)}</li>`).join('')}</ul></div>` : ''}
       <p class="app-detail__error muted"></p>`;
+    attachIconFallback(body, 'store-card__fallback');
 
     const footer = document.createElement('div');
     const modal = openModal({ body, footer, size: 'lg' });

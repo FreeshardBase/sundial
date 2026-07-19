@@ -6,7 +6,7 @@ import { store, shortShardId } from '../store.js';
 import { queryMetaData } from '../actions.js';
 import { href } from '../router.js';
 import { icon } from '../components/icons.js';
-import { marked } from 'marked';
+import { renderMarkdown } from '../sanitize.js';
 import { t } from '../i18n.js';
 import '../components/avatar.js';
 import '../components/shard-badge.js';
@@ -25,7 +25,7 @@ class ViewWelcome extends FsElement {
         <fs-avatar src="/core/public/meta/avatar" name="${esc(identity.name)}" size="10rem"></fs-avatar>
         <h1>${esc(identity.name)}</h1>
         ${identity.email ? `<p><a href="mailto:${esc(identity.email)}">${esc(identity.email)}</a></p>` : ''}
-        <div class="welcome-desc">${marked.parse(identity.description || '')}</div>
+        <div class="welcome-desc">${renderMarkdown(identity.description)}</div>
         <div class="welcome-foot">
           <fs-shard-badge shard-id="${esc(shortShardId())}"></fs-shard-badge>
           ${is_anonymous

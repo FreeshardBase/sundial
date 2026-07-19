@@ -3,7 +3,7 @@
 import { FsElement } from '../components/base.js';
 import { store, shortShardId, tourSeen } from '../store.js';
 import { refreshApps, markTourSeen } from '../actions.js';
-import { formatRelative } from '../util.js';
+import { fillDiskBar, formatRelative } from '../util.js';
 import { href } from '../router.js';
 import { icon } from '../components/icons.js';
 import { t, fmtNumber } from '../i18n.js';
@@ -54,19 +54,18 @@ class ViewHome extends FsElement {
       <span class="app-tile__status"></span>
       <span class="app-tile__name">${t('home.addApp')}</span>`;
     grid.appendChild(add);
+    fillDiskBar(this.querySelector('.summary-disk .disk-bar__fill'), store.state.disk_usage);
   }
 
   summaryHtml() {
     const { terminals, disk_usage: du, profile } = store.state;
     const used = du.total_gb - du.free_gb;
-    const ratio = du.total_gb > 0 ? used / du.total_gb : 0;
-    const tone = du.disk_space_low ? 'var(--danger)' : du.disk_space_warning ? 'var(--accent)' : 'var(--data)';
     const rows = [];
     const gb = (v) => fmtNumber(v, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     rows.push(`
       <div class="summary-row">
         <span class="fs-label">${t('home.diskLabel')}</span>
-        <div class="disk-bar summary-disk"><div class="disk-bar__fill" style="width:${(ratio * 100).toFixed(2)}%;background:${tone}"></div></div>
+        <div class="disk-bar summary-disk"><div class="disk-bar__fill"></div></div>
         <span class="mono">${gb(used)} / ${gb(du.total_gb)} GiB</span>
       </div>`);
     rows.push(`

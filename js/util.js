@@ -36,6 +36,17 @@ export function formatRelative(value, now = Date.now()) {
   return ms <= 0 ? t('common.justNow') : t('common.inMoments');
 }
 
+// Disk-usage bar fill, set via CSSOM — inline style= attributes are barred
+// by the CSP (style-src 'self').
+export function fillDiskBar(fill, du) {
+  if (!fill) return;
+  const used = du.total_gb - du.free_gb;
+  const ratio = du.total_gb > 0 ? used / du.total_gb : 0;
+  fill.style.width = `${(ratio * 100).toFixed(2)}%`;
+  fill.style.background = du.disk_space_low ? 'var(--danger)'
+    : du.disk_space_warning ? 'var(--accent)' : 'var(--data)';
+}
+
 // Device object for pairing, from the user agent (replaces mobile-device-detect).
 export function makeDeviceObject() {
   const ua = navigator.userAgent;
