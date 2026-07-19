@@ -26,6 +26,8 @@ test('every served JS/CSS/JSON/HTML file is byte-identical to the repo file', as
   const files = [
     'index.html',
     'version.json',
+    'manifest.webmanifest',
+    'sw.js',
     ...await listFiles('js', ['.js', '.json']),
     ...await listFiles('css', ['.css']),
     ...await listFiles('vendor', ['.js', '.mjs']),
