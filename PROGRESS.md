@@ -43,7 +43,8 @@ See docs/security-audit.md for the full write-up. Summary:
 
 ## In flight
 
-- Final full-suite run + commit on feat/security.
+- nothing — DONE. Full suite green (58 unit + 34 e2e + check_i18n), headers
+  curl-verified, committed as 03b74e5 on feat/security. SEC_OUTCOME: done.
 
 ## Blockers
 
