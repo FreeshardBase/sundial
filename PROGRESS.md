@@ -42,7 +42,8 @@ Previous sessions (rewrite, i18n, tests+CI, security) complete; git history.
 
 ## In flight
 
-- nothing — implementation + verification complete; committing.
+- nothing — DONE. Committed as 8780d16 on feat/pwa-installable.
+  PWA_OUTCOME: done.
 
 ## Blockers
 
