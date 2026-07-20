@@ -8,6 +8,7 @@ import * as api from '../api/client.js';
 import { href } from '../router.js';
 import { icon } from '../components/icons.js';
 import { toastError, errorMessage } from '../components/toast.js';
+import { t } from '../i18n.js';
 import '../components/avatar.js';
 import '../components/editable-text.js';
 
@@ -16,8 +17,7 @@ class ViewPublic extends FsElement {
   #avatarRef = `/core/protected/identities/default/avatar?${performance.now()}`;
 
   async connectedCallback() {
-    document.title = `Shard [${shortShardId()}] - Profile`;
-    this.render();
+    this.watch('locale', () => this.render());
     await this.refresh();
   }
 
@@ -33,28 +33,28 @@ class ViewPublic extends FsElement {
   }
 
   render() {
+    document.title = t('title.public', { id: shortShardId() });
     const id = this.#identity;
     this.innerHTML = `
-      <div class="page-title"><h1>Public view</h1></div>
+      <div class="page-title"><h1>${t('public.title')}</h1></div>
       <p class="alert alert--info public-note">${icon('warn')}
-        This information about yourself is visible on your
-        <a href="${href('welcome')}" target="_blank">public page ${icon('open')}</a>.
+        ${t('public.visibleNote', { link: `<a href="${href('welcome')}" target="_blank">${t('public.publicPage')} ${icon('open')}</a>` })}
       </p>
       <div class="public-avatar">
-        <span class="fs-label">Image</span>
+        <span class="fs-label">${t('public.image')}</span>
         <fs-avatar src="${esc(this.#avatarRef)}" name="${esc(id.name)}" size="7rem"></fs-avatar>
         <div class="public-avatar__controls">
           <input type="file" accept="image/*" class="avatar-file">
-          <p class="muted">${icon('warn')} Image must be square or it will be distorted.</p>
+          <p class="muted">${icon('warn')} ${t('public.squareWarning')}</p>
           <div>
-            <button class="fs-btn avatar-upload" disabled>${icon('upload')} Upload</button>
-            <button class="fs-btn fs-btn--danger avatar-clear">${icon('trash')} Clear</button>
+            <button class="fs-btn avatar-upload" disabled>${icon('upload')} ${t('public.upload')}</button>
+            <button class="fs-btn fs-btn--danger avatar-clear">${icon('trash')} ${t('public.clear')}</button>
           </div>
         </div>
       </div>
-      <fs-editable-text id="f-name" title="Name" value="${esc(id.name)}"></fs-editable-text>
-      <fs-editable-text id="f-email" title="Email" value="${esc(id.email)}"></fs-editable-text>
-      <fs-editable-text id="f-description" title="Description" value="${esc(id.description)}" rows="5"></fs-editable-text>`;
+      <fs-editable-text id="f-name" title="${t('public.name')}" value="${esc(id.name)}"></fs-editable-text>
+      <fs-editable-text id="f-email" title="${t('public.email')}" value="${esc(id.email)}"></fs-editable-text>
+      <fs-editable-text id="f-description" title="${t('public.description')}" value="${esc(id.description)}" rows="5"></fs-editable-text>`;
 
     const file = this.querySelector('.avatar-file');
     const upload = this.querySelector('.avatar-upload');
@@ -66,7 +66,7 @@ class ViewPublic extends FsElement {
         await api.putDefaultAvatar(form);
         this.refreshAvatar();
       } catch (e) {
-        toastError('Avatar upload failed', errorMessage(e));
+        toastError(t('toast.avatarUploadFailed'), errorMessage(e));
       }
     });
     this.querySelector('.avatar-clear').addEventListener('click', async () => {
@@ -74,7 +74,7 @@ class ViewPublic extends FsElement {
         await api.deleteDefaultAvatar();
         this.refreshAvatar();
       } catch (e) {
-        toastError('Avatar clear failed', errorMessage(e));
+        toastError(t('toast.avatarClearFailed'), errorMessage(e));
       }
     });
 
@@ -85,7 +85,7 @@ class ViewPublic extends FsElement {
           e.detail.done();
           await this.refresh();
         } catch (err) {
-          toastError('Update failed', errorMessage(err));
+          toastError(t('toast.updateFailed'), errorMessage(err));
           e.detail.done();
         }
       });

@@ -3,6 +3,7 @@
 // Never poke another component's DOM; go through the store.
 
 const initial = {
+  locale: 'en',         // active UI language; set via i18n.js only
   meta: {
     is_anonymous: true,
     device_id: 'unknown',

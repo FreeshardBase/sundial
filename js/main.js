@@ -7,6 +7,7 @@ import { startWebSocket, onMessage } from './ws.js';
 import { toastSuccess, toastError } from './components/toast.js';
 import { startKeynav } from './keynav.js';
 import { startMetrics } from './metrics.js';
+import { initI18n, t } from './i18n.js';
 
 import './components/dock.js';
 import './components/banner.js';
@@ -34,6 +35,7 @@ defineRoutes({
 
 async function boot() {
   await Promise.all([
+    initI18n().catch((e) => console.error('i18n init failed', e)),
     actions.queryMetaData().catch((e) => console.log('meta', e)),
     actions.queryTours().catch(() => console.error('Failed to load tours')),
     actions.queryProfile().catch(() => console.error('Failed to load profile')),
@@ -57,10 +59,10 @@ async function boot() {
   const maybeStartMetrics = () => { if (!store.state.meta.is_anonymous) startMetrics(); };
   store.subscribe('meta', maybeStartMetrics);
   maybeStartMetrics();
-  onMessage('app_install_error', (m) => toastError(`Failed to install app ${m.name}`, m.error));
+  onMessage('app_install_error', (m) => toastError(t('toast.installFailed', { name: m.name }), m.error));
   onMessage('backup_update', (m) => {
-    if (m?.error) toastError('Backup failed', m.error);
-    else toastSuccess('Backup completed');
+    if (m?.error) toastError(t('toast.backupFailed'), m.error);
+    else toastSuccess(t('toast.backupDone'));
   });
 
   setInterval(() => actions.queryUiVersion(), 60_000);

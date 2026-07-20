@@ -25,12 +25,43 @@ Vanilla HTML/CSS/JS, native ES modules, light-DOM custom elements + CSS `@scope`
   `client.js` GENERATED — do not hand-edit; regenerate with `tools/gen_client.py`.
 - `js/views/*.js` — one custom element per route.
 - `js/components/*.js` — shared custom elements (dock, badge, sparkline, avatar, editable-text, ...).
+- `js/i18n.js` + `js/i18n/{en,de}.json` — internationalization (see below).
 - Style isolation: light-DOM custom elements + `@scope (fs-xyz) { ... }` blocks in component CSS.
 - Fonts self-hosted: Inter + IBM Plex Mono woff2 in `assets/fonts/`.
+
+## i18n (EN + DE)
+
+- No-build: hand-rolled JSON catalogs `js/i18n/en.json` (source) + `de.json`,
+  fetched at boot by `initI18n()`; `t(key, params)` in `js/i18n.js`. No i18n libs.
+- Catalog values may contain trusted HTML (links, <b>). `{param}` placeholders are
+  HTML-escaped; `{!param}` inserts raw (for pre-built markup like links). Plural
+  values are objects `{ one, other }` selected via `Intl.PluralRules` on `params.count`.
+- Active locale lives in the store (`locale`). `FsElement.watch()` implicitly
+  subscribes to `'locale'`, so every watching component re-renders on switch; views
+  that render imperatively call `this.watch('locale', ...)`; the dock adds `'locale'`
+  to its own subscribe list. Set `document.title` inside `render()`, not
+  `connectedCallback()`, so titles re-translate.
+- Detection at boot: `GET /protected/preferences` → `{ language }`
+  (freeshard#168 — endpoint NOT implemented server-side yet, 404/HTML fallback is
+  the normal case) → `localStorage['sundial.locale']` → `navigator.language` → `en`.
+  Client: `js/api/preferences.js` (hand-written, isolated; swap for the generated
+  client once #168 ships).
+- Settings has a language card; switching calls `setLocale()`: store + localStorage
+  + fire-and-forget `PUT /protected/preferences`.
+- All date/number/currency formatting goes through `Intl` bound to the active locale:
+  `fmtNumber/fmtPercent/fmtCurrencyEur` (i18n.js), `formatRelative` (util.js),
+  `formatBytes` (metrics.js).
+- Adding a language: add `js/i18n/<code>.json` (translate every key of en.json),
+  add the code to `SUPPORTED_LOCALES` + `INTL_TAGS` in i18n.js, add
+  `settings.language.<code>` label keys to ALL catalogs. Run `python3
+  tools/check_i18n.py` (t()-key/catalog consistency, both directions) — it and
+  `just check` must stay clean.
+- DE catalog is AI-generated (du-form) — pending native review by Max.
 
 ## Commands
 
 - `just serve` — static server on :8021 (dev, proxies /core to a live shard).
+- `python3 tools/check_i18n.py` — i18n key consistency (t() calls vs catalogs).
 - `tools/gen_client.py` — regenerate `js/api/client.js` from `js/api/openapi.json`.
 - Dump fresh spec: in `~/projects/freeshard/freeshard`:
   `uv run python -c "from shard_core.app_factory import create_app; import json; print(json.dumps(create_app().openapi()))"`

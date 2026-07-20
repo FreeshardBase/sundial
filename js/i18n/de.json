@@ -1,0 +1,317 @@
+{
+  "title": {
+    "home": "Shard [{id}] - Startseite",
+    "welcome": "Shard [{id}] - Willkommen",
+    "pair": "Shard [{id}] - Hallo",
+    "terminals": "Shard [{id}] - Geräte",
+    "apps": "Shard [{id}] - Apps",
+    "settings": "Shard [{id}] - Einstellungen",
+    "peers": "Shard [{id}] - Peers",
+    "public": "Shard [{id}] - Profil",
+    "restart": "Shard [{id}] - Neustart"
+  },
+  "common": {
+    "justNow": "gerade eben",
+    "inMoments": "gleich",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "refresh": "Aktualisieren",
+    "close": "Schließen",
+    "unknown": "unbekannt"
+  },
+  "dock": {
+    "mainNav": "Hauptnavigation",
+    "home": "Start",
+    "apps": "Apps",
+    "devices": "Geräte",
+    "public": "Öffentlich",
+    "settings": "Einstellungen",
+    "noConnection": "Keine Verbindung zum Shard, versuche erneut...",
+    "refreshUpdate": "Neu laden für Update auf {version}",
+    "diskLow": "Speicherplatz kritisch knapp. Alle Apps wurden gestoppt.",
+    "diskWarn": "Der Speicherplatz wird knapp.",
+    "feedback": "Feedback",
+    "themeLight": "Zum hellen Design wechseln",
+    "themeDark": "Zum dunklen Design wechseln",
+    "classic": "Klassische UI",
+    "classicTitle": "Zurück zur klassischen Oberfläche"
+  },
+  "feedback": {
+    "title": "Kurzes Feedback",
+    "placeholder": "Was liegt dir auf dem Herzen?",
+    "note": "Was du hier schreibst, ist eine einmalige Nachricht an uns — wir können darauf derzeit nicht direkt antworten. Für ausführlicheres Feedback oder einen Dialog kannst du uns <a href=\"mailto:contact@freeshard.net\">schreiben</a> oder unseren <a href=\"https://discord.gg/ZXQDuTGcCf\" target=\"_blank\" rel=\"noopener\">Discord</a> besuchen.",
+    "send": "Senden",
+    "sending": "Wird gesendet…",
+    "sent": "✓ Gesendet",
+    "failedRetry": "Fehlgeschlagen — erneut versuchen"
+  },
+  "home": {
+    "appsLabel": "apps",
+    "running": {
+      "one": "{count} läuft",
+      "other": "{count} laufen"
+    },
+    "addApp": "App hinzufügen",
+    "shardLabel": "shard",
+    "diskLabel": "festplatte",
+    "devicesLabel": "geräte",
+    "paired": "{count} gekoppelt",
+    "manage": "Verwalten",
+    "trialLabel": "testphase",
+    "trialDelete": "Shard wird {when} gelöscht",
+    "subscribe": "Abonnieren",
+    "openApp": "{name} öffnen",
+    "sizeBlocked": "Diese App benötigt einen Shard der Größe {!min} oder größer — aktuelle Größe: {!current}.",
+    "upgradeShard": "Shard vergrößern"
+  },
+  "monitor": {
+    "label": "ressourcen",
+    "window": "letzte {minutes} Min.",
+    "cpu": "cpu",
+    "memory": "arbeitsspeicher",
+    "measuring": "Messe…",
+    "unsupported": "Live-Überwachung von CPU und Arbeitsspeicher braucht einen neueren Shard-Core — sie erscheint hier, sobald dein Shard sie unterstützt."
+  },
+  "welcome": {
+    "pair": "Koppeln",
+    "edit": "Bearbeiten",
+    "learnMore": "<a href=\"https://freeshard.net\" target=\"_blank\" rel=\"noopener\">Mehr erfahren</a> über Shard"
+  },
+  "pair": {
+    "title": "Diesen Browser koppeln",
+    "thisShardIs": "Dieser Shard ist",
+    "enterCode": "Kopplungscode eingeben",
+    "pairButton": "Koppeln",
+    "genericBrowser": "Browser",
+    "unknownOs": "Unbekanntes OS",
+    "deviceName": "{browser} auf {os}"
+  },
+  "terminals": {
+    "title": "Geräte",
+    "pairNew": "Neues Gerät koppeln",
+    "thisBadge": "dieses",
+    "prevIcon": "Vorheriges Symbol",
+    "nextIcon": "Nächstes Symbol",
+    "editDevice": "Gerät bearbeiten",
+    "removeDevice": "Gerät entfernen",
+    "lastConnection": "Letzte Verbindung: {when}",
+    "lastConnectionUnknown": "Letzte Verbindung: unbekannt",
+    "scanQr": "Scanne diesen QR-Code mit einem anderen Gerät, um es zu koppeln",
+    "qrLabel": "Kopplungs-QR-Code",
+    "or": "oder",
+    "navigateTo": "Öffne {!link} und verwende den einmaligen Kopplungscode",
+    "codeExpired": "Kopplungscode abgelaufen"
+  },
+  "apps": {
+    "title": "Apps",
+    "refreshStore": "App-Store aktualisieren",
+    "devTools": "Werkzeuge für App-Entwickler",
+    "updatesAvailable": {
+      "one": "Für eine App ist ein Update verfügbar.",
+      "other": "Für {count} Apps sind Updates verfügbar."
+    },
+    "updateAll": {
+      "one": "Aktualisieren",
+      "other": "Alle aktualisieren"
+    },
+    "installedLabel": "installiert",
+    "availableLabel": "verfügbar",
+    "noneInstalled": "Noch keine Apps installiert.",
+    "storeLoadFailed": "Der App-Store konnte nicht geladen werden.",
+    "featured": "Empfohlene App",
+    "updateAvailable": "Update verfügbar",
+    "needsLarger": "Benötigt einen größeren Shard",
+    "errorState": "App ist im Fehlerzustand",
+    "notInstalled": "nicht installiert",
+    "customApp": "Eigene App",
+    "preconfiguredApp": "Vorkonfigurierte App",
+    "featuredNote": "Empfohlen — gut in Freeshard integriert und von uns empfohlen.",
+    "hints": "Hinweise",
+    "upgradeNeeded": "Um diese App zu nutzen, musst du {!link} — mindestens auf Größe <b>{size}</b>.",
+    "upgradeLinkText": "deinen Shard vergrößern",
+    "update": "Aktualisieren",
+    "reinstall": "Neu installieren",
+    "remove": "Entfernen",
+    "open": "Öffnen",
+    "install": "Installieren",
+    "installing": "Installiere {name}...",
+    "removing": "Entferne {name}...",
+    "updating": "Aktualisiere {name}...",
+    "customTitle": "Eigene App installieren",
+    "customIntro": "Eigene Apps sind Apps, die nicht im App-Store sind. In der Dokumentation steht, wie du eine <a href=\"https://docs.freeshard.net/developer_docs/custom_apps/\" target=\"_blank\" rel=\"noopener\">erstellst</a>.",
+    "customWarning": "Eigene Apps werden von uns nicht überprüft. Sie können deiner Shard-Instanz ernsthaft schaden. Stelle sicher, dass du der Quelle der App vertraust.",
+    "unknownApp": "Unbekannte App"
+  },
+  "peers": {
+    "title": "Peers",
+    "idPlaceholder": "Peer-ID",
+    "add": "Hinzufügen",
+    "addPeer": "Peer hinzufügen",
+    "unknown": "[Unbekannt]",
+    "refreshPeer": "Peer aktualisieren",
+    "deletePeer": "Peer löschen",
+    "none": "Noch keine Peers."
+  },
+  "public": {
+    "title": "Öffentliche Ansicht",
+    "visibleNote": "Diese Informationen über dich sind auf deiner {!link} sichtbar.",
+    "publicPage": "öffentlichen Seite",
+    "image": "Bild",
+    "squareWarning": "Das Bild muss quadratisch sein, sonst wird es verzerrt.",
+    "upload": "Hochladen",
+    "clear": "Entfernen",
+    "name": "Name",
+    "email": "E-Mail",
+    "description": "Beschreibung"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "profileUnavailable": "Einige Metadaten dieses Shards konnten nicht geladen werden, daher sind manche Einstellungen nicht verfügbar.",
+    "sub": {
+      "title": "Abonnement",
+      "cancelled": "Abo wurde gekündigt. Du kannst jederzeit wieder abonnieren.",
+      "willBeDeleted": "Dein Shard wird {!when} gelöscht.",
+      "subscribeToKeep": "Abonniere, damit dein Shard weiterläuft.",
+      "activating": "Abo wird aktiviert…",
+      "plan": "Tarif: {!size} — {price}/Monat",
+      "nextCharge": "Nächste Abbuchung {when}.",
+      "billedTo": "Abgerechnet über {email}.",
+      "upgradePending": "Upgrade ausstehend: {!size} für {price}/Monat.",
+      "managePaypal": "Bei PayPal verwalten",
+      "paymentFailed": "Zahlung fehlgeschlagen {when}.",
+      "ended": "Abo endete {when}.",
+      "inactive": "Das Abo ist nicht mehr aktiv.",
+      "willStop": "Dein Shard wird {!when} angehalten.",
+      "subscribe": "Abonnieren — {price}/Monat",
+      "reactivate": "Reaktivieren — {price}/Monat"
+    },
+    "disk": {
+      "title": "Speicherplatz",
+      "usedLabel": "{pct} belegt",
+      "usage": "{used} GiB von {total} GiB belegt · {pct}",
+      "low": "Speicherplatz kritisch knapp. Alle Apps wurden gestoppt. Bitte erweitere deinen Speicherplatz oder <a href=\"mailto:contact@freeshard.net\">kontaktiere uns</a> für Hilfe.",
+      "warning": "Der Speicherplatz wird knapp. Wird er kritisch, werden alle Apps gestoppt, um Datenverlust zu verhindern. Du solltest ungenutzte Daten aufräumen oder deinen Speicherplatz erweitern.",
+      "pruneNote": "Räume ungenutzte Daten auf, um Speicherplatz freizugeben. Das passiert auch automatisch jede Nacht.",
+      "prune": "Aufräumen",
+      "pruneDone": "Fertig",
+      "pruneError": "Fehler beim Aufräumen"
+    },
+    "backup": {
+      "title": "Backup",
+      "nightly": "Ein Backup wird automatisch jede Nacht erstellt. Neue Backups überschreiben die alten. Auch nachdem dein Shard gelöscht wurde, kannst du weiterhin auf deine Backups zugreifen.",
+      "selfService": "Wir arbeiten derzeit an Self-Service-Zugriff auf deine Backups. Bis dahin <a href=\"mailto:contact@freeshard.net\">kontaktiere uns</a> bitte, wenn du Zugriff brauchst — wir führen dich durch den Prozess.",
+      "showStats": "Letzte Backup-Statistik anzeigen",
+      "startNow": "Backup jetzt starten",
+      "noneYet": "Es wurde noch kein Backup erstellt.",
+      "passphraseNote": "Backups werden auf diesem Shard verschlüsselt, bevor sie zum Backup-Server geschickt werden. Der Schlüssel ist deine persönliche Passphrase. Um später auf deine Backups zugreifen zu können, ist es essenziell, <b>deine Passphrase aufzuschreiben</b>. Wenn du sie verlierst, kommst du nicht mehr an deine Backups. Es gibt keinen anderen Weg, sie wiederherzustellen.",
+      "neverViewed": "Du hast deine Passphrase noch nie angesehen. Bitte schreib sie so bald wie möglich auf.",
+      "reveal": "Passphrase anzeigen",
+      "sensitive": "Das ist eine sehr sensible Information. Stell sicher, dass niemand sonst zusieht!",
+      "yourPassphrase": "Deine Passphrase:",
+      "revealNow": "Jetzt anzeigen",
+      "lastRevealed": "Deine Passphrase wurde zuletzt {when} vom Gerät <i>{name}</i> (ID: {id}) angezeigt."
+    },
+    "size": {
+      "title": "Größe",
+      "note": "Ändere die Größe deines Shards. Das bestimmt die Anzahl der CPUs und die Menge an RAM, die dein Shard nutzen kann.",
+      "unlock": "Um größere Größen freizuschalten, <a href=\"mailto:contact@freeshard.net\">kontaktiere uns</a> bitte.",
+      "resize": "Auf {size} ändern und neu starten",
+      "pending": "Eine Größenänderung läuft bereits; weitere sind deaktiviert, bis sie abgeschlossen ist."
+    },
+    "language": {
+      "title": "Sprache",
+      "note": "Wähle die Sprache dieser Oberfläche.",
+      "en": "English",
+      "de": "Deutsch"
+    },
+    "tours": {
+      "title": "Willkommensbildschirm zurücksetzen",
+      "note": "Setze den Willkommensbildschirm zurück, um ihn noch einmal anzusehen.",
+      "reset": "Zurücksetzen"
+    },
+    "about": {
+      "title": "Über",
+      "machineId": "Maschinen-ID",
+      "shardId": "Shard-ID",
+      "owner": "Eigentümer",
+      "ownerEmail": "E-Mail des Eigentümers",
+      "created": "Erstellt",
+      "assigned": "Zugewiesen",
+      "scheduledDelete": "Löschung geplant",
+      "never": "nie",
+      "uiVersion": "UI-Version",
+      "publicKey": "Öffentlicher Schlüssel"
+    }
+  },
+  "restart": {
+    "title": "Shard startet neu",
+    "triggered": "Shard-Neustart wurde ausgelöst",
+    "soon": "Shard startet gleich neu",
+    "anySecond": "Jeden Moment...",
+    "stillAlive": "Shard läuft munter weiter. Vielleicht ist etwas schiefgegangen. Versuch es erneut oder <a href=\"mailto:contact@freeshard.net\">kontaktiere den Support</a>.",
+    "wentDown": "Shard ist heruntergefahren, warte auf den Neustart",
+    "bePatient": "Etwas Geduld, manchmal dauert es einen Moment",
+    "lotToDo": "Vielleicht gibt es diesmal viel zu tun...",
+    "strange": "Seltsam, normalerweise dauert es nicht so lange",
+    "wentWrong": "Sieht so aus, als wäre etwas schiefgegangen. Besser den <a href=\"mailto:contact@freeshard.net\">Support kontaktieren</a>.",
+    "reallyPatient": "Wow, du bist wirklich geduldig. Aber dieser Shard ist höchstwahrscheinlich kaputt. Du solltest wirklich den <a href=\"mailto:contact@freeshard.net\">Support kontaktieren</a>.",
+    "knockKnock": "Klopf klopf! Ist da jemand? Dieser Shard ist kaputt und braucht Hilfe. Bitte <a href=\"mailto:contact@freeshard.net\">kontaktiere den Support</a>."
+  },
+  "usage": {
+    "title": "Willkommen auf deinem Shard!",
+    "question": "Was möchtest du tun?",
+    "intro": "Dein Shard bietet eine Vielzahl von Apps für viele verschiedene Anwendungsfälle. Hier sind ein paar besonders nützliche. Diese und mehr kannst du auch aus dem App-Store installieren.",
+    "alreadyInstalled": "{name} ist bereits installiert",
+    "installs": "Installiert {name}",
+    "nevermind": "Vielleicht später",
+    "installSelected": "Ausgewählte Apps installieren",
+    "cases": {
+      "vaultwarden": {
+        "title": "Passwörter verwalten",
+        "text": "Bewahre deine Passwörter auf Shard auf, sicher verschlüsselt mit deinem Master-Passwort. Fülle sie bequem per Browser-Erweiterung und Smartphone-App aus. Sichere dein Online-Leben, indem du ganz einfach für jede Website ein eigenes, starkes Passwort verwendest."
+      },
+      "paperless-ngx": {
+        "title": "Papierdokumente digitalisieren",
+        "text": "Ersetze deinen Aktenschrank durch Shard. Speichere deine gescannten Dokumente und greife von überall darauf zu. Sortiere und organisiere sie nach Korrespondent, Typ, Datum, Tags und weiteren Metadaten. Durchsuche den Text in deinen Dokumenten."
+      },
+      "navidrome": {
+        "title": "Deine MP3-Sammlung hören",
+        "text": "Lade deine MP3-Sammlung auf Shard hoch und höre sie von überall. Nutze den browserbasierten Musikplayer oder einen beliebigen Subsonic-Client."
+      },
+      "linkding": {
+        "title": "Lesezeichen organisieren",
+        "text": "Speichere und organisiere deine Lesezeichen auf Shard. Versieh sie mit Tags für einfaches Suchen und Wiederfinden. Greife per Browser-Erweiterung darauf zu und füge bequem neue hinzu."
+      },
+      "immich": {
+        "title": "Fotos und Videos aufbewahren",
+        "text": "Sichere und organisiere die Fotos von deinem Handy. Betrachte sie in einer Zeitleiste, nach Ort oder nach Tags. Teile Galerien mit anderen und lass sie auch eigene Fotos hochladen."
+      },
+      "actual": {
+        "title": "Deine Finanzen im Griff",
+        "text": "Spare echtes Geld, indem du Ausgaben und Einnahmen im Blick behältst. Importiere deine Kontoauszüge, kategorisiere deine Buchungen und erstelle Vermögens- und Cashflow-Berichte. Plane voraus mit Budgets und Zielen nach dem Umschlag-Prinzip."
+      }
+    }
+  },
+  "editable": {
+    "empty": "[leer]",
+    "edit": "{title} bearbeiten",
+    "markdownHint": "<a href=\"https://www.markdownguide.org/\" target=\"_blank\" rel=\"noopener\">Markdown</a> wird unterstützt: # Überschrift, **fett**, *kursiv*, &gt; Zitat, 1. Liste, * Liste, `code`, --- Linie, [Link](https://example.com)"
+  },
+  "toast": {
+    "installFailed": "Installation von App {name} fehlgeschlagen",
+    "installFailedShort": "Installation fehlgeschlagen",
+    "backupFailed": "Backup fehlgeschlagen",
+    "backupDone": "Backup abgeschlossen",
+    "backupStarted": "Backup gestartet.",
+    "backupStartError": "Fehler beim Starten",
+    "loadError": "Fehler beim Laden",
+    "subError": "Abo-Fehler",
+    "noApprovalUrl": "Keine Bestätigungs-URL erhalten.",
+    "toursReset": "Willkommensbildschirm zurückgesetzt.",
+    "resetError": "Fehler beim Zurücksetzen",
+    "resizeError": "Fehler bei der Größenänderung",
+    "avatarUploadFailed": "Avatar-Upload fehlgeschlagen",
+    "avatarClearFailed": "Avatar konnte nicht entfernt werden",
+    "updateFailed": "Aktualisierung fehlgeschlagen"
+  }
+}

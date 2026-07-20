@@ -8,8 +8,11 @@ export class FsElement extends HTMLElement {
   #timers = [];
 
   // Re-run fn when any of the store keys change. fn runs immediately once.
+  // 'locale' is always included, so every watching component re-renders
+  // when the UI language changes.
   watch(keys, fn) {
-    this.#unsubs.push(store.subscribe(keys, fn));
+    const list = [...new Set([...(Array.isArray(keys) ? keys : [keys]), 'locale'])];
+    this.#unsubs.push(store.subscribe(list, fn));
     fn(store.state);
   }
 

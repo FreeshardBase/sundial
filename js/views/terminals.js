@@ -10,31 +10,32 @@ import { openModal } from '../components/modal.js';
 import { formatRelative, parseUtc } from '../util.js';
 import { onMessage } from '../ws.js';
 import { generate } from 'lean-qr';
+import { t } from '../i18n.js';
 
 class ViewTerminals extends FsElement {
   #editing = new Map();   // id -> { name, icon, syncing }
 
   connectedCallback() {
-    document.title = `Shard [${shortShardId()}] - Devices`;
     this.watch(['terminals'], () => this.render());
     this.every(30_000, () => this.renderTimes());
     refreshTerminals().catch(() => {});
   }
 
   render() {
+    document.title = t('title.terminals', { id: shortShardId() });
     const terminals = store.state.terminals;
     this.innerHTML = `
-      <div class="page-title"><h1>Devices</h1></div>
+      <div class="page-title"><h1>${t('terminals.title')}</h1></div>
       <div class="terminal-grid">
-        ${terminals.map((t) => this.cardHtml(t)).join('')}
+        ${terminals.map((term) => this.cardHtml(term)).join('')}
       </div>
       <div class="terminal-actions">
-        <button class="fs-btn fs-btn--primary fs-focusable pair-new">${icon('plus')} Pair new device</button>
+        <button class="fs-btn fs-btn--primary fs-focusable pair-new">${icon('plus')} ${t('terminals.pairNew')}</button>
       </div>`;
 
     this.querySelector('.pair-new').addEventListener('click', () => this.startPairing());
     for (const card of this.querySelectorAll('.terminal-card')) {
-      this.wireCard(card, terminals.find((t) => t.id === card.dataset.id));
+      this.wireCard(card, terminals.find((term) => term.id === card.dataset.id));
     }
   }
 
@@ -42,60 +43,60 @@ class ViewTerminals extends FsElement {
     return ['smartphone', 'tablet', 'notebook', 'desktop'].includes(name) ? name : 'box';
   }
 
-  cardHtml(t) {
-    const edit = this.#editing.get(t.id);
-    const isThis = store.state.meta.device_id.substring(0, 6) === t.id;
-    const glyph = this.deviceIcon(edit ? edit.icon : t.icon);
+  cardHtml(term) {
+    const edit = this.#editing.get(term.id);
+    const isThis = store.state.meta.device_id.substring(0, 6) === term.id;
+    const glyph = this.deviceIcon(edit ? edit.icon : term.icon);
     return `
-      <div class="terminal-card fs-sheet" data-id="${esc(t.id)}">
+      <div class="terminal-card fs-sheet" data-id="${esc(term.id)}">
         <div class="terminal-card__icon">
           ${icon(glyph, 'icon--xl')}
           ${edit ? `
             <span class="terminal-card__rotate">
-              <button class="icon-btn" data-act="icon-prev" aria-label="Previous icon">${icon('left')}</button>
-              <button class="icon-btn" data-act="icon-next" aria-label="Next icon">${icon('right')}</button>
+              <button class="icon-btn" data-act="icon-prev" aria-label="${t('terminals.prevIcon')}">${icon('left')}</button>
+              <button class="icon-btn" data-act="icon-next" aria-label="${t('terminals.nextIcon')}">${icon('right')}</button>
             </span>` : ''}
-          ${isThis && !edit ? '<span class="terminal-card__this fs-label">this</span>' : ''}
+          ${isThis && !edit ? `<span class="terminal-card__this fs-label">${t('terminals.thisBadge')}</span>` : ''}
         </div>
         <div class="terminal-card__body">
           ${edit
             ? `<input class="fs-input" data-field="name" ${edit.syncing ? 'disabled' : ''}>`
-            : `<h3 class="terminal-card__name">${esc(t.name)}</h3>`}
-          <p class="muted terminal-card__time" data-ts="${esc(t.last_connection || '')}">${this.timeText(t)}</p>
+            : `<h3 class="terminal-card__name">${esc(term.name)}</h3>`}
+          <p class="muted terminal-card__time" data-ts="${esc(term.last_connection || '')}">${this.timeText(term)}</p>
         </div>
         <div class="terminal-card__controls">
           ${edit ? `
-            <button class="icon-btn" data-act="cancel" aria-label="Cancel">${icon('x')}</button>
-            <button class="icon-btn icon-btn--ok" data-act="confirm" aria-label="Save">${icon('check')}</button>
-            ${!isThis ? `<button class="icon-btn icon-btn--danger" data-act="delete" aria-label="Remove device">${icon('trash')}</button>` : ''}
+            <button class="icon-btn" data-act="cancel" aria-label="${t('common.cancel')}">${icon('x')}</button>
+            <button class="icon-btn icon-btn--ok" data-act="confirm" aria-label="${t('common.save')}">${icon('check')}</button>
+            ${!isThis ? `<button class="icon-btn icon-btn--danger" data-act="delete" aria-label="${t('terminals.removeDevice')}">${icon('trash')}</button>` : ''}
           ` : `
-            <button class="icon-btn fs-focusable" data-act="edit" aria-label="Edit device">${icon('pencil')}</button>
+            <button class="icon-btn fs-focusable" data-act="edit" aria-label="${t('terminals.editDevice')}">${icon('pencil')}</button>
           `}
         </div>
       </div>`;
   }
 
-  timeText(t) {
-    return t.last_connection
-      ? `Last connection: ${formatRelative(t.last_connection)}`
-      : 'Last connection: unknown';
+  timeText(term) {
+    return term.last_connection
+      ? t('terminals.lastConnection', { when: formatRelative(term.last_connection) })
+      : t('terminals.lastConnectionUnknown');
   }
 
   renderTimes() {
     for (const p of this.querySelectorAll('.terminal-card__time')) {
-      if (p.dataset.ts) p.textContent = `Last connection: ${formatRelative(p.dataset.ts)}`;
+      if (p.dataset.ts) p.textContent = t('terminals.lastConnection', { when: formatRelative(p.dataset.ts) });
     }
   }
 
-  wireCard(card, t) {
-    const edit = this.#editing.get(t.id);
+  wireCard(card, term) {
+    const edit = this.#editing.get(term.id);
     const confirm = async () => {
       edit.syncing = true;
       this.render();
       try {
-        await api.editTerminal(t.id, { ...t, name: edit.name, icon: edit.icon });
+        await api.editTerminal(term.id, { ...term, name: edit.name, icon: edit.icon });
       } finally {
-        this.#editing.delete(t.id);
+        this.#editing.delete(term.id);
         await refreshTerminals().catch(() => {});
         this.render();
       }
@@ -114,19 +115,19 @@ class ViewTerminals extends FsElement {
       this.render();
     };
     card.querySelector('[data-act="edit"]')?.addEventListener('click', () => {
-      this.#editing.set(t.id, { name: t.name, icon: t.icon, syncing: false });
+      this.#editing.set(term.id, { name: term.name, icon: term.icon, syncing: false });
       this.render();
     });
     card.querySelector('[data-act="cancel"]')?.addEventListener('click', () => {
-      this.#editing.delete(t.id);
+      this.#editing.delete(term.id);
       this.render();
     });
     card.querySelector('[data-act="confirm"]')?.addEventListener('click', confirm);
     card.querySelector('[data-act="icon-prev"]')?.addEventListener('click', () => rotate(-1));
     card.querySelector('[data-act="icon-next"]')?.addEventListener('click', () => rotate(1));
     card.querySelector('[data-act="delete"]')?.addEventListener('click', async () => {
-      await api.deleteTerminalById(t.id);
-      this.#editing.delete(t.id);
+      await api.deleteTerminalById(term.id);
+      this.#editing.delete(term.id);
       await refreshTerminals().catch(() => {});
     });
   }
@@ -136,7 +137,7 @@ class ViewTerminals extends FsElement {
     body.innerHTML = '<span class="fs-spinner"></span>';
     let cleanup = () => {};
     const modal = openModal({
-      title: 'Pair new device',
+      title: t('terminals.pairNew'),
       body,
       onClose: () => cleanup(),
     });
@@ -158,11 +159,10 @@ class ViewTerminals extends FsElement {
     body.innerHTML = `
       <div class="pairing-progress"><div class="pairing-progress__bar"></div></div>
       <div class="pairing-modal">
-        <p>Scan this QR-code with another device to pair it</p>
-        <canvas class="pairing-qr" aria-label="Pairing QR code"></canvas>
-        <div class="hr-label"><span class="fs-label">or</span></div>
-        <p>Navigate to <a href="${esc(shardHref())}" target="_blank" rel="noopener">${esc(store.state.meta.identity.domain)}</a>
-           and use the one-time pairing code</p>
+        <p>${t('terminals.scanQr')}</p>
+        <canvas class="pairing-qr" aria-label="${t('terminals.qrLabel')}"></canvas>
+        <div class="hr-label"><span class="fs-label">${t('terminals.or')}</span></div>
+        <p>${t('terminals.navigateTo', { link: `<a href="${esc(shardHref())}" target="_blank" rel="noopener">${esc(store.state.meta.identity.domain)}</a>` })}</p>
         <input class="fs-input mono pairing-code" readonly value="${esc(code.code)}">
       </div>`;
 
@@ -175,8 +175,8 @@ class ViewTerminals extends FsElement {
       if (pct === 0) {
         clearInterval(tick);
         body.innerHTML = `
-          <p>Pairing code expired</p>
-          <button class="fs-btn fs-btn--primary">${icon('refresh')} Refresh</button>`;
+          <p>${t('terminals.codeExpired')}</p>
+          <button class="fs-btn fs-btn--primary">${icon('refresh')} ${t('common.refresh')}</button>`;
         body.querySelector('button').addEventListener('click', () => {
           modal.close();
           this.startPairing();

@@ -1,6 +1,8 @@
 // App-store metadata from the Freeshard blob store. Branch is fixed to
 // master — the old app's branch-switching feature is deliberately not ported.
 
+import { t } from './i18n.js';
+
 const STORE_BASE = 'https://storageaccountportab0da.blob.core.windows.net/app-store/master/all_apps';
 
 let cache = null;
@@ -19,7 +21,7 @@ export function storeIconUrl(app) {
 
 export function storeInfo(app) {
   return app.store_info || app.meta?.store_info || {
-    description_short: 'Unknown App',
+    description_short: t('apps.unknownApp'),
     description_long: undefined,
     hint: undefined,
     is_featured: false,

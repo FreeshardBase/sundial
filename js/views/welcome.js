@@ -7,17 +7,18 @@ import { queryMetaData } from '../actions.js';
 import { href } from '../router.js';
 import { icon } from '../components/icons.js';
 import { marked } from 'marked';
+import { t } from '../i18n.js';
 import '../components/avatar.js';
 import '../components/shard-badge.js';
 
 class ViewWelcome extends FsElement {
   connectedCallback() {
-    document.title = `Shard [${shortShardId()}] - Welcome`;
     this.watch(['meta'], () => this.render());
     queryMetaData().catch(() => {});
   }
 
   render() {
+    document.title = t('title.welcome', { id: shortShardId() });
     const { identity, is_anonymous } = store.state.meta;
     this.innerHTML = `
       <div class="welcome">
@@ -28,10 +29,10 @@ class ViewWelcome extends FsElement {
         <div class="welcome-foot">
           <fs-shard-badge shard-id="${esc(shortShardId())}"></fs-shard-badge>
           ${is_anonymous
-            ? `<a class="fs-btn fs-btn--primary fs-focusable" href="${href('pair')}">${icon('link')} Pair</a>`
-            : `<a class="fs-btn fs-focusable" href="${href('public')}">${icon('person')} Edit</a>`}
+            ? `<a class="fs-btn fs-btn--primary fs-focusable" href="${href('pair')}">${icon('link')} ${t('welcome.pair')}</a>`
+            : `<a class="fs-btn fs-focusable" href="${href('public')}">${icon('person')} ${t('welcome.edit')}</a>`}
         </div>
-        <p class="muted welcome-learn"><a href="https://freeshard.net" target="_blank" rel="noopener">Learn more</a> about Shard</p>
+        <p class="muted welcome-learn">${t('welcome.learnMore')}</p>
       </div>`;
   }
 }

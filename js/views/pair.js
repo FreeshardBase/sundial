@@ -8,6 +8,7 @@ import * as actions from '../actions.js';
 import { navigate } from '../router.js';
 import { makeDeviceObject } from '../util.js';
 import { icon } from '../components/icons.js';
+import { t } from '../i18n.js';
 import '../components/shard-badge.js';
 
 class ViewPair extends FsElement {
@@ -16,7 +17,7 @@ class ViewPair extends FsElement {
   #busy = false;
 
   async connectedCallback() {
-    this.render();
+    this.watch('locale', () => this.render());
 
     const params = new URLSearchParams(location.search);
     const urlCode = params.get('code');
@@ -37,7 +38,6 @@ class ViewPair extends FsElement {
     }
     const whoareyou = await api.whoAreYou().catch(() => null);
     this.#shardId = whoareyou?.id ?? null;
-    document.title = `Shard [${(this.#shardId || 'unknow').substring(0, 6)}] - Hello`;
     this.render();
   }
 
@@ -65,17 +65,18 @@ class ViewPair extends FsElement {
 
   render() {
     const shortId = this.#shardId ? this.#shardId.substring(0, 6) : shortShardId() || 'unknow';
+    document.title = t('title.pair', { id: shortId });
     this.innerHTML = `
       <div class="center-page">
-        <h1>Pair this browser</h1>
-        <p>This Shard is</p>
+        <h1>${t('pair.title')}</h1>
+        <p>${t('pair.thisShardIs')}</p>
         <fs-shard-badge shard-id="${esc(shortId)}"></fs-shard-badge>
         <form class="pair-form">
-          <label class="fs-label" for="pair-code">Enter a pairing code</label>
+          <label class="fs-label" for="pair-code">${t('pair.enterCode')}</label>
           <input id="pair-code" class="fs-input mono pair-input" placeholder="******"
                  autocomplete="one-time-code" ${this.#busy ? 'disabled' : ''}>
           <button type="submit" class="fs-btn fs-btn--primary fs-focusable" ${this.#busy ? 'disabled' : ''}>
-            ${this.#busy ? '<span class="fs-spinner fs-spinner--sm"></span>' : icon('link')} Pair
+            ${this.#busy ? '<span class="fs-spinner fs-spinner--sm"></span>' : icon('link')} ${t('pair.pairButton')}
           </button>
         </form>
         ${this.#error ? `<p class="alert alert--danger">${esc(this.#error)}</p>` : ''}
