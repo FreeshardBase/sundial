@@ -8,6 +8,7 @@ import { toastSuccess, toastError } from './components/toast.js';
 import { startKeynav } from './keynav.js';
 import { startMetrics } from './metrics.js';
 import { initI18n, t } from './i18n.js';
+import { registerServiceWorker } from './pwa.js';
 
 import './components/dock.js';
 import './components/banner.js';
@@ -56,6 +57,7 @@ async function boot() {
 
   startKeynav();
   startWebSocket();
+  registerServiceWorker();
   const maybeStartMetrics = () => { if (!store.state.meta.is_anonymous) startMetrics(); };
   store.subscribe('meta', maybeStartMetrics);
   maybeStartMetrics();

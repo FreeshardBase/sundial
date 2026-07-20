@@ -15,6 +15,7 @@ import argparse
 import asyncio
 import json
 import math
+import mimetypes
 import random
 import re
 import sys
@@ -25,6 +26,9 @@ from pathlib import Path
 from aiohttp import ClientSession, WSMsgType, web
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# Python's mimetypes table predates .webmanifest (nginx's mime.types has it)
+mimetypes.add_type("application/manifest+json", ".webmanifest")
 
 
 def security_headers() -> dict[str, str]:

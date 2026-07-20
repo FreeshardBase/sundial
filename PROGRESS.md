@@ -1,50 +1,49 @@
-# PROGRESS — Sundial security hardening (autonomous session, feat/security)
+# PROGRESS — Sundial PWA installability (autonomous session, feat/pwa-installable)
 
 Resume contract: re-read this file + agents.md, continue from "In flight".
-Spec: `~/knowledge_base/freeshard/sundial-security-spec.md`.
-Branch: feat/security (off feat/tests-ci). Local only — never push.
-Done signal: `SEC_OUTCOME: done` (only after suite green + app verified under CSP).
-Previous sessions (rewrite, i18n, tests+CI) complete; notes in git history.
-
-## Audit findings (from full source read, all js/ + index.html + dev_server.py)
-
-See docs/security-audit.md for the full write-up. Summary:
-
-- F1 XSS (high): marked.parse → innerHTML at welcome.js, editable-text.js,
-  banner.js → js/sanitize.js (allowlist) + renderMarkdown(). FIXED.
-- F2 CSP: none existed → strict policy (no unsafe-*), meta in index.html as
-  source of truth, header from dev_server.py + nginx conf; inline scripts
-  externalized (js/base.js, js/theme-init.js), importmap sha256-hashed,
-  onerror= → attachIconFallback(), style= → fillDiskBar()/SVG attrs. FIXED.
-- F3 WS: unvalidated payloads → validateMessage() shape check, drop invalid,
-  JSON.parse guarded. FIXED.
-- F4 URL sinks: approval_url/paypal_manage_url → isSafeHttpUrl();
-  openApp subdomain → isSafeAppName(); icon URLs encodeURIComponent. FIXED.
-- F5 tokens: CLEAN — JWT in backend-set cookie, client never reads it;
-  localStorage holds only prefs. Cookie flags = shard_core (documented).
-- F6 vendor: marked 12.0.2 ok (sanitizer covers by-design raw HTML);
-  lean-qr version unrecorded (residual note).
+Spec: `~/knowledge_base/freeshard/sundial-pwa-installable-spec.md`.
+Branch: feat/pwa-installable (off feat/security). Local only — never push.
+Scope: installability ONLY — no offline caching, no push (→ freeshard#170).
+Done signal: `PWA_OUTCOME: done` (only after full suite green + verified).
+Previous sessions (rewrite, i18n, tests+CI, security) complete; git history.
 
 ## Done
 
-- Full source audit; all fixes F1–F4 applied (working tree).
-- Unit tests: tests/unit/ws.test.js (validateMessage matrix),
-  tests/unit/csp.test.js (importmap↔hash pairing, policy invariants,
-  nginx/meta consistency). 58 unit tests pass.
-- E2e: tests/e2e/security.spec.js — headers, zero CSP violations across all
-  views, welcome + banner XSS via route mocks, fake-WS malformed frames,
-  javascript: approval_url guard, sanitizer primitive matrix. 7/7 pass.
-- Falsifiability proven: welcome.js reverted to raw marked.parse → XSS test
-  red → fix restored → green. (NB: `git checkout <file>` during the break
-  step wiped the uncommitted fix once — re-applied, verified green.)
-- curl-verified headers from dev server (CSP + frame-ancestors + XFO +
-  nosniff + Referrer-Policy on / and /sundial/*).
-- docs/security-audit.md written. agents.md Security section added.
+- TDD: tests written first, watched red (unit crash on missing manifest,
+  5 e2e failures), then implemented to green.
+- `manifest.webmanifest` — name/short_name/description, display standalone,
+  start_url+scope "./" (relative → subpath-safe), warm-paper colors,
+  icons 192/512 (any) + 512 maskable + type image/png.
+- Icons generated: `tools/gen_icons.py` (uv+pillow, from favicon.png) →
+  assets/img/icon-{192,512,maskable-512,180}.png. Maskable visually checked
+  (diamond inside safe zone, warm-paper bg).
+- `sw.js` — passthrough-only (no-op fetch handler, skipWaiting+clients.claim);
+  `js/pwa.js` registers it against document.baseURI (scope / or /sundial/);
+  called from main.js boot.
+- index.html: manifest link, apple-touch-icon, theme-color light+dark metas,
+  apple-mobile-web-app-capable.
+- CSP: NO changes needed (worker-src→script-src 'self' fallback; manifest-src→
+  default-src). csp.test.js untouched, still green.
+- dev_server.py: `.webmanifest` → application/manifest+json MIME.
+- nobuild.spec.js list extended with manifest.webmanifest + sw.js.
+- Tests: tests/unit/manifest.test.js (6 tests: manifest shape, relative
+  start_url/scope, icons real PNGs, index wiring, sw passthrough guard,
+  registration wiring), tests/e2e/pwa.spec.js (5 tests: manifest+icons at /
+  and /sundial/, SW scope both bases, controlled page live + zero CSP
+  violations).
+- Falsifiability proven twice: (a) caches.open('x') in sw.js → unit red →
+  restored green; (b) registerServiceWorker() commented out → both e2e SW
+  tests red → restored green.
+- FULL suite green: check_i18n clean, 64 unit, 39 e2e (incl. security,
+  subpath, nobuild), `just check` all modules parse.
+- curl-verified on live server: manifest 200 application/manifest+json at
+  / and /sundial/, sw.js text/javascript, icons image/png, CSP header intact.
+- agents.md PWA section added.
 
 ## In flight
 
-- nothing — DONE. Full suite green (58 unit + 34 e2e + check_i18n), headers
-  curl-verified, committed as 03b74e5 on feat/security. SEC_OUTCOME: done.
+- nothing — DONE. Committed as 8780d16 on feat/pwa-installable.
+  PWA_OUTCOME: done.
 
 ## Blockers
 
