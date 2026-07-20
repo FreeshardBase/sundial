@@ -40,9 +40,15 @@ Done signal: `PKG_OUTCOME: done` (only after verified build+serve+tests+PR).
 - Full suite green: check_i18n 0 problems, 65 unit, 39 e2e + nobuild smoke.
 - agents.md updated: Packaging & release section, stale "no remote" line fixed.
 
+- Committed 168e937, pushed. PR #4 was already merged into main (05:26Z) →
+  base retargeted to main (merge-commit history, clean stack). PR OPEN:
+  https://github.com/FreeshardBase/sundial/pull/5 — not draft, reviewer
+  max-tet, CI test job green on push (PR run pending at time of writing).
+  Never self-merge; Max cuts the actual release.
+
 ## In flight
 
-- Commit, push branch, open PR (base feat/pwa-installable, reviewer max-tet).
+- nothing — DONE. PKG_OUTCOME: done.
 
 ## Blockers
 
