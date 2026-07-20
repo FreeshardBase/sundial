@@ -13,7 +13,8 @@ Vanilla HTML/CSS/JS, native ES modules, light-DOM custom elements + CSS `@scope`
 - Subpath-aware from day one: app must work served at `/` AND at `/sundial/`.
   Own routes/assets relative or base-prefixed; API stays absolute (`/core/...`).
 - Design tokens verbatim from `~/knowledge_base/freeshard/ui-style/tokens/` (copied to `css/`).
-- Local git repo only — never push, no GitHub remote.
+- Remote: `FreeshardBase/sundial` (public). Push feature branches + open PRs
+  (reviewer max-tet); never self-merge.
 
 ## Stack / architecture
 
@@ -231,6 +232,32 @@ All under `/core` prefix when served on a shard (traefik strips it).
 + `/stats/tasks` exist. Resource monitor v1 polls disk + renders CPU/mem seam; upgrade path:
 snapshot REST `/protected/stats` + per-app `/protected/apps/{name}/stats`, later WS
 `/protected/stats/stream`. Never SSE.
+
+## Packaging & release (single container)
+
+- `Dockerfile` — `FROM nginx:alpine`, no build stage (no-build invariant: the
+  repo files ARE the app). COPYs only the runtime set (index.html, js/, css/,
+  assets/, vendor/, manifest.webmanifest, sw.js, version.json) to `/srv`;
+  `.dockerignore` keeps dev tooling out of the context. Serves at root — the
+  core-release drop-in replacing web-terminal (subpath-awareness stays in code
+  for the `/sundial/` coexistence setup in `deploy/`).
+- `data/nginx.conf` — SPA fallback (`try_files ... /index.html`), no-cache on
+  index.html/sw.js/version.json (via `expires -1`, which doesn't suppress
+  inherited `add_header`), security headers identical to the meta CSP +
+  frame-ancestors (`tests/unit/csp.test.js` enforces this conf AND
+  `deploy/nginx-sundial.conf`), MIME fixes for `.webmanifest` and `.mjs`
+  (absent from nginx:alpine's mime.types; served as octet-stream otherwise,
+  which breaks ESM loading).
+- Build/run locally: `docker build -t sundial .` then
+  `docker run -d -p 8099:80 sundial`. Standalone container has no `/core`
+  backend — API/WS errors are expected; traefik provides `/core` on a shard.
+- Release: `.github/workflows/release.yml` — on GitHub release *created*,
+  builds and pushes `ghcr.io/freeshardbase/sundial:<release tag>`
+  (GITHUB_TOKEN auth, mirrors web-terminal). `ci.yml` (test suite) is separate
+  and untouched.
+- Cutting a release (Max does this): `just set-version <v>` (bumps
+  version.json + js/version.js — the pair the update notice compares — and
+  commits "set version to <v>"), push, create a GitHub release with tag `<v>`.
 
 ## Deployment (coexistence, Max's personal shard only)
 

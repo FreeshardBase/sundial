@@ -29,6 +29,28 @@ test-e2e:
 gen-client:
     python3 tools/gen_client.py
 
+# Bump the app version (version.json + js/version.js) and commit
+@set-version version:
+    just _set-version-files {{version}}
+    git add version.json js/version.js
+    git commit -m "set version to {{version}}"
+    echo "Version set to {{version}} and committed"
+
+_set-version-files version:
+    #!/usr/bin/env python3
+    import json, re
+    with open('version.json') as f:
+        data = json.load(f)
+    data['version'] = '{{version}}'
+    with open('version.json', 'w') as f:
+        json.dump(data, f)
+        f.write('\n')
+    with open('js/version.js') as f:
+        content = f.read()
+    content = re.sub(r"VERSION = '[^']*'", "VERSION = '{{version}}'", content)
+    with open('js/version.js', 'w') as f:
+        f.write(content)
+
 # Syntax-check all ES modules with node
 check:
     #!/usr/bin/env bash

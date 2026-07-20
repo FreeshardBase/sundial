@@ -1,49 +1,48 @@
-# PROGRESS — Sundial PWA installability (autonomous session, feat/pwa-installable)
+# PROGRESS — Sundial single-container packaging + release CI (autonomous)
 
 Resume contract: re-read this file + agents.md, continue from "In flight".
-Spec: `~/knowledge_base/freeshard/sundial-pwa-installable-spec.md`.
-Branch: feat/pwa-installable (off feat/security). Local only — never push.
-Scope: installability ONLY — no offline caching, no push (→ freeshard#170).
-Done signal: `PWA_OUTCOME: done` (only after full suite green + verified).
-Previous sessions (rewrite, i18n, tests+CI, security) complete; git history.
+Spec: `~/knowledge_base/freeshard/sundial-packaging-ci-spec.md`.
+Branch: chore/single-container-ci (off feat/pwa-installable). Remote exists —
+push + PR (base feat/pwa-installable, stacked on #4, reviewer max-tet,
+never self-merge). Template: FreeshardBase/web-terminal.
+Done signal: `PKG_OUTCOME: done` (only after verified build+serve+tests+PR).
 
 ## Done
 
-- TDD: tests written first, watched red (unit crash on missing manifest,
-  5 e2e failures), then implemented to green.
-- `manifest.webmanifest` — name/short_name/description, display standalone,
-  start_url+scope "./" (relative → subpath-safe), warm-paper colors,
-  icons 192/512 (any) + 512 maskable + type image/png.
-- Icons generated: `tools/gen_icons.py` (uv+pillow, from favicon.png) →
-  assets/img/icon-{192,512,maskable-512,180}.png. Maskable visually checked
-  (diamond inside safe zone, warm-paper bg).
-- `sw.js` — passthrough-only (no-op fetch handler, skipWaiting+clients.claim);
-  `js/pwa.js` registers it against document.baseURI (scope / or /sundial/);
-  called from main.js boot.
-- index.html: manifest link, apple-touch-icon, theme-color light+dark metas,
-  apple-mobile-web-app-capable.
-- CSP: NO changes needed (worker-src→script-src 'self' fallback; manifest-src→
-  default-src). csp.test.js untouched, still green.
-- dev_server.py: `.webmanifest` → application/manifest+json MIME.
-- nobuild.spec.js list extended with manifest.webmanifest + sw.js.
-- Tests: tests/unit/manifest.test.js (6 tests: manifest shape, relative
-  start_url/scope, icons real PNGs, index wiring, sw passthrough guard,
-  registration wiring), tests/e2e/pwa.spec.js (5 tests: manifest+icons at /
-  and /sundial/, SW scope both bases, controlled page live + zero CSP
-  violations).
-- Falsifiability proven twice: (a) caches.open('x') in sw.js → unit red →
-  restored green; (b) registerServiceWorker() commented out → both e2e SW
-  tests red → restored green.
-- FULL suite green: check_i18n clean, 64 unit, 39 e2e (incl. security,
-  subpath, nobuild), `just check` all modules parse.
-- curl-verified on live server: manifest 200 application/manifest+json at
-  / and /sundial/, sw.js text/javascript, icons image/png, CSP header intact.
-- agents.md PWA section added.
+- Read packaging spec, agents.md, web-terminal template (Dockerfile,
+  release.yml/snapshot.yml, justfile set-version), freeshard justfile
+  (convention: bump files, commit "set version to X", no tag in recipe).
+- `Dockerfile` — nginx:alpine, NO build stage, explicit COPY of runtime set
+  (index.html, manifest.webmanifest, sw.js, version.json, js/, css/, assets/,
+  vendor/) to /srv + data/nginx.conf to conf.d/default.conf. Verified image
+  /srv contains ONLY runtime files.
+- `.dockerignore` — tests/tools/docs/deploy/.github/node_modules/package*/
+  playwright*/test-results/justfile/*.md/.git etc.
+- `data/nginx.conf` — root serve, SPA fallback, expires -1 (no-cache) on
+  index.html/sw.js/version.json, security headers = meta CSP +
+  frame-ancestors (same as deploy/nginx-sundial.conf), MIME fixes:
+  .webmanifest → application/manifest+json, .mjs → application/javascript
+  (both missing from nginx:alpine mime.types; .mjs one was a REAL bug found
+  by headless-Chromium check — octet-stream broke the whole module graph).
+- csp.test.js extended: data/nginx.conf must carry meta CSP +
+  frame-ancestors (falsifiability proven: broke conf → red, restored → green).
+- `.github/workflows/release.yml` — on release created, build+push
+  ghcr.io/freeshardbase/sundial:<tag>, GITHUB_TOKEN, mirrors web-terminal
+  minus build steps. ci.yml untouched.
+- justfile `set-version` — bumps version.json + js/version.js, commits
+  "set version to <v>". Dry-run verified on temp branch (exact 2-line diff),
+  branch deleted, tree back at 0.1.0.
+- VERIFIED: docker build + run -d + curl — root 200, /settings SPA fallback
+  200 w/ no-cache, manifest correct MIME, sw.js+version.json no-cache, CSP/XFO
+  headers on responses; headless Chromium: app boots under CSP (components
+  defined, view-home rendered, SW controls page, 0 CSP violations; only
+  missing-/core errors, expected standalone).
+- Full suite green: check_i18n 0 problems, 65 unit, 39 e2e + nobuild smoke.
+- agents.md updated: Packaging & release section, stale "no remote" line fixed.
 
 ## In flight
 
-- nothing — DONE. Committed as 8780d16 on feat/pwa-installable.
-  PWA_OUTCOME: done.
+- Commit, push branch, open PR (base feat/pwa-installable, reviewer max-tet).
 
 ## Blockers
 

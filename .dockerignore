@@ -1,0 +1,21 @@
+# The image ships only the runtime app — keep dev tooling out.
+.git
+.github
+.claude
+.worktrees
+node_modules
+package.json
+package-lock.json
+playwright.config.js
+playwright-report
+test-results
+tests
+tools
+docs
+deploy
+justfile
+PROGRESS.md
+agents.md
+README.md
+Dockerfile
+.dockerignore
