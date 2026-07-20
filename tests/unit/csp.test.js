@@ -11,6 +11,7 @@ import { REPO_ROOT } from './helpers/env.js';
 
 const html = await readFile(`${REPO_ROOT}/index.html`, 'utf8');
 const nginx = await readFile(`${REPO_ROOT}/deploy/nginx-sundial.conf`, 'utf8');
+const containerNginx = await readFile(`${REPO_ROOT}/data/nginx.conf`, 'utf8');
 
 const metaCsp = html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)?.[1];
 
@@ -57,4 +58,11 @@ test('nginx deploy config serves the same policy plus frame-ancestors', () => {
   assert.equal(nginxCsp, `${metaCsp}; frame-ancestors 'none'`);
   assert.match(nginx, /X-Frame-Options "DENY"/);
   assert.match(nginx, /X-Content-Type-Options "nosniff"/);
+});
+
+test('container nginx config serves the same policy plus frame-ancestors', () => {
+  const nginxCsp = containerNginx.match(/Content-Security-Policy "([^"]+)"/)?.[1];
+  assert.equal(nginxCsp, `${metaCsp}; frame-ancestors 'none'`);
+  assert.match(containerNginx, /X-Frame-Options "DENY"/);
+  assert.match(containerNginx, /X-Content-Type-Options "nosniff"/);
 });
