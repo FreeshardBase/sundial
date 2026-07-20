@@ -58,9 +58,33 @@ Vanilla HTML/CSS/JS, native ES modules, light-DOM custom elements + CSS `@scope`
   `just check` must stay clean.
 - DE catalog is AI-generated (du-form) — pending native review by Max.
 
+## Testing
+
+- Layers: **unit** (`node:test`, `tests/unit/` — store, router, i18n, generated
+  client, preferences client; browser globals stubbed in
+  `tests/unit/helpers/env.js`), **e2e** (Playwright, `tests/e2e/` — real
+  Chromium against the mock-API dev server on :8021), **no-build smoke**
+  (`tests/e2e/nobuild.spec.js` — every served file byte-identical to the repo
+  file, entry is native ESM, no build tooling/artifacts allowed in the repo).
+- Run: `npm test` (both), `npm run test:unit`, `npm run test:e2e`.
+  Playwright's `webServer` starts `uv run tools/dev_server.py` itself and
+  reuses an already-running one locally (CI always starts fresh).
+- `package.json` is **dev-only tooling** (type:module for node:test ESM); the
+  served app never touches node_modules — the nobuild spec enforces this
+  (no `dependencies`, no build/bundle scripts). Don't add either.
+- E2e specs must stay **read-only towards the mock server's STATE** (no
+  installs/deletes) — workers run in parallel against one shared server.
+  App-store blob metadata is stubbed per-test via `page.route`; keep e2e
+  hermetic (no live Azure fetches).
+- Router unit tests import `js/router.js` with a query-suffix
+  (`import('.../router.js?x')`) to get a fresh module per BASE value.
+- CI: `.github/workflows/ci.yml` — npm ci, Playwright Chromium (cached),
+  check_i18n, unit, e2e+smoke. Runs once the repo is pushed to GitHub.
+
 ## Commands
 
 - `just serve` — static server on :8021 (dev, proxies /core to a live shard).
+- `npm test` — unit + e2e + no-build smoke (see Testing).
 - `python3 tools/check_i18n.py` — i18n key consistency (t() calls vs catalogs).
 - `tools/gen_client.py` — regenerate `js/api/client.js` from `js/api/openapi.json`.
 - Dump fresh spec: in `~/projects/freeshard/freeshard`:
