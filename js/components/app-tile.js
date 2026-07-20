@@ -26,8 +26,24 @@ export function canBeStarted(app) {
   return VM_SIZES.indexOf(profile.vm_size) >= VM_SIZES.indexOf(app.meta.minimum_vm_size);
 }
 
+// App names become subdomain labels and URL path segments — hold them to the
+// charset a label allows so a hostile name can't redirect the open/icon URLs.
+export function isSafeAppName(name) {
+  return /^[a-z0-9_-]+$/i.test(name ?? '');
+}
+
 export function openApp(app) {
+  if (!isSafeAppName(app.name)) return;
   window.open(`${location.protocol}//${app.name}.${location.host}`, '_blank');
+}
+
+// Swap a broken app-icon <img> for a styled fallback block. Attached via
+// addEventListener — inline onerror= is barred by the CSP.
+export function attachIconFallback(root, fallbackClass) {
+  for (const img of root.querySelectorAll('img[data-icon-fallback]')) {
+    img.addEventListener('error', () => img.replaceWith(
+      Object.assign(document.createElement('span'), { className: fallbackClass })));
+  }
 }
 
 class FsAppTile extends FsElement {
@@ -48,8 +64,7 @@ class FsAppTile extends FsElement {
         <span class="app-tile__glyph">
           ${busy
             ? '<span class="fs-spinner"></span>'
-            : `<img src="/core/protected/apps/${esc(app.name)}/icon" alt=""
-                    onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'app-tile__fallback'}))">`}
+            : `<img src="/core/protected/apps/${encodeURIComponent(app.name)}/icon" alt="" data-icon-fallback>`}
         </span>
         <span class="app-tile__status">
           ${app.status === 'running' ? '<span class="fs-dot" data-live="true"></span>' : ''}
@@ -58,6 +73,7 @@ class FsAppTile extends FsElement {
         <span class="app-tile__name">${esc(appDisplayName(app))}</span>
       </button>`;
 
+    attachIconFallback(this, 'app-tile__fallback');
     this.querySelector('button').addEventListener('click', () => {
       if (busy) return;
       if (blocked) {

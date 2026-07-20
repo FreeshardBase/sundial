@@ -16,6 +16,7 @@ import asyncio
 import json
 import math
 import random
+import re
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -24,6 +25,24 @@ from pathlib import Path
 from aiohttp import ClientSession, WSMsgType, web
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def security_headers() -> dict[str, str]:
+    """Same-as-production security headers. The CSP is read from index.html's
+    <meta> tag (single source of truth) plus the header-only frame-ancestors —
+    mirroring what deploy/nginx-sundial.conf sends."""
+    html = (ROOT / "index.html").read_text()
+    m = re.search(r'http-equiv="Content-Security-Policy" content="([^"]+)"', html)
+    assert m, "index.html is missing the CSP meta tag"
+    return {
+        "Content-Security-Policy": m.group(1) + "; frame-ancestors 'none'",
+        "X-Frame-Options": "DENY",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "same-origin",
+    }
+
+
+SECURITY_HEADERS = security_headers()
 
 IDENTITY = {
     "id": "geszt8y57h0ylg2q08wqqxbp7evv5vrxdhypp547x2qf67yaehwrzlbk1s3gjtjdtj23jsj10r6pjwvqn0a56hqdg6ht5vjfzff2ka2",
@@ -333,7 +352,7 @@ def make_static_handler():
             file = ROOT / "index.html"
         if ROOT not in file.resolve().parents and file.resolve() != ROOT:
             raise web.HTTPForbidden()
-        return web.FileResponse(file)
+        return web.FileResponse(file, headers=SECURITY_HEADERS)
     return handler
 
 

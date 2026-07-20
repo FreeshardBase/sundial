@@ -2,22 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <!-- CSP fallback for servers that don't send the header; tools/dev_server.py
+       and deploy/nginx-sundial.conf send the same policy as a header (plus the
+       header-only frame-ancestors). The sha256 hash allows exactly the inline
+       import map below — import maps can't be external files. If the import
+       map changes, regenerate the hash (tests/unit/csp.test.js enforces the
+       pairing). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-4DM4CMWl4rDiWDZUPdH6jQfjmf280TqxsNEgfxOudzI='; style-src 'self'; img-src 'self' https://storageaccountportab0da.blob.core.windows.net; connect-src 'self' https://storageaccountportab0da.blob.core.windows.net; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
   <title>Shard</title>
-  <script>
-    // Subpath-aware base: the app may be served at "/" or "/sundial/" (or any
-    // prefix). Routes are flat (single segment), so the app root is the document
-    // path up to the last "/". A <base> tag injected before any <link>/<script>
-    // makes every relative URL (assets, import map, router) resolve against it.
-    (() => {
-      let root = location.pathname.replace(/[^/]*$/, '');
-      const base = document.createElement('base');
-      base.href = location.origin + root;
-      document.head.appendChild(base);
-      window.SUNDIAL_BASE = root;
-    })();
-  </script>
+  <script src="js/base.js"></script>
   <script type="importmap">
     {
       "imports": {
@@ -33,15 +28,7 @@
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/ui.css">
   <link rel="stylesheet" href="css/views.css">
-  <script>
-    // Apply persisted theme before first paint (avoids flash).
-    try {
-      const t = localStorage.getItem('sundial.theme');
-      if (t === 'dark' || (t === null && matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.dataset.theme = 'dark';
-      }
-    } catch (e) { /* storage unavailable */ }
-  </script>
+  <script src="js/theme-init.js"></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body>

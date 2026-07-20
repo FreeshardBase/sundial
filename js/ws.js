@@ -15,7 +15,39 @@ export function onMessage(type, fn) {
   return () => bus.removeEventListener(type, handler);
 }
 
+// WS payloads are untrusted input: shape-check before they touch the store
+// or reach onMessage() consumers. Returns false for anything malformed.
+// Exported for unit tests.
+export function validateMessage(message) {
+  if (!isPlainObject(message) || typeof message.message_type !== 'string') return false;
+  const body = message.message;
+  switch (message.message_type) {
+    case 'apps_update':
+    case 'terminals_update':
+      return Array.isArray(body) && body.every(isPlainObject);
+    case 'disk_usage_update':
+      return isPlainObject(body)
+        && typeof body.total_gb === 'number' && typeof body.free_gb === 'number';
+    case 'app_install_error':
+      return isPlainObject(body)
+        && typeof body.name === 'string' && typeof body.error === 'string';
+    case 'backup_update':
+      return body === undefined || body === null
+        || (isPlainObject(body) && (body.error === undefined || typeof body.error === 'string'));
+    default:
+      return true;   // heartbeat, terminal_add, ... — body unused
+  }
+}
+
+function isPlainObject(v) {
+  return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
 function handle(message) {
+  if (!validateMessage(message)) {
+    console.warn('Dropped malformed WS message', message?.message_type);
+    return;
+  }
   const { message_type: type, message: body } = message;
   switch (type) {
     case 'apps_update':
@@ -37,7 +69,11 @@ function handle(message) {
 function connect() {
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
   socket = new WebSocket(`${proto}//${location.host}/core/protected/ws/updates`);
-  socket.onmessage = (e) => handle(JSON.parse(e.data));
+  socket.onmessage = (e) => {
+    let message;
+    try { message = JSON.parse(e.data); } catch { return; }
+    handle(message);
+  };
   socket.onerror = () => { socket.close(); socket = null; };
   socket.onclose = () => {
     store.set({ ws: { disconnectedSince: store.state.ws.disconnectedSince ?? Date.now() } });

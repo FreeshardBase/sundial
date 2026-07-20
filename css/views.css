@@ -265,6 +265,8 @@ fs-editable-text { display: block; max-width: 640px; margin-bottom: var(--space-
 }
 .disk-bar__fill { height: 100%; }
 
+fs-sparkline svg { display: block; }
+
 .backup-report {
   font-size: 12px;
   overflow-x: auto;

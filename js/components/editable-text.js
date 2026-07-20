@@ -4,7 +4,7 @@
 
 import { FsElement, esc } from './base.js';
 import { icon } from './icons.js';
-import { marked } from 'marked';
+import { renderMarkdown } from '../sanitize.js';
 import { t } from '../i18n.js';
 
 class FsEditableText extends FsElement {
@@ -33,7 +33,7 @@ class FsEditableText extends FsElement {
     let bodyHtml;
     if (this.#state === 'off') {
       bodyHtml = multi
-        ? `<div class="editable-md">${marked.parse(this.#value || '')}</div>`
+        ? `<div class="editable-md">${renderMarkdown(this.#value)}</div>`
         : `<p class="editable-value">${esc(this.#value) || `<span class="muted">${t('editable.empty')}</span>`}</p>`;
     } else {
       bodyHtml = multi

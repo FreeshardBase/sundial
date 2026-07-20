@@ -58,6 +58,28 @@ Vanilla HTML/CSS/JS, native ES modules, light-DOM custom elements + CSS `@scope`
   `just check` must stay clean.
 - DE catalog is AI-generated (du-form) — pending native review by Max.
 
+## Security (see docs/security-audit.md)
+
+- Untrusted markdown (identity description, CMS banners) reaches `innerHTML`
+  ONLY via `renderMarkdown()` in `js/sanitize.js` (allowlist sanitizer).
+  Never call `marked.parse()` directly. Everything else: `esc()`/`textContent`.
+- Strict CSP, no unsafe-inline/unsafe-eval. Source of truth: the `<meta>` tag
+  in index.html; `tools/dev_server.py` parses it into a header (+
+  `frame-ancestors 'none'`, X-Frame-Options DENY, nosniff);
+  `deploy/nginx-sundial.conf` must stay identical (unit test enforces).
+  The inline import map is allowed by sha256 hash — if the import map changes,
+  regenerate the hash in the meta CSP AND nginx conf
+  (`tests/unit/csp.test.js` goes red otherwise). No other inline scripts,
+  no inline event handlers (`onerror=` etc.), no `style=` attributes —
+  use `addEventListener` (`attachIconFallback`) and CSSOM (`fillDiskBar`).
+- WS payloads are untrusted: `validateMessage()` in `js/ws.js` shape-checks
+  before store patches; extend it when adding message types.
+- API-provided navigation URLs (approval_url etc.) go through
+  `isSafeHttpUrl()`; app names through `isSafeAppName()`/`encodeURIComponent`.
+- Auth JWT is a backend-set cookie; the client never touches it. Keep tokens
+  out of localStorage.
+- Regression tests: `tests/unit/{csp,ws}.test.js`, `tests/e2e/security.spec.js`.
+
 ## Testing
 
 - Layers: **unit** (`node:test`, `tests/unit/` — store, router, i18n, generated

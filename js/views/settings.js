@@ -7,10 +7,11 @@ import * as api from '../api/client.js';
 import { call } from '../api/client.js';
 import { icon } from '../components/icons.js';
 import { toastSuccess, toastError, errorMessage } from '../components/toast.js';
-import { formatRelative } from '../util.js';
+import { fillDiskBar, formatRelative } from '../util.js';
 import { computeMonthlyPrice, centsToEur } from '../pricing.js';
 import { navigate } from '../router.js';
 import { onMessage } from '../ws.js';
+import { isSafeHttpUrl } from '../sanitize.js';
 import { VERSION } from '../version.js';
 import { t, fmtNumber, fmtPercent, fmtCurrencyEur, SUPPORTED_LOCALES, setLocale } from '../i18n.js';
 
@@ -118,6 +119,7 @@ class ViewSettings extends FsElement {
       <h1 class="settings-about-title">${t('settings.about.title')}</h1>
       <div class="about-fields">${this.aboutFields()}</div>`;
 
+    fillDiskBar(this.querySelector('.disk-bar__fill'), state.disk_usage);
     this.wire();
   }
 
@@ -146,7 +148,7 @@ class ViewSettings extends FsElement {
         ${sub.next_billing_date ? `<p>${t('settings.sub.nextCharge', { when: formatRelative(sub.next_billing_date) })}</p>` : ''}
         ${sub.payer_email ? `<p class="muted">${t('settings.sub.billedTo', { email: sub.payer_email })}</p>` : ''}
         ${st === 'active-pending' ? `<p class="alert alert--info">${t('settings.sub.upgradePending', { size: `<b>${esc(sub.pending_vm_size.toUpperCase())}</b>`, price: fmtCurrencyEur(centsToEur(sub.pending_price_cents)) })}</p>` : ''}
-        <p>${sub.paypal_manage_url
+        <p>${isSafeHttpUrl(sub.paypal_manage_url)
           ? `<a class="fs-btn" href="${esc(sub.paypal_manage_url)}" target="_blank" rel="noopener">${t('settings.sub.managePaypal')}</a>`
           : `<button class="fs-btn" disabled>${t('settings.sub.managePaypal')}</button>`}</p>`;
     } else if (st === 'grace') {
@@ -173,12 +175,11 @@ class ViewSettings extends FsElement {
     const du = store.state.disk_usage;
     const used = du.total_gb - du.free_gb;
     const ratio = du.total_gb > 0 ? used / du.total_gb : 0;
-    const tone = du.disk_space_low ? 'var(--danger)' : du.disk_space_warning ? 'var(--accent)' : 'var(--data)';
     const gb = (v) => fmtNumber(v, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return `
       <section class="fs-sheet settings-card"><h2>${t('settings.disk.title')}</h2>
         <div class="disk-bar" role="img" aria-label="${t('settings.disk.usedLabel', { pct: fmtPercent(ratio) })}">
-          <div class="disk-bar__fill" style="width:${(ratio * 100).toFixed(2)}%;background:${tone}"></div>
+          <div class="disk-bar__fill"></div>
         </div>
         <p class="mono">${t('settings.disk.usage', { used: gb(used), total: gb(du.total_gb), pct: fmtPercent(ratio) })}</p>
         ${du.disk_space_low ? `<p class="alert alert--danger">${icon('disk')} ${t('settings.disk.low')}</p>` : ''}
@@ -318,7 +319,7 @@ class ViewSettings extends FsElement {
       try {
         const res = await call('POST', '/protected/management/api/shards/self/subscribe');
         const data = res instanceof Response ? await res.json().catch(() => null) : res;
-        if (data?.approval_url) { location = data.approval_url; return; }
+        if (isSafeHttpUrl(data?.approval_url)) { location = data.approval_url; return; }
         toastError(t('toast.subError'), t('toast.noApprovalUrl'));
       } catch (e) {
         toastError(t('toast.subError'), errorMessage(e));
@@ -374,7 +375,7 @@ class ViewSettings extends FsElement {
         const res = await call('POST', '/protected/management/api/shards/self/resize',
           { json: { new_vm_size: this.#selectedSize } });
         const data = res instanceof Response ? await res.json().catch(() => null) : res;
-        if (data?.approval_url) { location = data.approval_url; return; }
+        if (isSafeHttpUrl(data?.approval_url)) { location = data.approval_url; return; }
         navigate('restart', { replace: true });
         return;
       } catch (e) {
