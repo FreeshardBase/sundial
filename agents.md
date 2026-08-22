@@ -1,7 +1,7 @@
 # Sundial
 
 Ground-up rewrite of the Freeshard web-terminal as a **no-build, no-framework** SPA.
-Vanilla HTML/CSS/JS, native ES modules, light-DOM custom elements + CSS `@scope`,
+Vanilla HTML/CSS/JS, native ES modules, light-DOM custom elements with global class-namespaced CSS,
 "Daylight Instrument" design system. Spec: `~/knowledge_base/freeshard/sundial-rewrite-spec.md`.
 
 ## Hard constraints
@@ -27,7 +27,7 @@ Vanilla HTML/CSS/JS, native ES modules, light-DOM custom elements + CSS `@scope`
 - `js/views/*.js` — one custom element per route.
 - `js/components/*.js` — shared custom elements (dock, badge, sparkline, avatar, editable-text, ...).
 - `js/i18n.js` + `js/i18n/{en,de}.json` — internationalization (see below).
-- Style isolation: light-DOM custom elements + `@scope (fs-xyz) { ... }` blocks in component CSS.
+- Style isolation: light-DOM custom elements with global class-namespaced CSS. Component styles live in `css/ui.css` and `css/views.css`; `css/tokens.css` and `css/fs-components.css` are copied verbatim from the Daylight Instrument design system and are not edited here.
 - Fonts self-hosted: Inter + IBM Plex Mono woff2 in `assets/fonts/`.
 
 ## i18n (EN + DE)
@@ -271,9 +271,21 @@ delete_after (expired trial); deploy blocked until revived.
 ## Conventions
 
 - Custom element names: `fs-*` (e.g. `fs-dock`, `fs-sparkline`, `view-home`).
-- Component = one JS file, template via template literal, styles in a `@scope`d <style> in
-  its light DOM or in `css/components/*.css`.
+- Component = one JS file, template via template literal, styles as namespaced classes in
+  `css/ui.css` (shared chrome) or `css/views.css` (view-specific).
 - No hand edits to generated `js/api/client.js`.
 - Keyboard nav per DECISIONS: Alt-hold hints, Alt+letter tier-1, Alt+1..9 tier-2,
   arrows everywhere, `.fs-focusable` ring.
 - Every value shown must be honest (no flattering rounding; gauges encode real ratios).
+
+## Design changes start with the theory
+
+This repo records the theory it is built on in `CONCEPTS.md` at the root. It holds what the program is for, the invariants that span modules, the constraints that were ruled out, and one line of responsibility per module.
+
+**Before changing code, read `CONCEPTS.md`. If your change alters the theory, commit the theory change first, on its own, then adapt the code to the amended theory.**
+
+State which case your change is, in the PR description: **Conforms** (already covered by the theory), **Extends** (new behaviour or concept), **Corrects** (the work revealed the theory was wrong), **Shrinks** (the theory loses an element), **Reconciles** (code brought back in line with a theory that was already right).
+
+Shrinks carries an extra requirement: say what became of the behaviour the removed element described — deleted from the code, absorbed into a named surviving element, or moved to another module's theory. Shrinking is the only direction that can silently blind a later audit, because an empty audit looks exactly like a clean one.
+
+Every element in `CONCEPTS.md` must be an assertion the code can violate. Amendments should leave the theory as elegant as possible, as specific as necessary; where an amendment makes it materially more complex, say so in the theory commit message.
