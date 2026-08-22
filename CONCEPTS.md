@@ -79,7 +79,7 @@ flowchart TB
 
 ## Not this repo's theory
 
-`css/tokens.css` and `css/fs-components.css` are verbatim imports from the Daylight Instrument design system; their headers and cross-references point outside this tree. `js/api/client.js` and `js/api/openapi.json` are downstream artifacts of a generator and a foreign service. Read all four as provenance, not as drift — an audit that flags them is wrong.
+`css/tokens.css` and `css/fs-components.css` are verbatim imports from the Daylight Instrument design system; their headers and cross-references point outside this tree. `js/api/client.js` and `js/api/openapi.json` are downstream artifacts of a generator and a foreign service. `js/components/sparkline.js` is a faithful port of the design system's `build_sparkline.py`, which is why it carries a `compact` form, gap blocks and midnight separators that no consumer in this repo sets — the ten-minute metrics window means `midnights` can never even fire here. Read all five as provenance, not as drift — an audit that flags them is wrong.
 
 ## Unresolved
 
