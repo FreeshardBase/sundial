@@ -277,3 +277,11 @@ delete_after (expired trial); deploy blocked until revived.
 - Keyboard nav per DECISIONS: Alt-hold hints, Alt+letter tier-1, Alt+1..9 tier-2,
   arrows everywhere, `.fs-focusable` ring.
 - Every value shown must be honest (no flattering rounding; gauges encode real ratios).
+
+## Commits
+
+[Scoped Commits](https://scopedcommits.com/): `<scope>: <description>`. The scope is the area of the tree the change touches, never a change type — write `pwa: make the service worker subpath-aware`, not `fix(pwa): ...`. Body and trailers are optional; a change's reasoning belongs in the body, not in a code comment.
+
+Scopes for this repo: `api` `components` `views` `i18n` `css` `tests` `tools` `deploy` `docs` `pkg` `pwa` `security` `ci` `meta`
+
+`meta` covers repo-level files (agents.md, README, justfile). For a change spanning several scopes, use a broader one, list two comma-separated, or use `treewide`. Merges, reverts and generated commits (`set version to <v>`) keep their own format. Don't generate a changelog from the commit log — release notes come from merged PRs.
