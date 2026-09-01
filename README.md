@@ -44,3 +44,10 @@ exercise subpath mode. Any static file server works for the app itself; only
 DECISIONS.md, tokens). Rules that shape everything here: flat surfaces, no
 shadows, hairline borders, amber marks exactly one forward action per view,
 dark mode glows only on live data, and every rendered number must be honest.
+
+## Licence
+
+Functional Source License, Version 1.1, ALv2 Future License (`FSL-1.1-ALv2`) —
+see [LICENSE.md](LICENSE.md). Running Sundial for yourself is explicitly
+permitted; the restriction covers reselling a substantially similar service.
+Each release converts to Apache-2.0 on its own second anniversary.
