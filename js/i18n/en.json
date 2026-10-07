@@ -91,6 +91,8 @@
     "nextIcon": "Next icon",
     "editDevice": "Edit device",
     "removeDevice": "Remove device",
+    "removeConfirmBody": "This device will lose access to this shard. To use it again, you'll need to pair it again.",
+    "remove": "Remove",
     "lastConnection": "Last connection: {when}",
     "lastConnectionUnknown": "Last connection: unknown",
     "scanQr": "Scan this QR-code with another device to pair it",

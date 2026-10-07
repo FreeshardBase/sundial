@@ -101,11 +101,18 @@ class ViewTerminals extends FsElement {
         this.render();
       }
     };
+    const cancelEdit = () => {
+      this.#editing.delete(term.id);
+      this.render();
+    };
     const input = card.querySelector('[data-field="name"]');
     if (input) {
       input.value = edit.name;
       input.addEventListener('input', () => { edit.name = input.value; });
-      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') confirm(); });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') confirm();
+        else if (e.key === 'Escape') cancelEdit();
+      });
       input.focus();
     }
     const rotate = (dir) => {
@@ -118,16 +125,26 @@ class ViewTerminals extends FsElement {
       this.#editing.set(term.id, { name: term.name, icon: term.icon, syncing: false });
       this.render();
     });
-    card.querySelector('[data-act="cancel"]')?.addEventListener('click', () => {
-      this.#editing.delete(term.id);
-      this.render();
-    });
+    card.querySelector('[data-act="cancel"]')?.addEventListener('click', cancelEdit);
     card.querySelector('[data-act="confirm"]')?.addEventListener('click', confirm);
     card.querySelector('[data-act="icon-prev"]')?.addEventListener('click', () => rotate(-1));
     card.querySelector('[data-act="icon-next"]')?.addEventListener('click', () => rotate(1));
-    card.querySelector('[data-act="delete"]')?.addEventListener('click', async () => {
+    card.querySelector('[data-act="delete"]')?.addEventListener('click', () => this.confirmDelete(term));
+  }
+
+  confirmDelete(term) {
+    const body = document.createElement('div');
+    body.innerHTML = `<p>${t('terminals.removeConfirmBody')}</p>`;
+    const footer = document.createElement('div');
+    footer.innerHTML = `
+      <button class="fs-btn" data-act="cancel">${t('common.cancel')}</button>
+      <button class="fs-btn fs-btn--danger" data-act="remove">${t('terminals.remove')}</button>`;
+    const modal = openModal({ title: t('terminals.removeDevice'), body, footer });
+    footer.querySelector('[data-act="cancel"]').addEventListener('click', () => modal.close());
+    footer.querySelector('[data-act="remove"]').addEventListener('click', async () => {
       await api.deleteTerminalById(term.id);
       this.#editing.delete(term.id);
+      modal.close();
       await refreshTerminals().catch(() => {});
     });
   }
