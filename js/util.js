@@ -36,6 +36,14 @@ export function formatRelative(value, now = Date.now()) {
   return ms <= 0 ? t('common.justNow') : t('common.inMoments');
 }
 
+// Exact date (optionally + time) for a formatRelative() value, locale-aware —
+// meant as the `title` tooltip on relative-time text. dateOnly drops the time
+// part (used on the Settings screen, where the day is enough context).
+export function formatAbsolute(value, { dateOnly = false } = {}) {
+  const options = dateOnly ? { dateStyle: 'medium' } : { dateStyle: 'medium', timeStyle: 'short' };
+  return new Intl.DateTimeFormat(intlTag(), options).format(parseUtc(value));
+}
+
 // Disk-usage gauge reading — the honest ratio (used/total) plus the same
 // low/warning/normal tone selection fillDiskBar used to apply via CSSOM.
 // Feed straight into an <fs-gauge>'s `.reading` setter (js/components/gauge.js).

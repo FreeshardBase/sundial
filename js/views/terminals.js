@@ -7,7 +7,7 @@ import { refreshTerminals } from '../actions.js';
 import * as api from '../api/client.js';
 import { icon } from '../components/icons.js';
 import { openModal } from '../components/modal.js';
-import { formatRelative, parseUtc } from '../util.js';
+import { formatRelative, formatAbsolute, parseUtc } from '../util.js';
 import { onMessage } from '../ws.js';
 import { generate } from 'lean-qr';
 import { t } from '../i18n.js';
@@ -63,7 +63,7 @@ class ViewTerminals extends FsElement {
           ${edit
             ? `<input class="fs-input" data-field="name" ${edit.syncing ? 'disabled' : ''}>`
             : `<h3 class="terminal-card__name">${esc(term.name)}</h3>`}
-          <p class="muted terminal-card__time" data-ts="${esc(term.last_connection || '')}">${this.timeText(term)}</p>
+          <p class="muted terminal-card__time" data-ts="${esc(term.last_connection || '')}"${term.last_connection ? ` title="${esc(formatAbsolute(term.last_connection))}"` : ''}>${this.timeText(term)}</p>
         </div>
         <div class="terminal-card__controls">
           ${edit ? `
@@ -85,7 +85,10 @@ class ViewTerminals extends FsElement {
 
   renderTimes() {
     for (const p of this.querySelectorAll('.terminal-card__time')) {
-      if (p.dataset.ts) p.textContent = t('terminals.lastConnection', { when: formatRelative(p.dataset.ts) });
+      if (p.dataset.ts) {
+        p.textContent = t('terminals.lastConnection', { when: formatRelative(p.dataset.ts) });
+        p.title = formatAbsolute(p.dataset.ts);
+      }
     }
   }
 
@@ -102,11 +105,18 @@ class ViewTerminals extends FsElement {
         this.render();
       }
     };
+    const cancelEdit = () => {
+      this.#editing.delete(term.id);
+      this.render();
+    };
     const input = card.querySelector('[data-field="name"]');
     if (input) {
       input.value = edit.name;
       input.addEventListener('input', () => { edit.name = input.value; });
-      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') confirm(); });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') confirm();
+        else if (e.key === 'Escape') cancelEdit();
+      });
       input.focus();
     }
     const rotate = (dir) => {
@@ -119,16 +129,26 @@ class ViewTerminals extends FsElement {
       this.#editing.set(term.id, { name: term.name, icon: term.icon, syncing: false });
       this.render();
     });
-    card.querySelector('[data-act="cancel"]')?.addEventListener('click', () => {
-      this.#editing.delete(term.id);
-      this.render();
-    });
+    card.querySelector('[data-act="cancel"]')?.addEventListener('click', cancelEdit);
     card.querySelector('[data-act="confirm"]')?.addEventListener('click', confirm);
     card.querySelector('[data-act="icon-prev"]')?.addEventListener('click', () => rotate(-1));
     card.querySelector('[data-act="icon-next"]')?.addEventListener('click', () => rotate(1));
-    card.querySelector('[data-act="delete"]')?.addEventListener('click', async () => {
+    card.querySelector('[data-act="delete"]')?.addEventListener('click', () => this.confirmDelete(term));
+  }
+
+  confirmDelete(term) {
+    const body = document.createElement('div');
+    body.innerHTML = `<p>${t('terminals.removeConfirmBody')}</p>`;
+    const footer = document.createElement('div');
+    footer.innerHTML = `
+      <button class="fs-btn" data-act="cancel">${t('common.cancel')}</button>
+      <button class="fs-btn fs-btn--danger" data-act="remove">${t('terminals.remove')}</button>`;
+    const modal = openModal({ title: t('terminals.removeDevice'), body, footer });
+    footer.querySelector('[data-act="cancel"]').addEventListener('click', () => modal.close());
+    footer.querySelector('[data-act="remove"]').addEventListener('click', async () => {
       await api.deleteTerminalById(term.id);
       this.#editing.delete(term.id);
+      modal.close();
       await refreshTerminals().catch(() => {});
     });
   }

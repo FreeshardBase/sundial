@@ -41,9 +41,6 @@
 /* ---- home ---- */
 
 .home-status {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
 
@@ -59,7 +56,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 96px;
+  height: 104px;
   padding: var(--space-3) var(--space-2);
   border: var(--border-w) solid var(--border-cool);
   border-radius: var(--radius-tile);
@@ -92,7 +89,13 @@
 
 .app-tile__status { height: 10px; display: flex; align-items: center; }
 .app-tile__error { color: var(--danger); font: 600 12px/1 var(--font-mono); }
-.app-tile__name { overflow-wrap: anywhere; }
+.app-tile__name {
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
 
 .app-tile--busy { cursor: progress; }
 .app-tile--blocked { opacity: .55; cursor: not-allowed; }
@@ -121,6 +124,30 @@
   margin-top: var(--space-4);
 }
 .welcome-learn { margin-top: var(--space-5); font-size: var(--fs-small); }
+
+/* De-emphasized corner control: the only way an anon visitor starts pairing,
+ * or the owner reaches edit, from this public page — must stay reachable but
+ * out of the main content flow (muted, like .dock-classic, not a forward action). */
+.welcome-action {
+  position: fixed;
+  right: var(--space-3);
+  bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: var(--border-w) solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink-muted);
+  font-size: var(--fs-small);
+  text-decoration: none;
+  z-index: 15;
+}
+.welcome-action:hover { color: var(--ink); border-color: var(--border-cool); }
+/* .fs-focusable:focus-visible sets position:relative for the scale effect;
+ * restore :fixed so focus doesn't yank this out of its corner. */
+.welcome-action:focus-visible { position: fixed; }
 
 .pair-form {
   display: flex;
@@ -242,11 +269,20 @@ fs-editable-text { display: block; max-width: 640px; margin-bottom: var(--space-
 
 /* ---- settings ---- */
 
+/* Cards vary a lot in height (an expanded backup report dwarfs the
+   language card). A grid's row tracks size to the tallest card in the
+   row, which leaves ragged whitespace under the shorter ones. CSS
+   multi-column flow lets each column stack to its own height instead
+   (a pure-CSS masonry-like layout — `grid-template-rows: masonry` would
+   be more direct but isn't broadly supported yet). */
 .settings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr));
-  gap: var(--space-4);
-  align-items: start;
+  column-width: 420px;
+  column-gap: var(--space-4);
+}
+
+.settings-card {
+  break-inside: avoid;
+  margin: 0 0 var(--space-4);
 }
 
 .settings-card p { margin: 0 0 var(--space-3); }
@@ -274,6 +310,11 @@ fs-sparkline svg { display: block; }
 .size-picker { display: flex; gap: var(--space-1); margin-bottom: var(--space-3); flex-wrap: wrap; }
 .size-btn--current { border-color: var(--data); color: var(--data); }
 .size-btn--selected { border-color: var(--accent); color: var(--accent); }
+
+.toggle-row { display: flex; align-items: center; gap: var(--space-2); }
+.toggle-row .icon { color: var(--ink-muted); }
+.toggle-row__label { flex: 1; }
+.toggle-row .fs-toggle { flex: none; cursor: pointer; border: none; padding: 0; }
 
 .about-fields { max-width: 720px; }
 .about-field { margin-bottom: var(--space-4); }
@@ -304,6 +345,7 @@ fs-sparkline svg { display: block; }
   gap: var(--space-4);
   align-items: flex-start;
   padding: var(--space-4);
+  min-height: 108px;
   background: var(--surface);
   border: var(--border-w) solid var(--border);
   border-radius: var(--radius-tile);
@@ -323,15 +365,27 @@ fs-sparkline svg { display: block; }
 
 .store-card__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .store-card__name { font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.store-card__desc { color: var(--ink-muted); font-size: var(--fs-small); }
-.store-card__status { color: var(--ink-muted); font-size: 11px; }
+.store-card__desc {
+  color: var(--ink-muted);
+  font-size: var(--fs-small);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
 
-.store-card__mark { display: inline-flex; }
+.store-card__mark { display: inline-flex; align-items: center; }
 .store-card__mark .icon { width: 15px; height: 15px; }
 .store-card__mark--featured { color: var(--accent); }
 .store-card__mark--update { color: var(--accent); }
 .store-card__mark--warn { color: var(--accent); }
-.store-card__mark--error { color: var(--danger); }
+.store-card__mark--error { color: var(--danger); font: 600 12px/1 var(--font-mono); }
+.store-card__mark--stopped {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: var(--border-w-glyph) solid var(--ink-muted);
+}
 
 .app-detail__head { display: flex; gap: var(--space-4); align-items: flex-start; }
 .app-detail__head h2 { margin: 0; }
@@ -340,6 +394,10 @@ fs-sparkline svg { display: block; }
 .app-detail__status { text-transform: none; }
 .app-detail__error:empty { display: none; }
 .app-detail__error { color: var(--danger); }
+
+/* custom-app modal: the body is one un-gapped wrapper div (see .modal-body in
+   ui.css), so the file field needs its own breathing room above and below. */
+.custom-app-files { margin: var(--space-3) 0; }
 
 /* ---- usage prompt ---- */
 

@@ -170,14 +170,14 @@ fs-shard-badge .badge-content i { display: inline-block; width: .45em; }
 
 /* ---- feedback ---- */
 
-.feedback-text { max-width: none; resize: vertical; }
+.feedback-text { max-width: none; } /* resize: vertical comes from the general textarea.fs-input rule below */
 .feedback-note { font-size: var(--fs-small); }
 
 /* ---- generic bits ---- */
 
 .icon { flex: none; }
 
-textarea.fs-input { line-height: 1.45; }
+textarea.fs-input { line-height: 1.45; resize: vertical; }
 
 .fs-btn { display: inline-flex; align-items: center; gap: 6px; }
 
@@ -192,6 +192,14 @@ textarea.fs-input { line-height: 1.45; }
 .alert--danger { border-color: var(--danger); color: var(--danger); }
 .alert--info { border-color: var(--border-cool); }
 .alert a { color: inherit; }
+
+/* Inside a modal body, an alert is a visually distinct bordered block — give
+   it more separation from preceding flowing text than plain paragraph-to-
+   paragraph spacing (:not(:first-child) skips modals where the alert opens
+   the body with nothing above it to separate from). Scoped, not a blanket
+   .alert rule, since most alerts live in page content, not modals, where
+   .modal-body doesn't apply. */
+.modal-body .alert:not(:first-child) { margin-top: var(--space-3); }
 
 /* ---- banner strip ---- */
 

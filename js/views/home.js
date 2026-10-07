@@ -1,9 +1,9 @@
 // Home — the dashboard: app grid + resource monitor.
 
-import { FsElement } from '../components/base.js';
+import { FsElement, esc } from '../components/base.js';
 import { store, shortShardId, tourSeen } from '../store.js';
 import { refreshApps, markTourSeen } from '../actions.js';
-import { diskGaugeReading, formatRelative } from '../util.js';
+import { diskGaugeReading, formatRelative, formatAbsolute } from '../util.js';
 import { href } from '../router.js';
 import { icon } from '../components/icons.js';
 import { t, fmtNumber } from '../i18n.js';
@@ -25,13 +25,11 @@ class ViewHome extends FsElement {
   render() {
     document.title = t('title.home', { id: shortShardId() });
     const apps = store.state.apps;
-    const running = apps.filter((a) => a.status === 'running').length;
     this.innerHTML = `
       <div class="home-layout">
         <section class="home-apps">
           <div class="home-status">
             <span class="fs-label">${t('home.appsLabel')}</span>
-            <span class="muted mono">${t('home.running', { count: running })}</span>
           </div>
           <div class="app-grid"></div>
         </section>
@@ -79,7 +77,7 @@ class ViewHome extends FsElement {
       rows.push(`
         <div class="summary-row">
           <span class="fs-label">${t('home.trialLabel')}</span>
-          <span>${t('home.trialDelete', { when: formatRelative(profile.delete_after) })}</span>
+          <span title="${esc(formatAbsolute(profile.delete_after))}">${t('home.trialDelete', { when: formatRelative(profile.delete_after) })}</span>
           <a href="${href('settings')}">${t('home.subscribe')}</a>
         </div>`);
     }

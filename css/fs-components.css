@@ -48,6 +48,32 @@
 .fs-input[aria-invalid="true"] { border-color: var(--danger); }
 .fs-field__error { font-size: 11px; color: var(--danger); margin-top: 4px; }
 
+/* ---- file field — bordered like .fs-input, browse button styled like .fs-btn ---- */
+.fs-file {
+  display: block;
+  width: 100%;
+  font: 400 14px/1.3 var(--font-ui);
+  color: var(--ink-muted);
+  padding: 8px 11px;
+  border: var(--border-w) solid var(--border-cool);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+.fs-file:focus-within {
+  border-color: var(--line);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--line) 25%, transparent);
+}
+.fs-file::file-selector-button {
+  font: 400 var(--fs-small)/1 var(--font-ui);
+  margin-right: var(--space-3);
+  padding: 7px 14px;
+  border: var(--border-w) solid var(--border-cool);
+  border-radius: var(--radius-control);
+  background: transparent; color: var(--ink);
+  cursor: pointer;
+}
+.fs-file::file-selector-button:hover { border-color: var(--line); }
+
 /* ---- checkbox (square), radio (circle), toggle (pill) ---- */
 .fs-check, .fs-radio {
   width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center;

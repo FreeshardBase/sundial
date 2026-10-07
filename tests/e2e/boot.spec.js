@@ -13,7 +13,7 @@ test('app boots and hydrates from the API', async ({ page }) => {
   // 4 mock apps + the "add app" tile
   await expect(page.locator('.app-grid fs-app-tile')).toHaveCount(4);
   await expect(page.locator('.app-tile--add')).toBeVisible();
-  await expect(page.locator('.home-status')).toContainText('2 running');
+  await expect(page.locator('.home-status')).toContainText('apps');
 
   // summary hydrated from /stats/disk and /terminals
   await expect(page.locator('.summary-card')).toContainText('12.2 / 29.4 GiB');

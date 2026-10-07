@@ -88,8 +88,8 @@ test('t() in German + fallback to en', async () => {
   await initI18n();
   assert.equal(store.state.locale, 'de');
   assert.equal(t('dock.home'), 'Start');
-  assert.equal(t('home.running', { count: 1 }), '1 läuft');
-  assert.equal(t('home.running', { count: 2 }), '2 laufen');
+  assert.equal(t('apps.updatesAvailable', { count: 1 }), 'Für eine App ist ein Update verfügbar.');
+  assert.equal(t('apps.updatesAvailable', { count: 2 }), 'Für 2 Apps sind Updates verfügbar.');
   // key missing in both catalogs still returns the key under de
   assert.equal(t('no.such.key'), 'no.such.key');
 });

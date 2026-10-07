@@ -39,7 +39,6 @@ class FsDock extends HTMLElement {
       bindAlt(item.key, () => this.querySelector(`a[data-route="${item.route}"]`));
     }
     bindAlt('f', () => this.querySelector('.dock-feedback'));
-    bindAlt('t', () => this.querySelector('.dock-theme'));
   }
 
   disconnectedCallback() {
@@ -57,7 +56,6 @@ class FsDock extends HTMLElement {
     const diskLow = state.disk_usage.disk_space_low;
     const diskWarn = state.disk_usage.disk_space_warning && !diskLow;
     const updateAvail = state.version !== null && state.version !== VERSION;
-    const dark = document.documentElement.dataset.theme === 'dark';
     const atSubpath = BASE !== '/';
 
     this.innerHTML = `
@@ -83,9 +81,6 @@ class FsDock extends HTMLElement {
           <button class="dock-item dock-feedback fs-focusable" title="${t('dock.feedback')}">
             <span class="fs-keyhint">F</span>${icon('feedback')}<span class="dock-label">${t('dock.feedback')}</span>
           </button>
-          <button class="dock-item dock-theme fs-focusable" title="${dark ? t('dock.themeLight') : t('dock.themeDark')}">
-            <span class="fs-keyhint">T</span>${icon(dark ? 'sun' : 'moon')}
-          </button>
           ${atSubpath ? `<a class="dock-item dock-classic fs-focusable" href="/" title="${t('dock.classicTitle')}">
             <span class="dock-label">${t('dock.classic')}</span>
           </a>` : ''}
@@ -93,20 +88,10 @@ class FsDock extends HTMLElement {
       </nav>`;
 
     this.querySelector('.dock-feedback').addEventListener('click', () => this.openFeedback());
-    this.querySelector('.dock-theme').addEventListener('click', () => this.toggleTheme());
     this.querySelector('.dock-update')?.addEventListener('click', () => location.reload());
     this.querySelector('.dock-classic')?.addEventListener('click', () => {
       try { localStorage.setItem('freeshard.ui', 'classic'); } catch { /* ignore */ }
     });
-  }
-
-  toggleTheme() {
-    const root = document.documentElement;
-    const dark = root.dataset.theme === 'dark';
-    if (dark) delete root.dataset.theme;
-    else root.dataset.theme = 'dark';
-    try { localStorage.setItem('sundial.theme', dark ? 'light' : 'dark'); } catch { /* ignore */ }
-    this.render();
   }
 
   openFeedback() {

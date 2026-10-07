@@ -31,15 +31,13 @@
     "diskLow": "Disk space critically low. All apps are stopped.",
     "diskWarn": "Disk space is getting low.",
     "feedback": "Feedback",
-    "themeLight": "Switch to light theme",
-    "themeDark": "Switch to dark theme",
     "classic": "Classic UI",
     "classicTitle": "Back to the classic UI"
   },
   "feedback": {
     "title": "Quick feedback",
     "placeholder": "What's on your mind?",
-    "note": "What you write here is a one-off message for us and currently we have no way of responding directly to it. For more elaborate feedback or a dialogue, you can <a href=\"mailto:contact@freeshard.net\">write us</a> or visit our <a href=\"https://discord.gg/ZXQDuTGcCf\" target=\"_blank\" rel=\"noopener\">Discord</a>.",
+    "note": "What you write here is a one-off message for us and currently we have no way of responding directly to it. For more elaborate feedback or a dialogue, you can <a href=\"mailto:contact@freeshard.net\">write us</a>.",
     "send": "Send",
     "sending": "Sending…",
     "sent": "✓ Sent",
@@ -47,7 +45,6 @@
   },
   "home": {
     "appsLabel": "apps",
-    "running": "{count} running",
     "addApp": "Add app",
     "shardLabel": "shard",
     "diskLabel": "disk",
@@ -91,6 +88,8 @@
     "nextIcon": "Next icon",
     "editDevice": "Edit device",
     "removeDevice": "Remove device",
+    "removeConfirmBody": "This device will lose access to this shard. To use it again, you'll need to pair it again.",
+    "remove": "Remove",
     "lastConnection": "Last connection: {when}",
     "lastConnectionUnknown": "Last connection: unknown",
     "scanQr": "Scan this QR-code with another device to pair it",
@@ -119,6 +118,9 @@
     "updateAvailable": "Update available",
     "needsLarger": "Requires a larger shard",
     "errorState": "App is in error state",
+    "statusRunning": "App is running",
+    "statusStopped": "App is stopped",
+    "statusDown": "App is down",
     "notInstalled": "not installed",
     "customApp": "Custom app",
     "preconfiguredApp": "Preconfigured app",
@@ -214,6 +216,11 @@
       "unlock": "To unlock larger sizes, please <a href=\"mailto:contact@freeshard.net\">contact us</a>.",
       "resize": "Resize to {size} and restart",
       "pending": "A size change is already pending; new resizes are disabled until it completes."
+    },
+    "appearance": {
+      "title": "Appearance",
+      "note": "Choose how this interface looks.",
+      "darkMode": "Dark mode"
     },
     "language": {
       "title": "Language",
