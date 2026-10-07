@@ -3,13 +3,14 @@
 import { FsElement } from '../components/base.js';
 import { store, shortShardId, tourSeen } from '../store.js';
 import { refreshApps, markTourSeen } from '../actions.js';
-import { fillDiskBar, formatRelative } from '../util.js';
+import { diskGaugeReading, formatRelative } from '../util.js';
 import { href } from '../router.js';
 import { icon } from '../components/icons.js';
 import { t, fmtNumber } from '../i18n.js';
 import '../components/app-tile.js';
 import { showUsagePrompt } from '../components/usage-prompt.js';
 import '../components/resource-monitor.js';
+import '../components/gauge.js';
 
 class ViewHome extends FsElement {
   connectedCallback() {
@@ -54,7 +55,7 @@ class ViewHome extends FsElement {
       <span class="app-tile__status"></span>
       <span class="app-tile__name">${t('home.addApp')}</span>`;
     grid.appendChild(add);
-    fillDiskBar(this.querySelector('.summary-disk .disk-bar__fill'), store.state.disk_usage);
+    this.querySelector('.summary-disk-gauge').reading = diskGaugeReading(store.state.disk_usage);
   }
 
   summaryHtml() {
@@ -65,7 +66,7 @@ class ViewHome extends FsElement {
     rows.push(`
       <div class="summary-row">
         <span class="fs-label">${t('home.diskLabel')}</span>
-        <div class="disk-bar summary-disk"><div class="disk-bar__fill"></div></div>
+        <fs-gauge compact class="summary-disk-gauge"></fs-gauge>
         <span class="mono">${gb(used)} / ${gb(du.total_gb)} GiB</span>
       </div>`);
     rows.push(`
