@@ -1,14 +1,13 @@
 // Home — the dashboard: app grid + resource monitor.
 
 import { FsElement, esc } from '../components/base.js';
-import { store, shortShardId, tourSeen } from '../store.js';
-import { refreshApps, markTourSeen } from '../actions.js';
+import { store, shortShardId } from '../store.js';
+import { refreshApps } from '../actions.js';
 import { diskGaugeReading, formatRelative, formatAbsolute } from '../util.js';
 import { href } from '../router.js';
 import { icon } from '../components/icons.js';
 import { t, fmtNumber } from '../i18n.js';
 import '../components/app-tile.js';
-import { showUsagePrompt } from '../components/usage-prompt.js';
 import '../components/resource-monitor.js';
 import '../components/gauge.js';
 
@@ -16,10 +15,6 @@ class ViewHome extends FsElement {
   connectedCallback() {
     this.watch(['apps', 'terminals', 'disk_usage'], () => this.render());
     refreshApps().catch(() => {});
-    if (!tourSeen('usage prompt')) {
-      showUsagePrompt();
-      markTourSeen('usage prompt').catch(() => {});
-    }
   }
 
   render() {
