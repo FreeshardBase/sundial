@@ -94,6 +94,8 @@
     "nextIcon": "Nächstes Symbol",
     "editDevice": "Gerät bearbeiten",
     "removeDevice": "Gerät entfernen",
+    "removeConfirmBody": "Dieses Gerät verliert den Zugriff auf diesen Shard. Um es wieder zu nutzen, musst du es erneut koppeln.",
+    "remove": "Entfernen",
     "lastConnection": "Letzte Verbindung: {when}",
     "lastConnectionUnknown": "Letzte Verbindung: unbekannt",
     "scanQr": "Scanne diesen QR-Code mit einem anderen Gerät, um es zu koppeln",
