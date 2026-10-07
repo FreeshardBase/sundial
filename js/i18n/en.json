@@ -31,8 +31,6 @@
     "diskLow": "Disk space critically low. All apps are stopped.",
     "diskWarn": "Disk space is getting low.",
     "feedback": "Feedback",
-    "themeLight": "Switch to light theme",
-    "themeDark": "Switch to dark theme",
     "classic": "Classic UI",
     "classicTitle": "Back to the classic UI"
   },
@@ -216,6 +214,11 @@
       "unlock": "To unlock larger sizes, please <a href=\"mailto:contact@freeshard.net\">contact us</a>.",
       "resize": "Resize to {size} and restart",
       "pending": "A size change is already pending; new resizes are disabled until it completes."
+    },
+    "appearance": {
+      "title": "Appearance",
+      "note": "Choose how this interface looks.",
+      "darkMode": "Dark mode"
     },
     "language": {
       "title": "Language",

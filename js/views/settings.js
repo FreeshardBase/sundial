@@ -113,6 +113,7 @@ class ViewSettings extends FsElement {
         ${this.diskCard()}
         ${this.backupCard()}
         ${profile ? this.sizeCard() : ''}
+        ${this.appearanceCard()}
         ${this.languageCard()}
         ${this.tourCard()}
       </div>
@@ -252,6 +253,22 @@ class ViewSettings extends FsElement {
       </section>`;
   }
 
+  appearanceCard() {
+    const dark = document.documentElement.dataset.theme === 'dark';
+    return `
+      <section class="fs-sheet settings-card"><h2>${t('settings.appearance.title')}</h2>
+        <p class="muted">${t('settings.appearance.note')}</p>
+        <div class="toggle-row">
+          ${icon(dark ? 'moon' : 'sun')}
+          <span class="toggle-row__label">${t('settings.appearance.darkMode')}</span>
+          <button class="fs-toggle fs-focusable" role="switch" aria-checked="${dark}"
+            aria-label="${t('settings.appearance.darkMode')}" data-act="toggle-theme">
+            <span class="fs-toggle__knob"></span>
+          </button>
+        </div>
+      </section>`;
+  }
+
   languageCard() {
     const current = store.state.locale;
     return `
@@ -271,6 +288,15 @@ class ViewSettings extends FsElement {
         <p class="muted">${t('settings.tours.note')}</p>
         <p><button class="fs-btn" data-act="reset-tours">${icon('left')} ${t('settings.tours.reset')}</button></p>
       </section>`;
+  }
+
+  toggleTheme() {
+    const root = document.documentElement;
+    const dark = root.dataset.theme === 'dark';
+    if (dark) delete root.dataset.theme;
+    else root.dataset.theme = 'dark';
+    try { localStorage.setItem('sundial.theme', dark ? 'light' : 'dark'); } catch { /* ignore */ }
+    this.render();
   }
 
   aboutFields() {
@@ -387,6 +413,7 @@ class ViewSettings extends FsElement {
       this.render();
     });
     act('cancel-resize', () => { this.#selectedSize = null; this.render(); });
+    act('toggle-theme', () => this.toggleTheme());
     this.querySelectorAll('.size-btn[data-size]').forEach((b) =>
       b.addEventListener('click', () => { this.#selectedSize = b.dataset.size; this.render(); }));
     this.querySelectorAll('[data-locale]').forEach((b) =>
