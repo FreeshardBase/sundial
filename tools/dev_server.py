@@ -89,7 +89,51 @@ STATE = {
         "vm_size": "s", "max_vm_size": "l", "volume_size_gb": 30,
         "subscription": None,
     },
-    "backup": {"last_report": "snapshot 2026-07-14 03:09 — 1.2 GiB, ok", "last_passphrase_access_info": None},
+    "backup": {
+        "last_report": {
+            "directories": [
+                {
+                    "directory": "apps",
+                    "startTime": "2026-07-14T03:09:02+00:00",
+                    "endTime": "2026-07-14T03:09:41+00:00",
+                    "rclone_stats": {
+                        "bytes": 812_481_920,
+                        "checks": 214,
+                        "transfers": 37,
+                        "errors": 0,
+                        "elapsedTime": 39.2,
+                    },
+                },
+                {
+                    "directory": "config",
+                    "startTime": "2026-07-14T03:09:41+00:00",
+                    "endTime": "2026-07-14T03:09:53+00:00",
+                    "rclone_stats": {
+                        "bytes": 4_213_760,
+                        "checks": 58,
+                        "transfers": 12,
+                        "errors": 0,
+                        "elapsedTime": 11.6,
+                    },
+                },
+                {
+                    "directory": "media",
+                    "startTime": "2026-07-14T03:09:53+00:00",
+                    "endTime": "2026-07-14T03:10:15+00:00",
+                    "rclone_stats": {
+                        "bytes": 1_297_123_328,
+                        "checks": 326,
+                        "transfers": 61,
+                        "errors": 0,
+                        "elapsedTime": 21.9,
+                    },
+                },
+            ],
+            "startTime": "2026-07-14T03:09:02+00:00",
+            "endTime": "2026-07-14T03:10:15+00:00",
+        },
+        "last_passphrase_access_info": None,
+    },
 }
 
 SOCKETS: set[web.WebSocketResponse] = set()
