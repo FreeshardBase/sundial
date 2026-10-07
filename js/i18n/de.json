@@ -39,7 +39,7 @@
   "feedback": {
     "title": "Kurzes Feedback",
     "placeholder": "Was liegt dir auf dem Herzen?",
-    "note": "Was du hier schreibst, ist eine einmalige Nachricht an uns — wir können darauf derzeit nicht direkt antworten. Für ausführlicheres Feedback oder einen Dialog kannst du uns <a href=\"mailto:contact@freeshard.net\">schreiben</a> oder unseren <a href=\"https://discord.gg/ZXQDuTGcCf\" target=\"_blank\" rel=\"noopener\">Discord</a> besuchen.",
+    "note": "Was du hier schreibst, ist eine einmalige Nachricht an uns — wir können darauf derzeit nicht direkt antworten. Für ausführlicheres Feedback oder einen Dialog kannst du uns <a href=\"mailto:contact@freeshard.net\">schreiben</a>.",
     "send": "Senden",
     "sending": "Wird gesendet…",
     "sent": "✓ Gesendet",
