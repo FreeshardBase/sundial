@@ -47,7 +47,6 @@
   },
   "home": {
     "appsLabel": "apps",
-    "running": "{count} running",
     "addApp": "Add app",
     "shardLabel": "shard",
     "diskLabel": "disk",

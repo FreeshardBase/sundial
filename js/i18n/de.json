@@ -47,10 +47,6 @@
   },
   "home": {
     "appsLabel": "apps",
-    "running": {
-      "one": "{count} läuft",
-      "other": "{count} laufen"
-    },
     "addApp": "App hinzufügen",
     "shardLabel": "shard",
     "diskLabel": "festplatte",

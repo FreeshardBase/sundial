@@ -24,13 +24,11 @@ class ViewHome extends FsElement {
   render() {
     document.title = t('title.home', { id: shortShardId() });
     const apps = store.state.apps;
-    const running = apps.filter((a) => a.status === 'running').length;
     this.innerHTML = `
       <div class="home-layout">
         <section class="home-apps">
           <div class="home-status">
             <span class="fs-label">${t('home.appsLabel')}</span>
-            <span class="muted mono">${t('home.running', { count: running })}</span>
           </div>
           <div class="app-grid"></div>
         </section>
