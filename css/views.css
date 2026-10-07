@@ -403,10 +403,6 @@ fs-sparkline svg { display: block; }
 .app-detail__error:empty { display: none; }
 .app-detail__error { color: var(--danger); }
 
-/* custom-app modal: the body is one un-gapped wrapper div (see .modal-body in
-   ui.css), so the file field needs its own breathing room above and below. */
-.custom-app-files { margin: var(--space-3) 0; }
-
 /* ---- usage prompt ---- */
 
 .usage-prompt { display: flex; flex-direction: column; gap: var(--space-3); }

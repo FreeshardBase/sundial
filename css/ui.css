@@ -160,6 +160,12 @@ fs-shard-badge .badge-content i { display: inline-block; width: .45em; }
 
 .modal-body { display: flex; flex-direction: column; gap: var(--space-3); }
 .modal-body p { margin: 0; }
+/* Most callers build the body as a single wrapper div (innerHTML'd) that
+   openModal() appends as bodyEl's one child, rather than passing content
+   as bodyEl's direct children — so the gap above has no siblings to apply
+   between in those cases. Give that wrapper the same treatment so spacing
+   applies either way. */
+.modal-body > div { display: flex; flex-direction: column; gap: var(--space-3); }
 
 .modal-footer {
   display: flex;
@@ -192,14 +198,6 @@ textarea.fs-input { line-height: 1.45; resize: vertical; }
 .alert--danger { border-color: var(--danger); color: var(--danger); }
 .alert--info { border-color: var(--border-cool); }
 .alert a { color: inherit; }
-
-/* Inside a modal body, an alert is a visually distinct bordered block — give
-   it more separation from preceding flowing text than plain paragraph-to-
-   paragraph spacing (:not(:first-child) skips modals where the alert opens
-   the body with nothing above it to separate from). Scoped, not a blanket
-   .alert rule, since most alerts live in page content, not modals, where
-   .modal-body doesn't apply. */
-.modal-body .alert:not(:first-child) { margin-top: var(--space-3); }
 
 /* ---- banner strip ---- */
 
