@@ -73,7 +73,6 @@ function assignPositional() {
     const r = el.getBoundingClientRect();
     return r.width > 0 && r.height > 0;
   });
-  for (let i = 10; i <= 35; i++) unbindAlt((i - 9).toString(36));
   for (let n = 1; n <= 9; n++) unbindAlt(String(n));
   seq.slice(0, 9).forEach((el, i) => {
     bindAlt(String(i + 1), el);
@@ -92,8 +91,14 @@ export function startKeynav() {
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Alt' && !e.repeat) {
+      if (!isTyping()) e.preventDefault();
       assignPositional();
       document.body.dataset.keyhints = 'on';
+      return;
+    }
+    if (e.key === 'Escape' && !isTyping()) {
+      const el = document.activeElement;
+      if (el instanceof HTMLElement && el.classList.contains('fs-focusable')) el.blur();
       return;
     }
     if (e.altKey && e.key.length === 1) {
@@ -114,7 +119,10 @@ export function startKeynav() {
   });
 
   document.addEventListener('keyup', (e) => {
-    if (e.key === 'Alt') document.body.dataset.keyhints = 'off';
+    if (e.key === 'Alt') {
+      if (!isTyping()) e.preventDefault();
+      document.body.dataset.keyhints = 'off';
+    }
   });
   window.addEventListener('blur', () => { document.body.dataset.keyhints = 'off'; });
 }
