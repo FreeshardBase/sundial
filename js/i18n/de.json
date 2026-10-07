@@ -31,8 +31,6 @@
     "diskLow": "Speicherplatz kritisch knapp. Alle Apps wurden gestoppt.",
     "diskWarn": "Der Speicherplatz wird knapp.",
     "feedback": "Feedback",
-    "themeLight": "Zum hellen Design wechseln",
-    "themeDark": "Zum dunklen Design wechseln",
     "classic": "Klassische UI",
     "classicTitle": "Zurück zur klassischen Oberfläche"
   },
@@ -217,6 +215,11 @@
       "unlock": "Um größere Größen freizuschalten, <a href=\"mailto:contact@freeshard.net\">kontaktiere uns</a> bitte.",
       "resize": "Auf {size} ändern und neu starten",
       "pending": "Eine Größenänderung läuft bereits; weitere sind deaktiviert, bis sie abgeschlossen ist."
+    },
+    "appearance": {
+      "title": "Erscheinungsbild",
+      "note": "Wähle, wie diese Oberfläche aussieht.",
+      "darkMode": "Dunkler Modus"
     },
     "language": {
       "title": "Sprache",

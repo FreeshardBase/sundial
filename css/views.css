@@ -283,6 +283,11 @@ fs-sparkline svg { display: block; }
 .size-btn--current { border-color: var(--data); color: var(--data); }
 .size-btn--selected { border-color: var(--accent); color: var(--accent); }
 
+.toggle-row { display: flex; align-items: center; gap: var(--space-2); }
+.toggle-row .icon { color: var(--ink-muted); }
+.toggle-row__label { flex: 1; }
+.toggle-row .fs-toggle { flex: none; cursor: pointer; border: none; padding: 0; }
+
 .about-fields { max-width: 720px; }
 .about-field { margin-bottom: var(--space-4); }
 .about-field p { margin: 4px 0 0; overflow-wrap: anywhere; }
