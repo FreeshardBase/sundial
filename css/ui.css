@@ -170,14 +170,14 @@ fs-shard-badge .badge-content i { display: inline-block; width: .45em; }
 
 /* ---- feedback ---- */
 
-.feedback-text { max-width: none; resize: vertical; }
+.feedback-text { max-width: none; } /* resize: vertical comes from the general textarea.fs-input rule below */
 .feedback-note { font-size: var(--fs-small); }
 
 /* ---- generic bits ---- */
 
 .icon { flex: none; }
 
-textarea.fs-input { line-height: 1.45; }
+textarea.fs-input { line-height: 1.45; resize: vertical; }
 
 .fs-btn { display: inline-flex; align-items: center; gap: 6px; }
 
