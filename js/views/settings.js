@@ -202,7 +202,7 @@ class ViewSettings extends FsElement {
           <button class="fs-btn" data-act="toggle-backup-stats">${t('settings.backup.showStats')}</button>
           <button class="fs-btn" data-act="start-backup">${t('settings.backup.startNow')}</button>
         </p>
-        ${this.#backupStatsOpen ? `<pre class="mono backup-report">${esc(info.last_report || t('settings.backup.noneYet'))}</pre>` : ''}
+        ${this.#backupStatsOpen ? `<pre class="mono backup-report">${esc(info.last_report ? JSON.stringify(info.last_report, null, 2) : t('settings.backup.noneYet'))}</pre>` : ''}
         <hr class="hairline">
         <p class="muted">${t('settings.backup.passphraseNote')}</p>
         ${!info.last_passphrase_access_info ? `<p class="alert alert--danger">${icon('warn')} ${t('settings.backup.neverViewed')}</p>` : ''}
