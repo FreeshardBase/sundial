@@ -44,15 +44,16 @@ export function formatAbsolute(value, { dateOnly = false } = {}) {
   return new Intl.DateTimeFormat(intlTag(), options).format(parseUtc(value));
 }
 
-// Disk-usage bar fill, set via CSSOM — inline style= attributes are barred
-// by the CSP (style-src 'self').
-export function fillDiskBar(fill, du) {
-  if (!fill) return;
+// Disk-usage gauge reading — the honest ratio (used/total) plus the same
+// low/warning/normal tone selection fillDiskBar used to apply via CSSOM.
+// Feed straight into an <fs-gauge>'s `.reading` setter (js/components/gauge.js).
+export function diskGaugeReading(du) {
   const used = du.total_gb - du.free_gb;
-  const ratio = du.total_gb > 0 ? used / du.total_gb : 0;
-  fill.style.width = `${(ratio * 100).toFixed(2)}%`;
-  fill.style.background = du.disk_space_low ? 'var(--danger)'
-    : du.disk_space_warning ? 'var(--accent)' : 'var(--data)';
+  return {
+    value: used,
+    max: du.total_gb,
+    tone: du.disk_space_low ? 'danger' : du.disk_space_warning ? 'warning' : 'normal',
+  };
 }
 
 // Device object for pairing, from the user agent (replaces mobile-device-detect).

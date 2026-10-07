@@ -117,13 +117,25 @@
 }
 /* sizes: 24 / 32 / 48 / 64 px */
 
-/* ---- data gauge (SVG): arc length MUST equal the real ratio ----
- * <svg viewBox="0 0 64 64">
- *   <circle cx=32 cy=32 r=27 fill=none stroke=var(--border) stroke-width=2/>
- *   <circle cx=32 cy=32 r=27 fill=none stroke=var(--data) stroke-width=2
- *           stroke-dasharray="{ratio*169.6} 169.6" stroke-linecap=round transform="rotate(-90 32 32)"/>
- * </svg>   // r=27 -> circumference C=169.6; dasharray = ratio*C
- */
+/* ---- data gauge (fs-gauge, js/components/gauge.js): arc length MUST equal
+ * the real ratio. r=27 -> circumference C≈169.6; dasharray = ratio*C, never
+ * a flat eyeballed width — see design-guide.md "Correctness rules". */
+fs-gauge {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: none; /* fixed intrinsic size — never stretched to fill a flex row */
+}
+fs-gauge .fs-gauge__svg { display: block; }
+fs-gauge .fs-gauge__label {
+  position: absolute; font-size: 13px; letter-spacing: var(--ls-mono);
+}
+/* Glow is a signal, never decoration — only gauges that are actively live
+ * right now (e.g. the pairing-code countdown) carry data-live; a static/idle
+ * gauge (disk usage) never glows. Light mode: no glow at all. */
+[data-theme="dark"] fs-gauge .fs-gauge__svg[data-live="true"] .fs-gauge__fill,
+.theme-dark fs-gauge .fs-gauge__svg[data-live="true"] .fs-gauge__fill {
+  filter: drop-shadow(var(--glow-live));
+}
 
 /* ---- keyboard navigation: roving focus + Alt-hold hints ----
  * Keyboard is first-class. One shared focus; move it by Tab (between regions),

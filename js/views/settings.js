@@ -7,7 +7,8 @@ import * as api from '../api/client.js';
 import { call } from '../api/client.js';
 import { icon } from '../components/icons.js';
 import { toastSuccess, toastError, errorMessage } from '../components/toast.js';
-import { fillDiskBar, formatRelative, formatAbsolute } from '../util.js';
+import { diskGaugeReading, formatRelative, formatAbsolute } from '../util.js';
+import '../components/gauge.js';
 import { computeMonthlyPrice, centsToEur } from '../pricing.js';
 import { navigate } from '../router.js';
 import { onMessage } from '../ws.js';
@@ -120,7 +121,9 @@ class ViewSettings extends FsElement {
       <h1 class="settings-about-title">${t('settings.about.title')}</h1>
       <div class="about-fields">${this.aboutFields()}</div>`;
 
-    fillDiskBar(this.querySelector('.disk-bar__fill'), state.disk_usage);
+    const du = state.disk_usage;
+    const diskRatio = du.total_gb > 0 ? (du.total_gb - du.free_gb) / du.total_gb : 0;
+    this.querySelector('.disk-gauge').reading = { ...diskGaugeReading(du), label: fmtPercent(diskRatio) };
     this.wire();
   }
 
@@ -179,12 +182,14 @@ class ViewSettings extends FsElement {
     const gb = (v) => fmtNumber(v, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     return `
       <section class="fs-sheet settings-card"><h2>${t('settings.disk.title')}</h2>
-        <div class="disk-bar" role="img" aria-label="${t('settings.disk.usedLabel', { pct: fmtPercent(ratio) })}">
-          <div class="disk-bar__fill"></div>
+        <div class="disk-gauge-row">
+          <fs-gauge class="disk-gauge" role="img" aria-label="${t('settings.disk.usedLabel', { pct: fmtPercent(ratio) })}"></fs-gauge>
+          <div class="disk-gauge-info">
+            <p class="mono">${t('settings.disk.usage', { used: gb(used), total: gb(du.total_gb), pct: fmtPercent(ratio) })}</p>
+            ${du.disk_space_low ? `<p class="alert alert--danger">${icon('disk')} ${t('settings.disk.low')}</p>` : ''}
+            ${du.disk_space_warning && !du.disk_space_low ? `<p class="alert alert--warn">${icon('disk')} ${t('settings.disk.warning')}</p>` : ''}
+          </div>
         </div>
-        <p class="mono">${t('settings.disk.usage', { used: gb(used), total: gb(du.total_gb), pct: fmtPercent(ratio) })}</p>
-        ${du.disk_space_low ? `<p class="alert alert--danger">${icon('disk')} ${t('settings.disk.low')}</p>` : ''}
-        ${du.disk_space_warning && !du.disk_space_low ? `<p class="alert alert--warn">${icon('disk')} ${t('settings.disk.warning')}</p>` : ''}
         <hr class="hairline">
         <p class="muted">${t('settings.disk.pruneNote')}</p>
         <p><button class="fs-btn" data-act="prune" ${this.#prune.inProgress ? 'disabled' : ''}>
