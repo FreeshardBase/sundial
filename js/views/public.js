@@ -44,7 +44,7 @@ class ViewPublic extends FsElement {
         <span class="fs-label">${t('public.image')}</span>
         <fs-avatar src="${esc(this.#avatarRef)}" name="${esc(id.name)}" size="7rem"></fs-avatar>
         <div class="public-avatar__controls">
-          <input type="file" accept="image/*" class="avatar-file">
+          <input type="file" accept="image/*" class="fs-file avatar-file">
           <p class="muted">${icon('warn')} ${t('public.squareWarning')}</p>
           <div>
             <button class="fs-btn avatar-upload" disabled>${icon('upload')} ${t('public.upload')}</button>

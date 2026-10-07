@@ -25,6 +25,21 @@ function sizeCompatible(app) {
   return VM_SIZES.indexOf(profile.vm_size) >= VM_SIZES.indexOf(min);
 }
 
+// Small status symbol shown next to the app name on installed cards — mirrors
+// Home's app-tile treatment (fs-dot for running, a glyph for error) instead of
+// a separate text line. Busy states already get a spinner over the icon, and
+// "error" has its own mark further down, so neither is handled here.
+function statusMarkHtml(app) {
+  if (BUSY_STATUSES.includes(app.status)) return '';
+  if (app.status === 'running') {
+    return `<span class="store-card__mark" title="${t('apps.statusRunning')}"><span class="fs-dot" data-live="true"></span></span>`;
+  }
+  if (app.status === 'stopped' || app.status === 'down') {
+    return `<span class="store-card__mark store-card__mark--stopped" title="${app.status === 'down' ? t('apps.statusDown') : t('apps.statusStopped')}"></span>`;
+  }
+  return '';
+}
+
 class ViewApps extends FsElement {
   #storeApps = [];
   #loading = true;
@@ -143,13 +158,13 @@ class ViewApps extends FsElement {
         <span class="store-card__body">
           <span class="store-card__name">
             ${esc(appDisplayName(app))}
+            ${isInstalled ? statusMarkHtml(app) : ''}
+            ${app.status === 'error' ? `<span class="store-card__mark store-card__mark--error" title="${t('apps.errorState')}">!</span>` : ''}
             ${info.is_featured ? `<span class="store-card__mark store-card__mark--featured" title="${t('apps.featured')}">${icon('star')}</span>` : ''}
             ${app.update_available ? `<span class="store-card__mark store-card__mark--update" title="${t('apps.updateAvailable')}">${icon('update')}</span>` : ''}
             ${!sizeCompatible(app) ? `<span class="store-card__mark store-card__mark--warn" title="${t('apps.needsLarger')}">${icon('warn')}</span>` : ''}
-            ${app.status === 'error' ? `<span class="store-card__mark store-card__mark--error" title="${t('apps.errorState')}">${icon('warn')}</span>` : ''}
           </span>
           <span class="store-card__desc">${esc(info.description_short || '')}</span>
-          ${isInstalled ? `<span class="store-card__status mono">${esc(app.status || '')}</span>` : ''}
         </span>
       </button>`;
   }
@@ -235,7 +250,7 @@ class ViewApps extends FsElement {
     body.innerHTML = `
       <p>${t('apps.customIntro')}</p>
       <p class="alert alert--danger">${t('apps.customWarning')}</p>
-      <input type="file" multiple class="custom-app-files">
+      <input type="file" multiple class="fs-file custom-app-files">
       <p class="custom-app-error muted"></p>`;
     const footer = document.createElement('div');
     footer.innerHTML = `<button class="fs-btn fs-btn--primary" disabled>${icon('upload')} ${t('apps.install')}</button>`;

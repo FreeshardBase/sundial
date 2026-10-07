@@ -312,6 +312,7 @@ fs-sparkline svg { display: block; }
   gap: var(--space-4);
   align-items: flex-start;
   padding: var(--space-4);
+  min-height: 108px;
   background: var(--surface);
   border: var(--border-w) solid var(--border);
   border-radius: var(--radius-tile);
@@ -331,15 +332,27 @@ fs-sparkline svg { display: block; }
 
 .store-card__body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .store-card__name { font-weight: 500; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.store-card__desc { color: var(--ink-muted); font-size: var(--fs-small); }
-.store-card__status { color: var(--ink-muted); font-size: 11px; }
+.store-card__desc {
+  color: var(--ink-muted);
+  font-size: var(--fs-small);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
 
-.store-card__mark { display: inline-flex; }
+.store-card__mark { display: inline-flex; align-items: center; }
 .store-card__mark .icon { width: 15px; height: 15px; }
 .store-card__mark--featured { color: var(--accent); }
 .store-card__mark--update { color: var(--accent); }
 .store-card__mark--warn { color: var(--accent); }
-.store-card__mark--error { color: var(--danger); }
+.store-card__mark--error { color: var(--danger); font: 600 12px/1 var(--font-mono); }
+.store-card__mark--stopped {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: var(--border-w-glyph) solid var(--ink-muted);
+}
 
 .app-detail__head { display: flex; gap: var(--space-4); align-items: flex-start; }
 .app-detail__head h2 { margin: 0; }
@@ -348,6 +361,10 @@ fs-sparkline svg { display: block; }
 .app-detail__status { text-transform: none; }
 .app-detail__error:empty { display: none; }
 .app-detail__error { color: var(--danger); }
+
+/* custom-app modal: the body is one un-gapped wrapper div (see .modal-body in
+   ui.css), so the file field needs its own breathing room above and below. */
+.custom-app-files { margin: var(--space-3) 0; }
 
 /* ---- usage prompt ---- */
 
