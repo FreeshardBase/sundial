@@ -7,7 +7,7 @@ import { refreshTerminals } from '../actions.js';
 import * as api from '../api/client.js';
 import { icon } from '../components/icons.js';
 import { openModal } from '../components/modal.js';
-import { formatRelative, parseUtc } from '../util.js';
+import { formatRelative, formatAbsolute, parseUtc } from '../util.js';
 import { onMessage } from '../ws.js';
 import { generate } from 'lean-qr';
 import { t } from '../i18n.js';
@@ -62,7 +62,7 @@ class ViewTerminals extends FsElement {
           ${edit
             ? `<input class="fs-input" data-field="name" ${edit.syncing ? 'disabled' : ''}>`
             : `<h3 class="terminal-card__name">${esc(term.name)}</h3>`}
-          <p class="muted terminal-card__time" data-ts="${esc(term.last_connection || '')}">${this.timeText(term)}</p>
+          <p class="muted terminal-card__time" data-ts="${esc(term.last_connection || '')}"${term.last_connection ? ` title="${esc(formatAbsolute(term.last_connection))}"` : ''}>${this.timeText(term)}</p>
         </div>
         <div class="terminal-card__controls">
           ${edit ? `
@@ -84,7 +84,10 @@ class ViewTerminals extends FsElement {
 
   renderTimes() {
     for (const p of this.querySelectorAll('.terminal-card__time')) {
-      if (p.dataset.ts) p.textContent = t('terminals.lastConnection', { when: formatRelative(p.dataset.ts) });
+      if (p.dataset.ts) {
+        p.textContent = t('terminals.lastConnection', { when: formatRelative(p.dataset.ts) });
+        p.title = formatAbsolute(p.dataset.ts);
+      }
     }
   }
 

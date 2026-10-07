@@ -7,7 +7,7 @@ import * as api from '../api/client.js';
 import { call } from '../api/client.js';
 import { icon } from '../components/icons.js';
 import { toastSuccess, toastError, errorMessage } from '../components/toast.js';
-import { fillDiskBar, formatRelative } from '../util.js';
+import { fillDiskBar, formatRelative, formatAbsolute } from '../util.js';
 import { computeMonthlyPrice, centsToEur } from '../pricing.js';
 import { navigate } from '../router.js';
 import { onMessage } from '../ws.js';
@@ -134,7 +134,7 @@ class ViewSettings extends FsElement {
       body = `
         ${this.#cancelAlert ? `<p class="alert alert--warn">${t('settings.sub.cancelled')} <button class="icon-btn" data-act="dismiss-cancel">${icon('x')}</button></p>` : ''}
         ${profile.delete_after
-          ? `<p>${t('settings.sub.willBeDeleted', { when: `<b>${esc(formatRelative(profile.delete_after))}</b>` })}</p>`
+          ? `<p title="${esc(formatAbsolute(profile.delete_after, { dateOnly: true }))}">${t('settings.sub.willBeDeleted', { when: `<b>${esc(formatRelative(profile.delete_after))}</b>` })}</p>`
           : `<p>${t('settings.sub.subscribeToKeep')}</p>`}
         <p><button class="fs-btn fs-btn--primary" data-act="subscribe" ${this.#subscribing ? 'disabled' : ''}>
           ${this.#subscribing ? '<span class="fs-spinner fs-spinner--sm"></span>' : ''}${this.subscribeLabel()}</button></p>`;
@@ -145,7 +145,7 @@ class ViewSettings extends FsElement {
     } else if (st === 'active' || st === 'active-pending') {
       body = `
         <p>${t('settings.sub.plan', { size: `<b>${esc(profile.vm_size.toUpperCase())}</b>`, price: fmtCurrencyEur(centsToEur(sub.price_cents)) })}</p>
-        ${sub.next_billing_date ? `<p>${t('settings.sub.nextCharge', { when: formatRelative(sub.next_billing_date) })}</p>` : ''}
+        ${sub.next_billing_date ? `<p title="${esc(formatAbsolute(sub.next_billing_date, { dateOnly: true }))}">${t('settings.sub.nextCharge', { when: formatRelative(sub.next_billing_date) })}</p>` : ''}
         ${sub.payer_email ? `<p class="muted">${t('settings.sub.billedTo', { email: sub.payer_email })}</p>` : ''}
         ${st === 'active-pending' ? `<p class="alert alert--info">${t('settings.sub.upgradePending', { size: `<b>${esc(sub.pending_vm_size.toUpperCase())}</b>`, price: fmtCurrencyEur(centsToEur(sub.pending_price_cents)) })}</p>` : ''}
         <p>${isSafeHttpUrl(sub.paypal_manage_url)
@@ -153,10 +153,10 @@ class ViewSettings extends FsElement {
           : `<button class="fs-btn" disabled>${t('settings.sub.managePaypal')}</button>`}</p>`;
     } else if (st === 'grace') {
       body = `
-        ${sub.last_payment_failed_at ? `<p>${t('settings.sub.paymentFailed', { when: formatRelative(sub.last_payment_failed_at) })}</p>`
-          : sub.ended ? `<p>${t('settings.sub.ended', { when: formatRelative(sub.ended) })}</p>`
+        ${sub.last_payment_failed_at ? `<p title="${esc(formatAbsolute(sub.last_payment_failed_at, { dateOnly: true }))}">${t('settings.sub.paymentFailed', { when: formatRelative(sub.last_payment_failed_at) })}</p>`
+          : sub.ended ? `<p title="${esc(formatAbsolute(sub.ended, { dateOnly: true }))}">${t('settings.sub.ended', { when: formatRelative(sub.ended) })}</p>`
           : `<p>${t('settings.sub.inactive')}</p>`}
-        ${profile.delete_after ? `<p>${t('settings.sub.willStop', { when: `<b>${esc(formatRelative(profile.delete_after))}</b>` })}</p>` : ''}
+        ${profile.delete_after ? `<p title="${esc(formatAbsolute(profile.delete_after, { dateOnly: true }))}">${t('settings.sub.willStop', { when: `<b>${esc(formatRelative(profile.delete_after))}</b>` })}</p>` : ''}
         <p><button class="fs-btn fs-btn--primary" data-act="subscribe" ${this.#subscribing ? 'disabled' : ''}>
           ${this.#subscribing ? '<span class="fs-spinner fs-spinner--sm"></span>' : ''}${this.subscribeLabel()}</button></p>`;
     }
@@ -213,7 +213,7 @@ class ViewSettings extends FsElement {
             ${this.#passphrase
               ? `<p>${t('settings.backup.yourPassphrase')}</p><p class="mono passphrase-value">${esc(this.#passphrase)}</p>`
               : `<button class="fs-btn" data-act="fetch-passphrase">${t('settings.backup.revealNow')}</button>`}
-            ${info.last_passphrase_access_info ? `<p class="muted">${t('settings.backup.lastRevealed', {
+            ${info.last_passphrase_access_info ? `<p class="muted" title="${esc(formatAbsolute(info.last_passphrase_access_info.time, { dateOnly: true }))}">${t('settings.backup.lastRevealed', {
               when: formatRelative(info.last_passphrase_access_info.time),
               name: info.last_passphrase_access_info.terminal_name,
               id: info.last_passphrase_access_info.terminal_id,
@@ -278,20 +278,21 @@ class ViewSettings extends FsElement {
     const profile = state.profile;
     const id = state.meta.identity.id;
     const wrapped = id.match(/.{1,16}/g)?.join('\n') ?? '';
-    const field = (title, content, mono = false) => `
+    const field = (title, content, mono = false, titleAttr = '') => `
       <div class="about-field">
         <span class="fs-label">${title}</span>
-        <p class="${mono ? 'mono about-pre' : ''}">${content}</p>
+        <p class="${mono ? 'mono about-pre' : ''}"${titleAttr ? ` title="${esc(titleAttr)}"` : ''}>${content}</p>
       </div>`;
     const unknown = t('common.unknown');
+    const abs = (value) => formatAbsolute(value, { dateOnly: true });
     return [
       profile ? field(t('settings.about.machineId'), esc(profile.vm_id || unknown), true) : '',
       field(t('settings.about.shardId'), esc(wrapped || unknown), true),
       profile ? field(t('settings.about.owner'), esc(profile.owner || unknown)) : '',
       profile ? field(t('settings.about.ownerEmail'), esc(profile.owner_email || unknown)) : '',
-      profile ? field(t('settings.about.created'), profile.time_created ? formatRelative(profile.time_created) : unknown) : '',
-      profile ? field(t('settings.about.assigned'), profile.time_assigned ? formatRelative(profile.time_assigned) : unknown) : '',
-      profile ? field(t('settings.about.scheduledDelete'), profile.delete_after ? formatRelative(profile.delete_after) : t('settings.about.never')) : '',
+      profile ? field(t('settings.about.created'), profile.time_created ? formatRelative(profile.time_created) : unknown, false, profile.time_created ? abs(profile.time_created) : '') : '',
+      profile ? field(t('settings.about.assigned'), profile.time_assigned ? formatRelative(profile.time_assigned) : unknown, false, profile.time_assigned ? abs(profile.time_assigned) : '') : '',
+      profile ? field(t('settings.about.scheduledDelete'), profile.delete_after ? formatRelative(profile.delete_after) : t('settings.about.never'), false, profile.delete_after ? abs(profile.delete_after) : '') : '',
       field(t('settings.about.uiVersion'), `${esc(VERSION)} (Sundial)`),
       field(t('settings.about.publicKey'), esc(state.meta.identity.public_key_pem || unknown), true),
     ].join('');

@@ -1,9 +1,9 @@
 // Home — the dashboard: app grid + resource monitor.
 
-import { FsElement } from '../components/base.js';
+import { FsElement, esc } from '../components/base.js';
 import { store, shortShardId, tourSeen } from '../store.js';
 import { refreshApps, markTourSeen } from '../actions.js';
-import { fillDiskBar, formatRelative } from '../util.js';
+import { fillDiskBar, formatRelative, formatAbsolute } from '../util.js';
 import { href } from '../router.js';
 import { icon } from '../components/icons.js';
 import { t, fmtNumber } from '../i18n.js';
@@ -78,7 +78,7 @@ class ViewHome extends FsElement {
       rows.push(`
         <div class="summary-row">
           <span class="fs-label">${t('home.trialLabel')}</span>
-          <span>${t('home.trialDelete', { when: formatRelative(profile.delete_after) })}</span>
+          <span title="${esc(formatAbsolute(profile.delete_after))}">${t('home.trialDelete', { when: formatRelative(profile.delete_after) })}</span>
           <a href="${href('settings')}">${t('home.subscribe')}</a>
         </div>`);
     }
