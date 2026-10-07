@@ -261,41 +261,6 @@
     "reallyPatient": "Wow, du bist wirklich geduldig. Aber dieser Shard ist höchstwahrscheinlich kaputt. Du solltest wirklich den <a href=\"mailto:contact@freeshard.net\">Support kontaktieren</a>.",
     "knockKnock": "Klopf klopf! Ist da jemand? Dieser Shard ist kaputt und braucht Hilfe. Bitte <a href=\"mailto:contact@freeshard.net\">kontaktiere den Support</a>."
   },
-  "usage": {
-    "title": "Willkommen auf deinem Shard!",
-    "question": "Was möchtest du tun?",
-    "intro": "Dein Shard bietet eine Vielzahl von Apps für viele verschiedene Anwendungsfälle. Hier sind ein paar besonders nützliche. Diese und mehr kannst du auch aus dem App-Store installieren.",
-    "alreadyInstalled": "{name} ist bereits installiert",
-    "installs": "Installiert {name}",
-    "nevermind": "Vielleicht später",
-    "installSelected": "Ausgewählte Apps installieren",
-    "cases": {
-      "vaultwarden": {
-        "title": "Passwörter verwalten",
-        "text": "Bewahre deine Passwörter auf Shard auf, sicher verschlüsselt mit deinem Master-Passwort. Fülle sie bequem per Browser-Erweiterung und Smartphone-App aus. Sichere dein Online-Leben, indem du ganz einfach für jede Website ein eigenes, starkes Passwort verwendest."
-      },
-      "paperless-ngx": {
-        "title": "Papierdokumente digitalisieren",
-        "text": "Ersetze deinen Aktenschrank durch Shard. Speichere deine gescannten Dokumente und greife von überall darauf zu. Sortiere und organisiere sie nach Korrespondent, Typ, Datum, Tags und weiteren Metadaten. Durchsuche den Text in deinen Dokumenten."
-      },
-      "navidrome": {
-        "title": "Deine MP3-Sammlung hören",
-        "text": "Lade deine MP3-Sammlung auf Shard hoch und höre sie von überall. Nutze den browserbasierten Musikplayer oder einen beliebigen Subsonic-Client."
-      },
-      "linkding": {
-        "title": "Lesezeichen organisieren",
-        "text": "Speichere und organisiere deine Lesezeichen auf Shard. Versieh sie mit Tags für einfaches Suchen und Wiederfinden. Greife per Browser-Erweiterung darauf zu und füge bequem neue hinzu."
-      },
-      "immich": {
-        "title": "Fotos und Videos aufbewahren",
-        "text": "Sichere und organisiere die Fotos von deinem Handy. Betrachte sie in einer Zeitleiste, nach Ort oder nach Tags. Teile Galerien mit anderen und lass sie auch eigene Fotos hochladen."
-      },
-      "actual": {
-        "title": "Deine Finanzen im Griff",
-        "text": "Spare echtes Geld, indem du Ausgaben und Einnahmen im Blick behältst. Importiere deine Kontoauszüge, kategorisiere deine Buchungen und erstelle Vermögens- und Cashflow-Berichte. Plane voraus mit Budgets und Zielen nach dem Umschlag-Prinzip."
-      }
-    }
-  },
   "editable": {
     "empty": "[leer]",
     "edit": "{title} bearbeiten",
@@ -303,7 +268,6 @@
   },
   "toast": {
     "installFailed": "Installation von App {name} fehlgeschlagen",
-    "installFailedShort": "Installation fehlgeschlagen",
     "backupFailed": "Backup fehlgeschlagen",
     "backupDone": "Backup abgeschlossen",
     "backupStarted": "Backup gestartet.",
