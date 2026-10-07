@@ -32,7 +32,9 @@ test('installed and available sections render, featured first', async ({ page })
   const installed = sections.nth(0).locator('.store-card');
   await expect(installed).toHaveCount(4);
   await expect(installed.first()).toContainText('File Browser');
-  await expect(installed.first().locator('.store-card__status')).toHaveText('running');
+  // Status is a symbol+tooltip next to the name, not a text line.
+  await expect(installed.first().locator('.store-card__name .fs-dot')).toBeVisible();
+  await expect(installed.first().locator('.store-card__mark:has(.fs-dot)')).toHaveAttribute('title', 'App is running');
 
   // available = store minus installed; featured (navidrome) sorts first
   const available = sections.nth(1).locator('.store-card');
