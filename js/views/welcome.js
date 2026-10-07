@@ -28,12 +28,12 @@ class ViewWelcome extends FsElement {
         <div class="welcome-desc">${renderMarkdown(identity.description)}</div>
         <div class="welcome-foot">
           <fs-shard-badge shard-id="${esc(shortShardId())}"></fs-shard-badge>
-          ${is_anonymous
-            ? `<a class="fs-btn fs-btn--primary fs-focusable" href="${href('pair')}">${icon('link')} ${t('welcome.pair')}</a>`
-            : `<a class="fs-btn fs-focusable" href="${href('public')}">${icon('person')} ${t('welcome.edit')}</a>`}
         </div>
         <p class="muted welcome-learn">${t('welcome.learnMore')}</p>
-      </div>`;
+      </div>
+      ${is_anonymous
+        ? `<a class="welcome-action fs-focusable" href="${href('pair')}">${icon('link')} ${t('welcome.pair')}</a>`
+        : `<a class="welcome-action fs-focusable" href="${href('public')}">${icon('person')} ${t('welcome.edit')}</a>`}`;
   }
 }
 

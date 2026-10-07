@@ -125,6 +125,30 @@
 }
 .welcome-learn { margin-top: var(--space-5); font-size: var(--fs-small); }
 
+/* De-emphasized corner control: the only way an anon visitor starts pairing,
+ * or the owner reaches edit, from this public page — must stay reachable but
+ * out of the main content flow (muted, like .dock-classic, not a forward action). */
+.welcome-action {
+  position: fixed;
+  right: var(--space-3);
+  bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: var(--border-w) solid var(--border);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink-muted);
+  font-size: var(--fs-small);
+  text-decoration: none;
+  z-index: 15;
+}
+.welcome-action:hover { color: var(--ink); border-color: var(--border-cool); }
+/* .fs-focusable:focus-visible sets position:relative for the scale effect;
+ * restore :fixed so focus doesn't yank this out of its corner. */
+.welcome-action:focus-visible { position: fixed; }
+
 .pair-form {
   display: flex;
   flex-direction: column;
