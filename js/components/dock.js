@@ -9,7 +9,6 @@ import { currentRoute, onRouteChange, href, BASE } from '../router.js';
 import { openModal } from './modal.js';
 import { bindAlt } from '../keynav.js';
 import { postQuickFeedback } from '../api/client.js';
-import { VERSION } from '../version.js';
 import { t } from '../i18n.js';
 import './shard-badge.js';
 
@@ -31,7 +30,7 @@ class FsDock extends HTMLElement {
     this.render();
     this.#unsubs.push(
       onRouteChange(() => this.render()),
-      store.subscribe(['meta', 'ws', 'version', 'disk_usage', 'locale'], () => this.render()),
+      store.subscribe(['meta', 'ws', 'disk_usage', 'locale'], () => this.render()),
     );
     // WS-disconnect warning only after a 5s grace period (old-app behavior).
     setTimeout(() => { this.#warnTimerDone = true; this.render(); }, 5000);
@@ -55,7 +54,6 @@ class FsDock extends HTMLElement {
     const wsWarn = this.#warnTimerDone && state.ws.disconnectedSince !== null;
     const diskLow = state.disk_usage.disk_space_low;
     const diskWarn = state.disk_usage.disk_space_warning && !diskLow;
-    const updateAvail = state.version !== null && state.version !== VERSION;
     const atSubpath = BASE !== '/';
 
     this.innerHTML = `
@@ -75,7 +73,6 @@ class FsDock extends HTMLElement {
         </div>
         <div class="dock-utils">
           ${wsWarn ? `<span class="dock-status dock-status--warn" title="${t('dock.noConnection')}">${icon('warn')}</span>` : ''}
-          ${updateAvail ? `<button class="dock-status dock-update fs-focusable" title="${t('dock.refreshUpdate', { version: state.version })}">${icon('update')}</button>` : ''}
           ${diskLow ? `<a class="dock-status dock-status--danger fs-focusable" href="${href('settings')}" title="${t('dock.diskLow')}">${icon('disk')}</a>` : ''}
           ${diskWarn ? `<a class="dock-status dock-status--warn fs-focusable" href="${href('settings')}" title="${t('dock.diskWarn')}">${icon('disk')}</a>` : ''}
           <button class="dock-item dock-feedback fs-focusable" title="${t('dock.feedback')}">
@@ -88,7 +85,6 @@ class FsDock extends HTMLElement {
       </nav>`;
 
     this.querySelector('.dock-feedback').addEventListener('click', () => this.openFeedback());
-    this.querySelector('.dock-update')?.addEventListener('click', () => location.reload());
     this.querySelector('.dock-classic')?.addEventListener('click', () => {
       try { localStorage.setItem('freeshard.ui', 'classic'); } catch { /* ignore */ }
     });
