@@ -24,16 +24,13 @@ const HIDDEN_ROUTES = ['welcome', 'pair', 'restart'];
 
 class FsDock extends HTMLElement {
   #unsubs = [];
-  #warnTimerDone = false;
 
   connectedCallback() {
     this.render();
     this.#unsubs.push(
       onRouteChange(() => this.render()),
-      store.subscribe(['meta', 'ws', 'disk_usage', 'locale'], () => this.render()),
+      store.subscribe(['meta', 'disk_usage', 'locale'], () => this.render()),
     );
-    // WS-disconnect warning only after a 5s grace period (old-app behavior).
-    setTimeout(() => { this.#warnTimerDone = true; this.render(); }, 5000);
     for (const item of NAV) {
       bindAlt(item.key, () => this.querySelector(`a[data-route="${item.route}"]`));
     }
@@ -51,7 +48,6 @@ class FsDock extends HTMLElement {
       return;
     }
     const active = currentRoute();
-    const wsWarn = this.#warnTimerDone && state.ws.disconnectedSince !== null;
     const diskLow = state.disk_usage.disk_space_low;
     const diskWarn = state.disk_usage.disk_space_warning && !diskLow;
     const atSubpath = BASE !== '/';
@@ -72,7 +68,6 @@ class FsDock extends HTMLElement {
             </a>`).join('')}
         </div>
         <div class="dock-utils">
-          ${wsWarn ? `<span class="dock-status dock-status--warn" title="${t('dock.noConnection')}">${icon('warn')}</span>` : ''}
           ${diskLow ? `<a class="dock-status dock-status--danger fs-focusable" href="${href('settings')}" title="${t('dock.diskLow')}">${icon('disk')}</a>` : ''}
           ${diskWarn ? `<a class="dock-status dock-status--warn fs-focusable" href="${href('settings')}" title="${t('dock.diskWarn')}">${icon('disk')}</a>` : ''}
           <button class="dock-item dock-feedback fs-focusable" title="${t('dock.feedback')}">

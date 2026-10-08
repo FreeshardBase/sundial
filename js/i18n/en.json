@@ -26,7 +26,6 @@
     "devices": "Devices",
     "public": "Public",
     "settings": "Settings",
-    "noConnection": "No connection to Shard, retrying...",
     "diskLow": "Disk space critically low. All apps are stopped.",
     "diskWarn": "Disk space is getting low.",
     "feedback": "Feedback",
@@ -260,6 +259,11 @@
     "wentWrong": "It seems like something went wrong. Better <a href=\"mailto:contact@freeshard.net\">contact support</a>.",
     "reallyPatient": "Wow, you are really patient. But this Shard is most probably broken. You should really <a href=\"mailto:contact@freeshard.net\">contact support</a>.",
     "knockKnock": "Knock knock! Is someone there? This Shard broke down and needs help. Please <a href=\"mailto:contact@freeshard.net\">contact support</a>."
+  },
+  "shardDown": {
+    "title": "Can't reach your shard",
+    "early": "It's probably restarting. This usually resolves within a minute or two.",
+    "late": "This is taking longer than expected, likely a more serious problem. Please <a href=\"mailto:contact@freeshard.net\">contact support</a>."
   },
   "editable": {
     "empty": "[empty]",
