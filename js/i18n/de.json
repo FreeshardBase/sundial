@@ -26,7 +26,6 @@
     "devices": "Geräte",
     "public": "Öffentlich",
     "settings": "Einstellungen",
-    "noConnection": "Keine Verbindung zum Shard, versuche erneut...",
     "refreshUpdate": "Neu laden für Update auf {version}",
     "diskLow": "Speicherplatz kritisch knapp. Alle Apps wurden gestoppt.",
     "diskWarn": "Der Speicherplatz wird knapp.",
@@ -260,6 +259,11 @@
     "wentWrong": "Sieht so aus, als wäre etwas schiefgegangen. Besser den <a href=\"mailto:contact@freeshard.net\">Support kontaktieren</a>.",
     "reallyPatient": "Wow, du bist wirklich geduldig. Aber dieser Shard ist höchstwahrscheinlich kaputt. Du solltest wirklich den <a href=\"mailto:contact@freeshard.net\">Support kontaktieren</a>.",
     "knockKnock": "Klopf klopf! Ist da jemand? Dieser Shard ist kaputt und braucht Hilfe. Bitte <a href=\"mailto:contact@freeshard.net\">kontaktiere den Support</a>."
+  },
+  "shardDown": {
+    "title": "Dein Shard ist nicht erreichbar",
+    "early": "Er startet wahrscheinlich gerade neu. Das klärt sich meist innerhalb von ein, zwei Minuten.",
+    "late": "Das dauert länger als erwartet, wahrscheinlich ein ernsteres Problem. Bitte <a href=\"mailto:contact@freeshard.net\">kontaktiere den Support</a>."
   },
   "editable": {
     "empty": "[leer]",
