@@ -193,10 +193,11 @@
 
 .terminal-actions { margin-top: var(--space-5); text-align: center; }
 
-.pairing-gauge { display: flex; margin: 0 auto var(--space-3); }
 .pairing-modal { text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
 .pairing-qr { width: 150px; height: 150px; image-rendering: pixelated; background: white; border-radius: 4px; padding: 6px; }
 .pairing-code { max-width: 7em; text-align: center; font-size: 18px; letter-spacing: .15em; }
+.pairing-progress { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.pairing-progress__bar { height: 100%; width: 100%; background: var(--data); transition: width 1s linear; }
 
 /* ---- public / editable ---- */
 
