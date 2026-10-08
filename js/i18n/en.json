@@ -27,12 +27,14 @@
     "public": "Public",
     "settings": "Settings",
     "noConnection": "No connection to Shard, retrying...",
-    "refreshUpdate": "Refresh to update to {version}",
     "diskLow": "Disk space critically low. All apps are stopped.",
     "diskWarn": "Disk space is getting low.",
     "feedback": "Feedback",
     "classic": "Classic UI",
     "classicTitle": "Back to the classic UI"
+  },
+  "update": {
+    "available": "A new version ({version}) is ready. Refresh to update."
   },
   "feedback": {
     "title": "Quick feedback",

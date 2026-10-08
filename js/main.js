@@ -12,6 +12,7 @@ import { registerServiceWorker } from './pwa.js';
 
 import './components/dock.js';
 import './components/banner.js';
+import './components/update-banner.js';
 import './views/home.js';
 import './views/welcome.js';
 import './views/pair.js';

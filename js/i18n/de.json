@@ -27,12 +27,14 @@
     "public": "Öffentlich",
     "settings": "Einstellungen",
     "noConnection": "Keine Verbindung zum Shard, versuche erneut...",
-    "refreshUpdate": "Neu laden für Update auf {version}",
     "diskLow": "Speicherplatz kritisch knapp. Alle Apps wurden gestoppt.",
     "diskWarn": "Der Speicherplatz wird knapp.",
     "feedback": "Feedback",
     "classic": "Klassische UI",
     "classicTitle": "Zurück zur klassischen Oberfläche"
+  },
+  "update": {
+    "available": "Eine neue Version ({version}) steht bereit. Zum Aktualisieren neu laden."
   },
   "feedback": {
     "title": "Kurzes Feedback",
