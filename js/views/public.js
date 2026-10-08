@@ -38,7 +38,7 @@ class ViewPublic extends FsElement {
     this.innerHTML = `
       <div class="page-title"><h1>${t('public.title')}</h1></div>
       <p class="alert alert--info public-note">${icon('warn')}
-        ${t('public.visibleNote', { link: `<a href="${href('welcome')}" target="_blank">${t('public.publicPage')} ${icon('open')}</a>` })}
+        <span>${t('public.visibleNote', { link: `<a href="${href('welcome')}" target="_blank">${t('public.publicPage')} ${icon('open')}</a>` })}</span>
       </p>
       <div class="public-avatar">
         <span class="fs-label">${t('public.image')}</span>

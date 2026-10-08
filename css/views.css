@@ -211,6 +211,7 @@
 /* ---- public / editable ---- */
 
 .public-note { display: flex; align-items: center; gap: var(--space-2); max-width: 60ch; }
+.public-note a { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 
 .public-avatar {
   display: flex;
