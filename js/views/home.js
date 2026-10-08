@@ -5,7 +5,6 @@ import { store, shortShardId } from '../store.js';
 import { refreshApps } from '../actions.js';
 import { diskGaugeReading, formatRelative, formatAbsolute } from '../util.js';
 import { href } from '../router.js';
-import { icon } from '../components/icons.js';
 import { t, fmtNumber } from '../i18n.js';
 import '../components/app-tile.js';
 import '../components/resource-monitor.js';
@@ -23,9 +22,6 @@ class ViewHome extends FsElement {
     this.innerHTML = `
       <div class="home-layout">
         <section class="home-apps">
-          <div class="home-status">
-            <span class="fs-label">${t('home.appsLabel')}</span>
-          </div>
           <div class="app-grid"></div>
         </section>
         <section class="home-monitor">
@@ -40,14 +36,6 @@ class ViewHome extends FsElement {
       tile.app = app;
       grid.appendChild(tile);
     }
-    const add = document.createElement('a');
-    add.className = 'app-tile app-tile--add fs-focusable';
-    add.href = href('apps');
-    add.innerHTML = `
-      <span class="app-tile__glyph app-tile__glyph--dashed">${icon('plus')}</span>
-      <span class="app-tile__status"></span>
-      <span class="app-tile__name">${t('home.addApp')}</span>`;
-    grid.appendChild(add);
     this.querySelector('.summary-disk-gauge').reading = diskGaugeReading(store.state.disk_usage);
   }
 

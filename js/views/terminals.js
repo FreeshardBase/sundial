@@ -11,7 +11,6 @@ import { formatRelative, formatAbsolute, parseUtc } from '../util.js';
 import { onMessage } from '../ws.js';
 import { generate } from 'lean-qr';
 import { t } from '../i18n.js';
-import '../components/gauge.js';
 
 class ViewTerminals extends FsElement {
   #editing = new Map();   // id -> { name, icon, syncing }
@@ -178,7 +177,7 @@ class ViewTerminals extends FsElement {
     const validEnd = parseUtc(code.valid_until).getTime();
 
     body.innerHTML = `
-      <fs-gauge compact class="pairing-gauge" aria-hidden="true"></fs-gauge>
+      <div class="pairing-progress"><div class="pairing-progress__bar"></div></div>
       <div class="pairing-modal">
         <p>${t('terminals.scanQr')}</p>
         <canvas class="pairing-qr" aria-label="${t('terminals.qrLabel')}"></canvas>
@@ -189,15 +188,11 @@ class ViewTerminals extends FsElement {
 
     generate(link).toCanvas(body.querySelector('.pairing-qr'));
 
-    const gauge = body.querySelector('.pairing-gauge');
-    const updateGauge = () => {
-      const pct = Math.max((validEnd - Date.now()) / (validEnd - validStart) * 100, 0);
-      gauge.reading = { value: pct, max: 100, tone: 'normal', live: true };
-      return pct;
-    };
-    updateGauge();
+    const bar = body.querySelector('.pairing-progress__bar');
     const tick = setInterval(() => {
-      if (updateGauge() === 0) {
+      const pct = Math.max((validEnd - Date.now()) / (validEnd - validStart) * 100, 0);
+      bar.style.width = `${pct}%`;
+      if (pct === 0) {
         clearInterval(tick);
         body.innerHTML = `
           <p>${t('terminals.codeExpired')}</p>

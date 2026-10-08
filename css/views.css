@@ -40,10 +40,6 @@
 
 /* ---- home ---- */
 
-.home-status {
-  margin-bottom: var(--space-4);
-}
-
 .app-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
@@ -56,7 +52,8 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 104px;
+  width: 100%;
+  height: 120px;
   padding: var(--space-3) var(--space-2);
   border: var(--border-w) solid var(--border-cool);
   border-radius: var(--radius-tile);
@@ -74,12 +71,6 @@
   display: flex; align-items: center; justify-content: center;
 }
 .app-tile__glyph img { width: 40px; height: 40px; object-fit: contain; }
-.app-tile__glyph--dashed {
-  width: 34px; height: 34px;
-  border: var(--border-w-glyph) dashed var(--accent);
-  border-radius: var(--radius-glyph);
-  color: var(--accent);
-}
 .app-tile__fallback, .store-card__fallback {
   display: inline-block;
   width: 30px; height: 30px;
@@ -99,7 +90,6 @@
 
 .app-tile--busy { cursor: progress; }
 .app-tile--blocked { opacity: .55; cursor: not-allowed; }
-.app-tile--add { color: var(--accent); }
 
 /* ---- welcome / center pages ---- */
 
@@ -203,14 +193,16 @@
 
 .terminal-actions { margin-top: var(--space-5); text-align: center; }
 
-.pairing-gauge { display: flex; margin: 0 auto var(--space-3); }
 .pairing-modal { text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
 .pairing-qr { width: 150px; height: 150px; image-rendering: pixelated; background: white; border-radius: 4px; padding: 6px; }
 .pairing-code { max-width: 7em; text-align: center; font-size: 18px; letter-spacing: .15em; }
+.pairing-progress { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.pairing-progress__bar { height: 100%; width: 100%; background: var(--data); transition: width 1s linear; }
 
 /* ---- public / editable ---- */
 
 .public-note { display: flex; align-items: center; gap: var(--space-2); max-width: 60ch; }
+.public-note a { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
 
 .public-avatar {
   display: flex;

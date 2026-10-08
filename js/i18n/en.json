@@ -26,12 +26,14 @@
     "devices": "Devices",
     "public": "Public",
     "settings": "Settings",
-    "refreshUpdate": "Refresh to update to {version}",
     "diskLow": "Disk space critically low. All apps are stopped.",
     "diskWarn": "Disk space is getting low.",
     "feedback": "Feedback",
     "classic": "Classic UI",
     "classicTitle": "Back to the classic UI"
+  },
+  "update": {
+    "available": "A new version ({version}) is ready. Refresh to update."
   },
   "feedback": {
     "title": "Quick feedback",
@@ -43,8 +45,6 @@
     "failedRetry": "Failed — retry"
   },
   "home": {
-    "appsLabel": "apps",
-    "addApp": "Add app",
     "shardLabel": "shard",
     "diskLabel": "disk",
     "devicesLabel": "devices",
