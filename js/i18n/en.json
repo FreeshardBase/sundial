@@ -44,8 +44,6 @@
     "failedRetry": "Failed — retry"
   },
   "home": {
-    "appsLabel": "apps",
-    "addApp": "Add app",
     "shardLabel": "shard",
     "diskLabel": "disk",
     "devicesLabel": "devices",

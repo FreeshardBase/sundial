@@ -44,8 +44,6 @@
     "failedRetry": "Fehlgeschlagen — erneut versuchen"
   },
   "home": {
-    "appsLabel": "apps",
-    "addApp": "App hinzufügen",
     "shardLabel": "shard",
     "diskLabel": "festplatte",
     "devicesLabel": "geräte",
