@@ -1,6 +1,20 @@
 default:
     just --list
 
+SOURCE_DIR := "../freeshard"
+
+# js/api/openapi.json is a one-time offline dump, not live-synced, so nothing catches it
+# drifting from freeshard's actual API unless this runs — see .github/workflows/openapi-drift.yml,
+# which runs both this and `just gen-client` on every PR, the same way types-drift.yml does
+# for freeshard's vendored Python models. Needs `uv` and a `freeshard` clone next to this one.
+# Dump a fresh OpenAPI spec from a sibling freeshard checkout (override with `--set SOURCE_DIR`).
+get-openapi:
+    if [ ! -d {{SOURCE_DIR}} ]; then \
+      echo "{{SOURCE_DIR}} does not exist. You need to clone freeshard first."; exit 1; \
+    fi
+    (cd {{SOURCE_DIR}} && uv run python3 -c "import logging; logging.disable(logging.CRITICAL); import json, sys; from shard_core.app_factory import create_app; json.dump(create_app().openapi(), sys.stdout, indent=1)") > js/api/openapi.json
+    echo >> js/api/openapi.json
+
 # Dev server with mock API on :8021 (also serves the app at /sundial/)
 serve:
     uv run tools/dev_server.py

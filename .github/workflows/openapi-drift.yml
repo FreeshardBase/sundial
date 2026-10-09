@@ -1,0 +1,41 @@
+name: OpenAPI client drift check
+
+on:
+  # All PRs, not path-filtered: a PR that never touches js/api/ is exactly the
+  # one where silent drift would otherwise go unnoticed. Running on every PR
+  # guarantees main stays drift-free at each merge.
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  drift-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sundial
+        uses: actions/checkout@v4
+
+      - name: Checkout freeshard (source of truth)
+        uses: actions/checkout@v4
+        with:
+          repository: FreeshardBase/freeshard
+          ref: main
+          path: freeshard
+
+      - name: Install just
+        uses: extractions/setup-just@v2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Dump a fresh OpenAPI spec from freeshard main
+        run: just --set SOURCE_DIR freeshard get-openapi
+
+      - name: Regenerate the client from it
+        run: just gen-client
+
+      - name: Fail on drift
+        run: |
+          if ! git diff --exit-code js/api/openapi.json js/api/client.js; then
+            echo "::error::js/api/openapi.json / js/api/client.js are out of sync with freeshard main. Run 'just get-openapi && just gen-client' (with ../freeshard checked out) and commit the result."
+            exit 1
+          fi

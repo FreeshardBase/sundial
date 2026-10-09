@@ -64,7 +64,9 @@ export async function call(method, path, { query, json, form } = {}) {
  * @property {Object} paths
  * @property {Lifecycle=} lifecycle
  * @property {VMSize=} minimum_portal_size
+ * @property {string|null=} minimum_freeshard_version
  * @property {StoreInfo|null=} store_info
+ * @property {OidcMeta|null=} oidc
  */
 
 /**
@@ -116,6 +118,11 @@ export async function call(method, path, { query, json, form } = {}) {
  */
 
 /**
+ * @typedef {Object} ConfirmEmailInput
+ * @property {string} token
+ */
+
+/**
  * @typedef {Object} DiskUsage
  * @property {number} total_gb
  * @property {number} free_gb
@@ -138,7 +145,6 @@ export async function call(method, path, { query, json, form } = {}) {
  * @typedef {Object} InputIdentity
  * @property {string|null=} id
  * @property {string|null=} name
- * @property {string|null=} email
  * @property {string|null=} description
  */
 
@@ -155,10 +161,17 @@ export async function call(method, path, { query, json, form } = {}) {
  */
 
 /**
+ * @typedef {Object} InputUser
+ * @property {string|null=} display_name
+ * @property {string|null=} email
+ */
+
+/**
  * @typedef {Object} InstalledAppWithMeta
  * @property {string} name
  * @property {InstallationReason=} installation_reason
  * @property {string=} status
+ * @property {string|null=} status_message
  * @property {string|null=} last_access
  * @property {AppMeta|null} meta
  */
@@ -177,14 +190,36 @@ export async function call(method, path, { query, json, form } = {}) {
  */
 
 /**
+ * @typedef {Object} OidcMeta
+ * @property {Array<string>} redirect_uris
+ * @property {boolean=} public_client
+ * @property {string=} scope
+ * @property {string|null=} backchannel_logout_uri
+ */
+
+/**
  * @typedef {Object} OutputIdentity
  * @property {string} id
  * @property {string} name
- * @property {string|null=} email
  * @property {string|null=} description
  * @property {boolean} is_default
  * @property {string} public_key_pem
  * @property {string} domain
+ */
+
+/**
+ * @typedef {Object} OutputSettings
+ * @property {boolean} email_enabled
+ */
+
+/**
+ * @typedef {Object} OutputUser
+ * @property {number} id
+ * @property {string} username
+ * @property {string} display_name
+ * @property {string|null=} email
+ * @property {string|null=} pending_email
+ * @property {Role} role
  */
 
 /**
@@ -270,6 +305,7 @@ export async function call(method, path, { query, json, form } = {}) {
  * @property {string} name
  * @property {Icon=} icon
  * @property {string|null=} last_connection
+ * @property {number|null=} user_id
  */
 
 /**
@@ -316,6 +352,42 @@ export function whoAmI(query = {}) {
   return call('GET', `/public/meta/whoami`, { query });
 }
 
+/** GET /public/oidc/.well-known/openid-configuration — Openid Configuration
+ * @returns {Promise<Response>}
+ */
+export function openidConfiguration() {
+  return call('GET', `/public/oidc/.well-known/openid-configuration`);
+}
+
+/** GET /public/oidc/jwks — Jwks
+ * @returns {Promise<Response>}
+ */
+export function jwks() {
+  return call('GET', `/public/oidc/jwks`);
+}
+
+/** GET /public/oidc/authorize — Authorize
+ * @param {Object} [query] — {authorization?}
+ * @returns {Promise<Response>}
+ */
+export function authorize(query = {}) {
+  return call('GET', `/public/oidc/authorize`, { query });
+}
+
+/** POST /public/oidc/token — Token
+ * @returns {Promise<Response>}
+ */
+export function token() {
+  return call('POST', `/public/oidc/token`);
+}
+
+/** GET /public/oidc/userinfo — Userinfo
+ * @returns {Promise<Response>}
+ */
+export function userinfo() {
+  return call('GET', `/public/oidc/userinfo`);
+}
+
 /** POST /public/pair/terminal — Add Terminal
  * @param {InputTerminal} body
  * @param {Object} [query] — {code}
@@ -323,6 +395,14 @@ export function whoAmI(query = {}) {
  */
 export function addTerminal(body, query = {}) {
   return call('POST', `/public/pair/terminal`, { query, json: body });
+}
+
+/** POST /public/users/confirm-email — Confirm Email
+ * @param {ConfirmEmailInput} body
+ * @returns {Promise<Response>}
+ */
+export function confirmEmail(body) {
+  return call('POST', `/public/users/confirm-email`, { json: body });
 }
 
 /** GET /protected/apps — List All Apps
@@ -614,44 +694,51 @@ export function getProfile(query = {}) {
   return call('GET', `/protected/management/profile`, { query });
 }
 
-/** POST /protected/management/{rest} — Call Management
+/** GET /protected/management/{rest} — Call Management
  * @param {string} rest
  * @returns {Promise<Response>}
  */
 export function callManagement(rest) {
-  return call('POST', `/protected/management/${encodeURIComponent(rest)}`);
+  return call('GET', `/protected/management/${encodeURIComponent(rest)}`);
 }
 
 /** DELETE /protected/management/{rest} — Call Management
  * @param {string} rest
  * @returns {Promise<Response>}
  */
-export function callManagementProtectedManagementRestPost(rest) {
+export function callManagementProtectedManagementRestGet(rest) {
   return call('DELETE', `/protected/management/${encodeURIComponent(rest)}`);
 }
 
-/** PATCH /protected/management/{rest} — Call Management
+/** POST /protected/management/{rest} — Call Management
  * @param {string} rest
  * @returns {Promise<Response>}
  */
-export function callManagementProtectedManagementRestPostPatch(rest) {
-  return call('PATCH', `/protected/management/${encodeURIComponent(rest)}`);
+export function callManagementProtectedManagementRestGetPost(rest) {
+  return call('POST', `/protected/management/${encodeURIComponent(rest)}`);
 }
 
 /** PUT /protected/management/{rest} — Call Management
  * @param {string} rest
  * @returns {Promise<Response>}
  */
-export function callManagementProtectedManagementRestPostPut(rest) {
+export function callManagementProtectedManagementRestGetPut(rest) {
   return call('PUT', `/protected/management/${encodeURIComponent(rest)}`);
 }
 
-/** GET /protected/management/{rest} — Call Management
+/** PATCH /protected/management/{rest} — Call Management
  * @param {string} rest
  * @returns {Promise<Response>}
  */
-export function callManagementProtectedManagementRestPostGet(rest) {
-  return call('GET', `/protected/management/${encodeURIComponent(rest)}`);
+export function callManagementProtectedManagementRestGetPatch(rest) {
+  return call('PATCH', `/protected/management/${encodeURIComponent(rest)}`);
+}
+
+/** GET /protected/settings — Get Settings
+ * @returns {Promise<OutputSettings>}
+ */
+export function getSettings() {
+  return call('GET', `/protected/settings`);
 }
 
 /** POST /protected/settings/prune-images — Prune Images
@@ -673,4 +760,37 @@ export function diskUsage() {
  */
 export function tasks() {
   return call('GET', `/protected/stats/tasks`);
+}
+
+/** GET /protected/users/me — Get Me
+ * @param {Object} [query] — {authorization?}
+ * @returns {Promise<OutputUser>}
+ */
+export function getMe(query = {}) {
+  return call('GET', `/protected/users/me`, { query });
+}
+
+/** PATCH /protected/users/me — Patch Me
+ * @param {InputUser} body
+ * @param {Object} [query] — {authorization?}
+ * @returns {Promise<OutputUser>}
+ */
+export function patchMe(body, query = {}) {
+  return call('PATCH', `/protected/users/me`, { query, json: body });
+}
+
+/** POST /protected/users/me/email/resend — Resend Confirmation
+ * @param {Object} [query] — {authorization?}
+ * @returns {Promise<Response>}
+ */
+export function resendConfirmation(query = {}) {
+  return call('POST', `/protected/users/me/email/resend`, { query });
+}
+
+/** DELETE /protected/users/me/email/pending — Delete Pending Email
+ * @param {Object} [query] — {authorization?}
+ * @returns {Promise<Response>}
+ */
+export function deletePendingEmail(query = {}) {
+  return call('DELETE', `/protected/users/me/email/pending`, { query });
 }
