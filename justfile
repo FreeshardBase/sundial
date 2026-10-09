@@ -12,7 +12,7 @@ get-openapi:
     if [ ! -d {{SOURCE_DIR}} ]; then \
       echo "{{SOURCE_DIR}} does not exist. You need to clone freeshard first."; exit 1; \
     fi
-    (cd {{SOURCE_DIR}} && uv run python3 -c "import logging; logging.disable(logging.CRITICAL); import json, sys; from shard_core.app_factory import create_app; json.dump(create_app().openapi(), sys.stdout, indent=1)") > js/api/openapi.json
+    (cd {{SOURCE_DIR}} && uv run python3 - < "{{justfile_directory()}}/tools/dump_openapi.py") > js/api/openapi.json
     echo >> js/api/openapi.json
 
 # Dev server with mock API on :8021 (also serves the app at /sundial/)
