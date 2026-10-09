@@ -95,3 +95,24 @@ test('a failed refresh keeps the last known-good version instead of hiding every
   globalThis.fetch = async () => new Response('gone', { status: 503 });
   assert.equal(await fetchShardVersion({ refresh: true }), '1.4.0');  // from the prior success
 });
+
+test('a 200 with an empty or missing version does not overwrite the cached value', async () => {
+  globalThis.fetch = async () => new Response(JSON.stringify({ version: '' }), {
+    status: 200, headers: { 'Content-Type': 'application/json' } });
+  assert.equal(await fetchShardVersion({ refresh: true }), '1.4.0');  // empty ignored
+  globalThis.fetch = async () => new Response(JSON.stringify({}), {
+    status: 200, headers: { 'Content-Type': 'application/json' } });
+  assert.equal(await fetchShardVersion({ refresh: true }), '1.4.0');  // missing key ignored
+});
+
+test('a non-ok response carrying a version body is ignored, not adopted', async () => {
+  globalThis.fetch = async () => new Response(JSON.stringify({ version: '9.9.9' }), {
+    status: 404, headers: { 'Content-Type': 'application/json' } });
+  assert.equal(await fetchShardVersion({ refresh: true }), '1.4.0');  // stays on the cached good value
+});
+
+test('a successful refresh adopts a changed version (shard upgrade picked up)', async () => {
+  globalThis.fetch = async () => new Response(JSON.stringify({ version: '1.5.0' }), {
+    status: 200, headers: { 'Content-Type': 'application/json' } });
+  assert.equal(await fetchShardVersion({ refresh: true }), '1.5.0');
+});
