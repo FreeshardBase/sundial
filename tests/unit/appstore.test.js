@@ -69,9 +69,14 @@ test('unknown or unparseable versions fail safe to incompatible', () => {
   assert.equal(minimumFreeshardVersionCompatible({ minimum_freeshard_version: 'nonsense' }, '1.2.0'), false);
 });
 
-// These four run in order and share the module-level version cache on purpose:
-// the fail cases must see an empty cache first, then success fills it, then a
-// failed refresh must fall back to the cached value rather than throwing it away.
+// Every fetchShardVersion test below shares the module-level versionCache and
+// must stay in this order — there is no cache reset, so do not reorder and
+// append new cache-dependent cases at the end:
+//   1-2  require an empty cache (no earlier test may call fetchShardVersion)
+//        → a failed fetch with nothing cached yet resolves to null
+//   3    a success fills the cache with '1.4.0'
+//   4-6  assert that cached value survives a failed / empty / non-ok refresh
+//   7    a successful refresh overwrites it with '1.5.0'
 test('fetchShardVersion returns null (not a throw) when the endpoint is missing and nothing is cached', async () => {
   globalThis.fetch = async () => new Response('nope', { status: 404 });
   assert.equal(await fetchShardVersion({ refresh: true }), null);

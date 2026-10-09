@@ -58,9 +58,10 @@ class ViewApps extends FsElement {
       fetchStoreApps({ refresh: refreshStore })
         .then((apps) => { this.#storeApps = apps; })
         .catch(() => {}),
+      // fetchShardVersion never rejects — it resolves to the version or null —
+      // so unlike fetchStoreApps above it needs no .catch.
       fetchShardVersion({ refresh: refreshStore })
-        .then((version) => { this.#shardVersion = version; })
-        .catch(() => { this.#shardVersion = null; }),
+        .then((version) => { this.#shardVersion = version; }),
     ]);
     this.#loading = false;
     this.render();
