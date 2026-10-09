@@ -151,6 +151,13 @@ Views (all must exist in Sundial; branch-switching in Apps deliberately DROPPED)
   `https://storageaccountportab0da.blob.core.windows.net/app-store/master/all_apps/store_metadata.json`
   (branch fixed to `master` in Sundial; NO branch switching); featured-first sort;
   update detection (installed `meta.app_version` != store `app_version`), update-all;
+  version gate: not-yet-installed apps whose `minimum_freeshard_version` exceeds the shard's
+  own running version (read from `GET /core/public/meta/version`, plain fetch — NOT the
+  generated client) are **hidden** from the available list, not badged (unlike the size gate,
+  a too-old shard isn't an upgrade the owner buys here). Shared helper in `appstore.js`
+  (`minimumFreeshardVersionCompatible`) reads the field from both the flat store shape and the
+  nested `meta` shape — one place, so no per-file split drifts (sundial#6); unknown/unparseable
+  version fails safe to hidden;
   per-app detail (modal in old app): long description, hints, featured star, min-size gate
   w/ upgrade link, install/remove/update/reinstall-on-error/open; custom app upload
   (multipart POST `/core/protected/apps`, multiple files, danger warning);
@@ -217,8 +224,9 @@ Auth: JWT cookie issued by `POST /core/public/pair/terminal?code=X` (body: {name
 
 ## API surface (shard_core v26; spec dump in js/api/openapi.json)
 
-Public: `GET /public/meta/{whoami,whoareyou,avatar}`, `GET /public/health`,
-`POST /public/pair/terminal?code=`.
+Public: `GET /public/meta/{whoami,whoareyou,avatar,version}`, `GET /public/health`,
+`POST /public/pair/terminal?code=`. (`meta/version` → `{version}`, the shard's own running
+freeshard version; read as plain JSON for the store version gate, not via the generated client.)
 Protected: apps (GET list, GET/POST/DELETE `{name}`, POST `{name}/reinstall`, GET `{name}/icon`,
 POST multipart custom), terminals (GET, GET/PUT/DELETE `id/{id}`, GET `name/{name}`,
 GET `pairing-code`), identities (GET/PUT, default, avatar GET/PUT/DELETE, make-default),

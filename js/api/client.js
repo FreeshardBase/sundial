@@ -188,6 +188,11 @@ export async function call(method, path, { query, json, form } = {}) {
  */
 
 /**
+ * @typedef {Object} OutputVersion
+ * @property {string} version
+ */
+
+/**
  * @typedef {Object} OutputWhoAmI
  * @property {ClientType} type
  * @property {string|null=} id
@@ -280,6 +285,13 @@ export async function call(method, path, { query, json, form } = {}) {
  */
 export function health() {
   return call('GET', `/public/health`);
+}
+
+/** GET /public/meta/version — Get Version
+ * @returns {Promise<OutputVersion>}
+ */
+export function getVersion() {
+  return call('GET', `/public/meta/version`);
 }
 
 /** GET /public/meta/whoareyou — Who Are You

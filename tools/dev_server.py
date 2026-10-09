@@ -57,11 +57,16 @@ IDENTITY = {
     "domain": "localhost:8021",
 }
 
+# The shard's own running freeshard version, served at /public/meta/version
+# (freeshard#246). The store UI reads it to hide apps the shard is too old for.
+FREESHARD_VERSION = "1.4.0"
+
 STATE = {
     "paired": True,
     "apps": [
         {"name": "filebrowser", "status": "running", "installation_reason": "config",
          "meta": {"pretty_name": "File Browser", "app_version": "2.32.0", "minimum_vm_size": "xs",
+                  "minimum_freeshard_version": "1.0.0",
                   "store_info": {"description_short": "Browse and manage your files", "is_featured": True}}},
         {"name": "vaultwarden", "status": "running", "installation_reason": "store",
          "meta": {"pretty_name": "Vaultwarden", "app_version": "1.30.0", "minimum_vm_size": "xs",
@@ -189,6 +194,10 @@ def make_mock_routes() -> list[web.RouteDef]:
     @r.get("/core/public/meta/whoareyou")
     async def whoareyou(req):
         return json_response({**IDENTITY, "public_key_pem": IDENTITY["public_key_pem"]})
+
+    @r.get("/core/public/meta/version")
+    async def meta_version(req):
+        return json_response({"version": FREESHARD_VERSION})
 
     @r.get("/core/public/meta/avatar")
     @r.get("/core/protected/identities/default/avatar")
