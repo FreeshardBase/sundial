@@ -9,7 +9,7 @@ import * as api from '../api/client.js';
 import { icon } from '../components/icons.js';
 import { openModal } from '../components/modal.js';
 import { toastError, errorMessage } from '../components/toast.js';
-import { fetchStoreApps, storeIconUrl, storeInfo } from '../appstore.js';
+import { fetchStoreApps, fetchShardVersion, minimumFreeshardVersionCompatible, storeIconUrl, storeInfo } from '../appstore.js';
 import { BUSY_STATUSES, VM_SIZES, appDisplayName, attachIconFallback, canBeStarted, openApp } from '../components/app-tile.js';
 import { href } from '../router.js';
 import { t } from '../i18n.js';
@@ -42,6 +42,7 @@ function statusMarkHtml(app) {
 
 class ViewApps extends FsElement {
   #storeApps = [];
+  #shardVersion = null;
   #loading = true;
 
   connectedCallback() {
@@ -57,6 +58,9 @@ class ViewApps extends FsElement {
       fetchStoreApps({ refresh: refreshStore })
         .then((apps) => { this.#storeApps = apps; })
         .catch(() => {}),
+      fetchShardVersion({ refresh: refreshStore })
+        .then((version) => { this.#shardVersion = version; })
+        .catch(() => { this.#shardVersion = null; }),
     ]);
     this.#loading = false;
     this.render();
@@ -77,6 +81,10 @@ class ViewApps extends FsElement {
     const installed = new Set(store.state.apps.map((a) => a.name));
     return this.#storeApps
       .filter((a) => !installed.has(a.name))
+      // Hide — not just badge — apps the shard is too old to run. Unlike the
+      // size gate (an upgrade the owner can buy), a too-new app on a too-old
+      // shard is not actionable here, so offering it would only mislead.
+      .filter((a) => minimumFreeshardVersionCompatible(a, this.#shardVersion))
       .sort((a, b) => {
         const fa = Boolean(a.store_info?.is_featured);
         const fb = Boolean(b.store_info?.is_featured);
