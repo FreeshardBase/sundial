@@ -30,12 +30,15 @@ export async function fetchShardVersion({ refresh = false } = {}) {
   if (versionCache && !refresh) return versionCache;
   try {
     const res = await fetch(`${SHARD_VERSION_URL}?c=${Date.now()}`);
-    if (!res.ok) return null;
-    versionCache = (await res.json()).version ?? null;
-    return versionCache;
+    if (res.ok) {
+      const { version } = await res.json();
+      if (version) versionCache = version;   // ignore an empty/missing version
+    }
   } catch {
-    return null;
+    /* keep whatever we last knew — a failed refresh should not throw away a
+       good value and hide every app until the next successful fetch */
   }
+  return versionCache;
 }
 
 // An app's declared minimum freeshard version, or undefined if none. Read from
@@ -46,14 +49,15 @@ export function minimumFreeshardVersion(app) {
   return app?.meta?.minimum_freeshard_version ?? app?.minimum_freeshard_version;
 }
 
-// Parse a release version ("0.1.2", "1.5") into a numeric segment array, or
-// null if it has no leading numeric release. Any pre-release / local suffix
-// (rc1, +build) is ignored — real shard versions are plain releases, and
-// ignoring the suffix only ever treats a pre-release as its base release.
+// Parse a version ("0.1.2", "1.5", "1.4.0rc1") into its numeric release segments
+// plus whether a pre-release/dev suffix follows, or null if there is no leading
+// numeric release. We don't implement full PEP 440 ordering of the suffix
+// itself — shard versions are plain releases — but we record a suffix's presence
+// so an exact-release match against a pre-release shard build fails safe below.
 function parseVersion(v) {
-  const m = /^\s*v?(\d+(?:\.\d+)*)/.exec(String(v ?? ''));
+  const m = /^\s*v?(\d+(?:\.\d+)*)(.*)$/.exec(String(v ?? ''));
   if (!m) return null;
-  return m[1].split('.').map(Number);
+  return { release: m[1].split('.').map(Number), pre: m[2].trim() !== '' };
 }
 
 // Whether `shardVersion` is >= the app's declared minimum freeshard version.
@@ -67,13 +71,16 @@ export function minimumFreeshardVersionCompatible(app, shardVersion) {
   const have = parseVersion(shardVersion);
   const want = parseVersion(min);
   if (!have || !want) return false;
-  const len = Math.max(have.length, want.length);
+  const len = Math.max(have.release.length, want.release.length);
   for (let i = 0; i < len; i++) {
-    const a = have[i] ?? 0;
-    const b = want[i] ?? 0;
+    const a = have.release[i] ?? 0;
+    const b = want.release[i] ?? 0;
     if (a !== b) return a > b;
   }
-  return true;
+  // Release segments are equal. A pre-release/dev shard build sorts below its
+  // own release (PEP 440), so it does not satisfy a plain-release minimum —
+  // the server would reject the install, so we must not offer the app.
+  return !have.pre;
 }
 
 export function storeIconUrl(app) {

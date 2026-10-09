@@ -47,11 +47,18 @@ test('shorter version strings are zero-padded, not truncated', () => {
   assert.equal(minimumFreeshardVersionCompatible({ minimum_freeshard_version: '1.2.1' }, '1.2'), false);
 });
 
-test('a leading v and a pre-release suffix are tolerated', () => {
+test('a leading v is tolerated', () => {
   assert.equal(minimumFreeshardVersionCompatible({ minimum_freeshard_version: 'v1.2.0' }, 'v1.3.0'), true);
-  // a pre-release collapses to its base release (acceptable: real shard
-  // versions are plain releases)
-  assert.equal(minimumFreeshardVersionCompatible({ minimum_freeshard_version: '1.2.0' }, '1.2.0rc1'), true);
+});
+
+test('a pre-release shard build does not satisfy its own release as a minimum', () => {
+  // PEP 440: 1.2.0rc1 < 1.2.0, and the server would reject the install, so an
+  // app requiring exactly 1.2.0 must stay hidden on a 1.2.0rc1 shard.
+  assert.equal(minimumFreeshardVersionCompatible({ minimum_freeshard_version: '1.2.0' }, '1.2.0rc1'), false);
+  assert.equal(minimumFreeshardVersionCompatible({ minimum_freeshard_version: '1.2.0' }, '1.2.0.dev3'), false);
+  // but a pre-release of a strictly-higher release is fine — the suffix only
+  // matters at exact release equality
+  assert.equal(minimumFreeshardVersionCompatible({ minimum_freeshard_version: '1.2.0' }, '1.3.0rc1'), true);
 });
 
 test('unknown or unparseable versions fail safe to incompatible', () => {
@@ -60,6 +67,19 @@ test('unknown or unparseable versions fail safe to incompatible', () => {
   assert.equal(minimumFreeshardVersionCompatible(app, undefined), false);
   assert.equal(minimumFreeshardVersionCompatible(app, 'nonsense'), false);  // unparseable shard version
   assert.equal(minimumFreeshardVersionCompatible({ minimum_freeshard_version: 'nonsense' }, '1.2.0'), false);
+});
+
+// These four run in order and share the module-level version cache on purpose:
+// the fail cases must see an empty cache first, then success fills it, then a
+// failed refresh must fall back to the cached value rather than throwing it away.
+test('fetchShardVersion returns null (not a throw) when the endpoint is missing and nothing is cached', async () => {
+  globalThis.fetch = async () => new Response('nope', { status: 404 });
+  assert.equal(await fetchShardVersion({ refresh: true }), null);
+});
+
+test('fetchShardVersion returns null when the fetch itself rejects and nothing is cached', async () => {
+  globalThis.fetch = async () => { throw new Error('network down'); };
+  assert.equal(await fetchShardVersion({ refresh: true }), null);
 });
 
 test('fetchShardVersion returns the version string on success', async () => {
@@ -71,12 +91,7 @@ test('fetchShardVersion returns the version string on success', async () => {
   assert.equal(await fetchShardVersion({ refresh: true }), '1.4.0');
 });
 
-test('fetchShardVersion returns null (not a throw) when the endpoint is missing', async () => {
-  globalThis.fetch = async () => new Response('nope', { status: 404 });
-  assert.equal(await fetchShardVersion({ refresh: true }), null);
-});
-
-test('fetchShardVersion returns null when the fetch itself rejects', async () => {
-  globalThis.fetch = async () => { throw new Error('network down'); };
-  assert.equal(await fetchShardVersion({ refresh: true }), null);
+test('a failed refresh keeps the last known-good version instead of hiding everything', async () => {
+  globalThis.fetch = async () => new Response('gone', { status: 503 });
+  assert.equal(await fetchShardVersion({ refresh: true }), '1.4.0');  // from the prior success
 });
