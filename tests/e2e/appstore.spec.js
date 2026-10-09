@@ -73,6 +73,52 @@ test('detail modal for an errored app offers reinstall and remove', async ({ pag
   await page.keyboard.press('Escape');
 });
 
+// A store catalogue carrying per-app minimum_freeshard_version (freeshard#246),
+// flat on the entry exactly as the published catalogue serves it.
+const VERSION_GATED_STORE = {
+  apps: [
+    { name: 'anyapp', app_version: '1.0.0', icon: 'icon.svg',
+      store_info: { description_short: 'No version requirement' } },
+    { name: 'oldapp', app_version: '1.0.0', icon: 'icon.svg', minimum_freeshard_version: '1.0.0',
+      store_info: { description_short: 'Runs on any recent shard' } },
+    { name: 'edgeapp', app_version: '1.0.0', icon: 'icon.svg', minimum_freeshard_version: '1.4.0',
+      store_info: { description_short: 'Needs exactly this shard' } },
+    { name: 'futureapp', app_version: '1.0.0', icon: 'icon.svg', minimum_freeshard_version: '2.0.0',
+      store_info: { description_short: 'Needs a newer shard' } },
+  ],
+};
+
+test('available apps whose minimum_freeshard_version exceeds the shard are hidden', async ({ page }) => {
+  await page.route('**/store_metadata.json*', (route) => route.fulfill({ json: VERSION_GATED_STORE }));
+  // Shard runs 1.4.0 (also the dev-server mock default, pinned here for clarity).
+  await page.route('**/core/public/meta/version*', (route) => route.fulfill({ json: { version: '1.4.0' } }));
+  await page.goto('/apps');
+
+  const available = page.locator('view-apps section').nth(1).locator('.store-card');
+  // anyapp (no min), oldapp (1.0.0 ≤ 1.4.0) and edgeapp (1.4.0 == 1.4.0) show;
+  // futureapp (2.0.0 > 1.4.0) is hidden.
+  await expect(available).toHaveCount(3);
+  await expect(page.locator('[data-name="oldapp"]')).toBeVisible();
+  await expect(page.locator('[data-name="edgeapp"]')).toBeVisible();
+  await expect(page.locator('[data-name="futureapp"]')).toHaveCount(0);
+});
+
+test('when the shard version is unreadable, apps declaring a minimum fail safe to hidden', async ({ page }) => {
+  await page.route('**/store_metadata.json*', (route) => route.fulfill({ json: VERSION_GATED_STORE }));
+  // An old shard predating the endpoint: it 404s. Every app that declares any
+  // minimum is hidden (we can't confirm the shard is new enough); only apps
+  // with no requirement at all remain offered.
+  await page.route('**/core/public/meta/version*', (route) => route.fulfill({ status: 404, body: 'not found' }));
+  await page.goto('/apps');
+
+  const available = page.locator('view-apps section').nth(1).locator('.store-card');
+  await expect(available).toHaveCount(1);
+  await expect(page.locator('[data-name="anyapp"]')).toBeVisible();
+  await expect(page.locator('[data-name="oldapp"]')).toHaveCount(0);
+  await expect(page.locator('[data-name="edgeapp"]')).toHaveCount(0);
+  await expect(page.locator('[data-name="futureapp"]')).toHaveCount(0);
+});
+
 test('store outage degrades gracefully', async ({ page }) => {
   await page.unroute('**/store_metadata.json*');
   await page.route('**/store_metadata.json*', (route) => route.abort());
