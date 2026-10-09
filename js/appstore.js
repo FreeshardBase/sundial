@@ -2,13 +2,9 @@
 // master — the old app's branch-switching feature is deliberately not ported.
 
 import { t } from './i18n.js';
+import { getVersion } from './api/client.js';
 
 const STORE_BASE = 'https://storageaccountportab0da.blob.core.windows.net/app-store/master/all_apps';
-
-// The shard's own running freeshard version lives at this same-origin public
-// endpoint (freeshard#246). Read as plain JSON, deliberately NOT through the
-// generated js/api/client.js — same stance as fetchStoreApps below.
-const SHARD_VERSION_URL = '/core/public/meta/version';
 
 let cache = null;
 
@@ -26,14 +22,17 @@ let versionCache = null;
 // shard predating the endpoint (freeshard#246), or a transient failure. null
 // is the "unknown" signal the version gate below fails safe on. Only successful
 // reads are cached, so a transient failure retries on the next call.
+//
+// Goes through the generated js/api/client.js, unlike fetchStoreApps above:
+// that one reads from an external Azure blob, not a shard_core API route, so
+// it has nothing to generate a client against. GET /public/meta/version is a
+// shard_core route with generated siblings (whoAreYou, whoAmI) already in
+// client.js, so this follows them instead of hand-rolling a second fetch path.
 export async function fetchShardVersion({ refresh = false } = {}) {
   if (versionCache && !refresh) return versionCache;
   try {
-    const res = await fetch(`${SHARD_VERSION_URL}?c=${Date.now()}`);
-    if (res.ok) {
-      const { version } = await res.json();
-      if (version) versionCache = version;   // ignore an empty/missing version
-    }
+    const { version } = await getVersion();
+    if (version) versionCache = version;   // ignore an empty/missing version
   } catch {
     /* keep whatever we last knew — a failed refresh should not throw away a
        good value and hide every app until the next successful fetch */

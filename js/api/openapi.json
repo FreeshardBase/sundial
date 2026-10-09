@@ -974,6 +974,27 @@
     }
    }
   },
+  "/public/meta/version": {
+   "get": {
+    "tags": [
+     "/public"
+    ],
+    "summary": "Get Version",
+    "operationId": "get_version_public_meta_version_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OutputVersion"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/public/meta/whoareyou": {
    "get": {
     "tags": [
@@ -3543,6 +3564,19 @@
      "domain"
     ],
     "title": "OutputIdentity"
+   },
+   "OutputVersion": {
+    "properties": {
+     "version": {
+      "type": "string",
+      "title": "Version"
+     }
+    },
+    "type": "object",
+    "required": [
+     "version"
+    ],
+    "title": "OutputVersion"
    },
    "OutputWhoAmI": {
     "properties": {
