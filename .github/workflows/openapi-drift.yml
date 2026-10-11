@@ -26,6 +26,12 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
+        with:
+          # Pin to match freeshard's own CI (test.yml); otherwise uv picks the
+          # newest Python satisfying freeshard's ">=3.13", which breaks the
+          # moment a dependency lags a new CPython release (psycopg-binary
+          # has no cp315 wheel yet as of 2026-10-11).
+          python-version: "3.13"
 
       - name: Dump a fresh OpenAPI spec from freeshard main
         run: just --set SOURCE_DIR freeshard get-openapi
