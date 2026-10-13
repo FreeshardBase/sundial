@@ -16,9 +16,15 @@ const REPROBE_AFTER_MS = 10 * 60 * 1000;
 let timer = null;
 let unsupportedSince = null;
 
-function push(history, value) {
-  const next = [...history, value];
-  return next.length > HISTORY_LENGTH ? next.slice(-HISTORY_LENGTH) : next;
+// Keeps the array at a constant HISTORY_LENGTH, left-padded with null, so the
+// sparkline's fixed per-sample spacing always represents the same time window —
+// freshly started history reads as a short line anchored at the right edge,
+// not the whole buffer stretched to fill the chart.
+export function push(history, value) {
+  const padded = history.length < HISTORY_LENGTH
+    ? Array(HISTORY_LENGTH - history.length).fill(null).concat(history)
+    : history;
+  return [...padded, value].slice(-HISTORY_LENGTH);
 }
 
 async function sample() {

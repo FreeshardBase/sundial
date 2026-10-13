@@ -1458,6 +1458,48 @@
     }
    }
   },
+  "/protected/apps/{name}/stats": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get App Stats",
+    "operationId": "get_app_stats_protected_apps__name__stats_get",
+    "parameters": [
+     {
+      "name": "name",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Name"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AppStats"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/protected/apps/{name}/icon": {
    "get": {
     "tags": [
@@ -2961,6 +3003,28 @@
     }
    }
   },
+  "/protected/stats": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Shard Stats",
+    "description": "Shard-level CPU + memory rollup for the Home resource monitor.",
+    "operationId": "shard_stats_protected_stats_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ShardStats"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/protected/stats/disk": {
    "get": {
     "tags": [
@@ -3403,6 +3467,39 @@
      "paths"
     ],
     "title": "AppMeta"
+   },
+   "AppStats": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "status": {
+      "type": "string",
+      "title": "Status"
+     },
+     "memory_bytes": {
+      "type": "integer",
+      "title": "Memory Bytes"
+     },
+     "memory_swap_bytes": {
+      "type": "integer",
+      "title": "Memory Swap Bytes"
+     },
+     "cpu_pct": {
+      "type": "number",
+      "title": "Cpu Pct"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "status",
+     "memory_bytes",
+     "memory_swap_bytes",
+     "cpu_pct"
+    ],
+    "title": "AppStats"
    },
    "BackupInfoResponse": {
     "properties": {
@@ -4351,6 +4448,34 @@
      "member"
     ],
     "title": "Role"
+   },
+   "ShardStats": {
+    "properties": {
+     "cpu_pct": {
+      "type": "number",
+      "title": "Cpu Pct"
+     },
+     "memory_bytes": {
+      "type": "integer",
+      "title": "Memory Bytes"
+     },
+     "memory_limit_bytes": {
+      "type": "integer",
+      "title": "Memory Limit Bytes"
+     },
+     "memory_swap_bytes": {
+      "type": "integer",
+      "title": "Memory Swap Bytes"
+     }
+    },
+    "type": "object",
+    "required": [
+     "cpu_pct",
+     "memory_bytes",
+     "memory_limit_bytes",
+     "memory_swap_bytes"
+    ],
+    "title": "ShardStats"
    },
    "ShardSubscriptionSummary": {
     "properties": {
