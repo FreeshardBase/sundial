@@ -16,7 +16,9 @@ const deployNginx = await readFile(`${REPO_ROOT}/deploy/nginx-sundial.conf`, 'ut
 
 // The no-cache rule in each conf: a location matching exactly the three files,
 // whose body uses `expires -1` (sends Cache-Control: no-cache without
-// suppressing the inherited security add_header set).
+// suppressing the inherited security add_header set). Group 1 captures the path
+// prefix (`/` or `/sundial/`), group 2 the block body. The `\\\.` sequences
+// match the literal `\.` (escaped dots) as written in the conf files.
 const NO_CACHE_BLOCK = /location\s+~\s+\^([^\s]*)\(index\\\.html\|sw\\\.js\|version\\\.json\)\$\s*\{([^}]*)\}/;
 
 // Walk from the `{` at/after `openerIndex` to its matching `}`, returning the
@@ -50,16 +52,15 @@ test('deploy nginx no-caches the same three files under /sundial/', () => {
 });
 
 test('deploy no-cache block is nested inside /sundial/ (inherits its security headers) and sets no add_header', () => {
-  const opener = deployNginx.indexOf('location /sundial/ {');
+  const opener = deployNginx.search(/location\s+\/sundial\/\s*\{/);
   assert.ok(opener >= 0, '/sundial/ location missing');
   const [open, close] = blockExtent(deployNginx, opener);
   // Real brace containment, not textual order: a block moved OUT to the server
   // level would inherit from the server scope (which has no add_header here),
   // silently serving the three files with no CSP/X-Frame-Options at all.
-  const noCacheAt = deployNginx.search(NO_CACHE_BLOCK);
-  assert.ok(noCacheAt > open && noCacheAt < close,
+  const m = deployNginx.match(NO_CACHE_BLOCK);
+  assert.ok(m.index > open && m.index < close,
     'no-cache block must be nested inside the /sundial/ block so it inherits the security add_header set');
-  const [, , body] = deployNginx.match(NO_CACHE_BLOCK);
-  assert.doesNotMatch(body, /add_header/,
+  assert.doesNotMatch(m[2], /add_header/,
     'the no-cache block must not set add_header, or nginx drops the inherited security headers');
 });
