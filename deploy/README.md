@@ -16,7 +16,11 @@ static files in the same nginx:
 - `nginx-sundial.conf` keeps `location /` (classic) as-is and adds
   `location /sundial/ { try_files $uri $uri/ /sundial/index.html; }` plus a
   `/sundial → /sundial/` redirect (Sundial derives its base path from the
-  document path up to the last slash).
+  document path up to the last slash). It also no-caches `index.html`, `sw.js`
+  and `version.json` under `/sundial/` (`expires -1`, mirroring
+  `data/nginx.conf`) so the "refresh to update" reload can't be served a stale
+  version from the browser cache — the nested location inherits the security
+  `add_header` set (`tests/unit/nginx-cache.test.js` enforces this).
 
 Sundial is subpath-aware by construction (base injected in `index.html`,
 API stays absolute at `/core`), so no build/config differences between
