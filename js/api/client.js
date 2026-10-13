@@ -70,6 +70,15 @@ export async function call(method, path, { query, json, form } = {}) {
  */
 
 /**
+ * @typedef {Object} AppStats
+ * @property {string} name
+ * @property {string} status
+ * @property {number} memory_bytes
+ * @property {number} memory_swap_bytes
+ * @property {number} cpu_pct
+ */
+
+/**
  * @typedef {Object} BackupInfoResponse
  * @property {BackupReport|null} last_report
  * @property {BackupPassphraseLastAccessInfoResponse|null} last_passphrase_access_info
@@ -278,6 +287,14 @@ export async function call(method, path, { query, json, form } = {}) {
  */
 
 /**
+ * @typedef {Object} ShardStats
+ * @property {number} cpu_pct
+ * @property {number} memory_bytes
+ * @property {number} memory_limit_bytes
+ * @property {number} memory_swap_bytes
+ */
+
+/**
  * @typedef {Object} ShardSubscriptionSummary
  * @property {SubscriptionStatus} status
  * @property {number} price_cents
@@ -442,6 +459,14 @@ export function installApp(name) {
  */
 export function uninstallApp(name) {
   return call('DELETE', `/protected/apps/${encodeURIComponent(name)}`);
+}
+
+/** GET /protected/apps/{name}/stats — Get App Stats
+ * @param {string} name
+ * @returns {Promise<AppStats>}
+ */
+export function getAppStats(name) {
+  return call('GET', `/protected/apps/${encodeURIComponent(name)}/stats`);
 }
 
 /** GET /protected/apps/{name}/icon — Get App Icon
@@ -746,6 +771,13 @@ export function getSettings() {
  */
 export function pruneImages() {
   return call('POST', `/protected/settings/prune-images`);
+}
+
+/** GET /protected/stats — Shard Stats
+ * @returns {Promise<ShardStats>}
+ */
+export function shardStats() {
+  return call('GET', `/protected/stats`);
 }
 
 /** GET /protected/stats/disk — Disk Usage
