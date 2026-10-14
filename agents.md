@@ -272,7 +272,12 @@ snapshot REST `/protected/stats` + per-app `/protected/apps/{name}/stats`, later
 Shards run docker-compose: `web-terminal` image (nginx, static `/srv`), traefik routes
 `PathPrefix(/) priority 1` → web-terminal:80, `/core` → shard_core (prefix stripped).
 Alongside-install plan (a): get Sundial files to `/srv/sundial/` + nginx
-`location /sundial/ { try_files $uri $uri/ /sundial/index.html; }`.
+`location /sundial/ { try_files $uri $uri/ /sundial/index.html; }`. Like
+`data/nginx.conf`, `deploy/nginx-sundial.conf` no-caches `index.html`, `sw.js`
+and `version.json` (nested `location ~ ^/sundial/(…)$ { expires -1; }`, which
+inherits the subpath's security `add_header` set) so the update reload isn't
+served stale — missing it reloads the old version on Firefox Android home-screen
+installs (#37). `tests/unit/nginx-cache.test.js` enforces both confs.
 Max's shard: geszt8.freeshard.cloud (controller id 337) — currently STOPPED + past
 delete_after (expired trial); deploy blocked until revived.
 
