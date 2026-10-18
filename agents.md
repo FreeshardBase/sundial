@@ -126,6 +126,8 @@ Vanilla HTML/CSS/JS, native ES modules, light-DOM custom elements + CSS `@scope`
 - `just serve` — static server on :8021 (dev, proxies /core to a live shard).
 - `npm test` — unit + e2e + no-build smoke (see Testing).
 - `python3 tools/check_i18n.py` — i18n key consistency (t() calls vs catalogs).
+- Mock owner email: a new address goes pending; `/?confirm_email=dev-token` confirms it.
+  `uv run tools/dev_server.py --no-email` mimics a self-hosted shard (no mail, set directly).
 - `tools/gen_client.py` — regenerate `js/api/client.js` from `js/api/openapi.json`.
 - Dump fresh spec: in `~/projects/freeshard/freeshard`:
   `uv run python -c "from shard_core.app_factory import create_app; import json; print(json.dumps(create_app().openapi()))"`
@@ -137,8 +139,8 @@ Views (all must exist in Sundial; branch-switching in Apps deliberately DROPPED)
 - **Home** — app-icon grid (installed apps, status dot, busy spinner, min-vm-size block +
   popover w/ upgrade link, opens `https://{app}.{host}`); usage-prompt modal on first visit
   (tour `usage prompt`); title `Shard [xxxxxx] - Home`.
-- **Welcome** (public, no auth) — avatar (initials fallback), name, mailto email, markdown
-  description, shard-id badge, Pair (anon) / Edit (authed) button, freeshard.net link.
+- **Welcome** (public, no auth) — avatar (initials fallback), name, markdown
+  description (no email: the owner's address is not public, freeshard#220), shard-id badge, Pair (anon) / Edit (authed) button, freeshard.net link.
 - **Pair** — pairing-code form (autofocus, mono), device object auto-built from UA
   (name "Browser on OS" + icon smartphone/tablet/notebook), `?code=` auto-pair in URL,
   redirect to `/` when already terminal-typed, error alert.
@@ -166,10 +168,18 @@ Views (all must exist in Sundial; branch-switching in Apps deliberately DROPPED)
 - **Peers** — list (name, short id linked to `https://{id}.freeshard.cloud`), add by id (PUT),
   refresh peer, delete. (Hidden in old navbar `v-if=false` but route works. Port it; keep
   reachable via router, low-prominence.)
-- **Public** — edit own identity: avatar upload/clear (square-image warning), name, email,
+- **Public** — edit own identity: avatar upload/clear (square-image warning), name,
   description (textarea rows=5, markdown help + preview), warning that it's public,
   link to /welcome. PUT `/core/protected/identities` with `{id, field}`.
 - **Settings** — sections:
+  - Owner (`js/components/owner-card.js`, first card) — the owner's user row
+    (`GET/PATCH /protected/users/me`), not identity/profile. Name writes through; email
+    becomes `pending_email` until the mailed link is opened. States from
+    `ownerEmailState()` in `js/owner-email.js`: none (prompt) / pending (live + candidate,
+    resend, discard) / set; `GET /protected/settings` → `email_enabled: false` (self-hosted)
+    sets directly, no resend. A 502 from PATCH **with the API's JSON detail** means "stored,
+    mail not sent" (`isDeliveryFailure()`): refetch, say so, offer resend; a bare proxy 502
+    is a real failure. Settings keeps one card instance across its re-renders.
   - Subscription (profile-driven states: trial w/ delete_after countdown, interstitial
     (`?sub=return` → poll 3s/60s timeout), active (+pending upgrade), grace/ended;
     subscribe/reactivate → POST `management/api/shards/self/subscribe` → approval_url redirect;
@@ -181,8 +191,14 @@ Views (all must exist in Sundial; branch-switching in Apps deliberately DROPPED)
   - Size (resize xs..xl gated by max_vm_size, POST `management/api/shards/self/resize`
     → approval_url or /restart; pending-resize lock).
   - Reset Welcome Screen (DELETE `/core/protected/help/tours`).
-  - About (machine id, full shard id 16-char-wrapped mono, owner, owner email, created,
-    assigned, delete-after, UI version, public key PEM).
+  - About (machine id, full shard id 16-char-wrapped mono, created, assigned, delete-after, UI version, public key PEM).
+- **Confirm email** (`confirm-email`, Sundial-only) — landing for the controller's mail
+  link `https://<shard>/?confirm_email=<token>`. `main.js` takes the token out of the URL
+  (`history.replaceState`) before routing and hands it to the view; the route is exempt
+  from the anonymous → welcome redirect (link opened on unpaired devices). Confirms only on
+  click (prefetchers would burn the single-use token); `POST /public/users/confirm-email`
+  answers 204 whether or not the token matched, so the success copy is hedged. Never log
+  the token.
 - **Restart** — spinner page, polls whoareyou every 2s; phase pending→unresponsive;
   escalating messages over minutes; on recovery `location.replace('/')`.
 
@@ -225,13 +241,17 @@ Auth: JWT cookie issued by `POST /core/public/pair/terminal?code=X` (body: {name
 ## API surface (shard_core v26; spec dump in js/api/openapi.json)
 
 Public: `GET /public/meta/{whoami,whoareyou,avatar,version}`, `GET /public/health`,
-`POST /public/pair/terminal?code=`. (`meta/version` → `{version}`, the shard's own running
+`POST /public/pair/terminal?code=`, `POST /public/users/confirm-email {token}` (204 either
+way, 422 malformed, 429 on a flood of misses). (`meta/version` → `{version}`, the shard's own running
 freeshard version; read as plain JSON for the store version gate, not via the generated client.)
 Protected: apps (GET list, GET/POST/DELETE `{name}`, POST `{name}/reinstall`, GET `{name}/icon`,
 POST multipart custom), terminals (GET, GET/PUT/DELETE `id/{id}`, GET `name/{name}`,
 GET `pairing-code`), identities (GET/PUT, default, avatar GET/PUT/DELETE, make-default),
 peers (GET/PUT, GET/DELETE `{id}`), backup (info, passphrase, start), stats (disk, tasks),
-help/tours (GET/PUT/DELETE), feedback/quick (POST), settings/prune-images (POST),
+help/tours (GET/PUT/DELETE), feedback/quick (POST), settings (GET → `{email_enabled}`),
+settings/prune-images (POST), users/me (GET, PATCH `{display_name?, email?}` — email null
+clears; 403 non-owner, 429 rate limit, 502 stored-but-not-mailed), users/me/email/resend
+(POST, 409 nothing pending / mail disabled), users/me/email/pending (DELETE),
 management passthrough `/protected/management/{rest}` (profile, api/shards/self/{resize,subscribe}).
 WS: `/protected/ws/updates` (not in OpenAPI).
 All under `/core` prefix when served on a shard (traefik strips it).
@@ -282,6 +302,11 @@ Max's shard: geszt8.freeshard.cloud (controller id 337) — currently STOPPED + 
 delete_after (expired trial); deploy blocked until revived.
 
 ## Conventions
+
+- Pending/confirm flows (a change accepted but not in effect yet): render the candidate
+  with `pendingChange()` from `js/components/pending-change.js` (dashed sheet, state label,
+  status line or warning notice, equal-weight follow-up actions); keep the state derivation
+  a pure function next to the feature (`js/owner-email.js`) so it is unit-testable.
 
 - Custom element names: `fs-*` (e.g. `fs-dock`, `fs-sparkline`, `view-home`).
 - Component = one JS file, template via template literal, styles in a `@scope`d <style> in
