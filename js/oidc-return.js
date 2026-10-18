@@ -18,13 +18,15 @@ export const AUTHORIZE_PATH = '/core/public/oidc/authorize';
 
 // Returns the normalized URL to navigate to, or null if `raw` must be ignored.
 export function safeOidcReturn(raw, origin) {
-  if (typeof raw !== 'string' || !raw || !origin || origin === 'null') return null;
+  if (typeof raw !== 'string' || !raw || !origin) return null;
   let url;
   try {
     url = new URL(raw); // no base: relative and protocol-relative input throws
   } catch {
     return null;
   }
+  // Also keeps opaque origins out: javascript:, data: etc. serialize their
+  // origin as 'null', which would equal the origin of an opaque page.
   if (url.protocol !== 'https:' && url.protocol !== 'http:') return null;
   if (url.origin !== origin) return null;
   if (url.username || url.password) return null;

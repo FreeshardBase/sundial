@@ -63,6 +63,9 @@ for (const [name, raw] of Object.entries(REJECT)) {
 }
 
 test('rejects everything when the page origin is opaque ("null")', () => {
+  // a javascript: URL has origin "null" and can carry the authorize path
+  assert.equal(new URL(`javascript:${AUTHORIZE_PATH}`).pathname, AUTHORIZE_PATH);
+  assert.equal(safeOidcReturn(`javascript:${AUTHORIZE_PATH}`, 'null'), null);
   assert.equal(safeOidcReturn('javascript:alert(1)', 'null'), null);
   assert.equal(safeOidcReturn(AUTHORIZE, 'null'), null);
   assert.equal(safeOidcReturn(AUTHORIZE, ''), null);
