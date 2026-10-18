@@ -128,6 +128,7 @@
   text-align: center;
 }
 .welcome-login p { margin: 0; }
+.welcome-login .fs-btn { text-decoration: none; }
 
 /* De-emphasized corner control: the only way an anon visitor starts pairing,
  * or the owner reaches edit, from this public page — must stay reachable but
