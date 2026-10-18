@@ -1,5 +1,6 @@
 // Pair — enter a pairing code to bind this browser to the shard.
-// Supports ?code= auto-pairing; redirects home if already paired.
+// Supports ?code= auto-pairing; redirects home if already paired. With a
+// valid ?oidc_rd= (app login, see oidc-return.js) it returns there instead.
 
 import { FsElement, esc } from '../components/base.js';
 import { shortShardId } from '../store.js';
@@ -9,6 +10,7 @@ import { navigate } from '../router.js';
 import { makeDeviceObject } from '../util.js';
 import { icon } from '../components/icons.js';
 import { t } from '../i18n.js';
+import { followOidcReturn, oidcReturnQuery } from '../oidc-return.js';
 import '../components/shard-badge.js';
 
 class ViewPair extends FsElement {
@@ -24,7 +26,7 @@ class ViewPair extends FsElement {
     if (urlCode) {
       try {
         await api.addTerminal(makeDeviceObject(), { code: urlCode });
-        location.replace('.');
+        if (!followOidcReturn()) location.replace('.');
         return;
       } catch (e) {
         console.log('Error during auto-pairing', e);
@@ -33,7 +35,7 @@ class ViewPair extends FsElement {
 
     const whoami = await api.whoAmI().catch(() => null);
     if (whoami?.type === 'terminal') {
-      navigate('', { replace: true });
+      if (!followOidcReturn()) navigate('', { replace: true });
       return;
     }
     const whoareyou = await api.whoAreYou().catch(() => null);
@@ -53,6 +55,7 @@ class ViewPair extends FsElement {
       this.render();
       return;
     }
+    if (followOidcReturn()) return;
     await Promise.all([
       actions.queryMetaData(),
       actions.queryTours().catch(() => {}),
@@ -69,6 +72,7 @@ class ViewPair extends FsElement {
     this.innerHTML = `
       <div class="center-page">
         <h1>${t('pair.title')}</h1>
+        ${oidcReturnQuery() ? `<p class="muted pair-app-login">${t('welcome.appLogin')}</p>` : ''}
         <p>${t('pair.thisShardIs')}</p>
         <fs-shard-badge shard-id="${esc(shortId)}"></fs-shard-badge>
         <form class="pair-form">

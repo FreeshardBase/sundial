@@ -114,6 +114,20 @@
   margin-top: var(--space-4);
 }
 .welcome-learn { margin-top: var(--space-5); font-size: var(--fs-small); }
+/* App-login arrival (?oidc_rd=): pairing is the one forward action. */
+.welcome-login {
+  max-width: 48ch;
+  margin: 0 auto var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-w) solid var(--border-cool);
+  border-radius: var(--radius-control);
+  text-align: center;
+}
+.welcome-login p { margin: 0; }
 
 /* De-emphasized corner control: the only way an anon visitor starts pairing,
  * or the owner reaches edit, from this public page — must stay reachable but

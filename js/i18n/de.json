@@ -68,6 +68,8 @@
   "welcome": {
     "pair": "Koppeln",
     "edit": "Bearbeiten",
+    "appLogin": "Eine App möchte, dass du dich mit diesem Shard anmeldest. Kopple dieses Gerät, um fortzufahren.",
+    "pairToContinue": "Dieses Gerät koppeln",
     "learnMore": "<a href=\"https://freeshard.net\" target=\"_blank\" rel=\"noopener\">Mehr erfahren</a> über Shard"
   },
   "pair": {

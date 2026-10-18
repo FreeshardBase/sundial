@@ -9,6 +9,7 @@ import { startKeynav } from './keynav.js';
 import { startMetrics } from './metrics.js';
 import { initI18n, t } from './i18n.js';
 import { registerServiceWorker } from './pwa.js';
+import { followOidcReturn, oidcReturnQuery } from './oidc-return.js';
 
 import './components/dock.js';
 import './components/banner.js';
@@ -48,10 +49,13 @@ async function boot() {
     actions.refreshTerminals().catch(() => {}),
   ]);
 
+  // Already paired and sent here by an app login: go straight back to it.
+  if (!store.state.meta.is_anonymous && followOidcReturn()) return;
+
   startRouter();
 
   if (store.state.meta.is_anonymous && !['pair', 'welcome'].includes(currentRoute())) {
-    navigate('welcome', { replace: true });
+    navigate('welcome', { replace: true, query: oidcReturnQuery() });
   }
 
   document.getElementById('splash').remove();

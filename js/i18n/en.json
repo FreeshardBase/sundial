@@ -68,6 +68,8 @@
   "welcome": {
     "pair": "Pair",
     "edit": "Edit",
+    "appLogin": "An app wants you to log in with this shard. Pair this device to continue.",
+    "pairToContinue": "Pair this device",
     "learnMore": "<a href=\"https://freeshard.net\" target=\"_blank\" rel=\"noopener\">Learn more</a> about Shard"
   },
   "pair": {
