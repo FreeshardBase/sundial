@@ -8,7 +8,8 @@
     "settings": "Shard [{id}] - Einstellungen",
     "peers": "Shard [{id}] - Peers",
     "public": "Shard [{id}] - Profil",
-    "restart": "Shard [{id}] - Neustart"
+    "restart": "Shard [{id}] - Neustart",
+    "confirmEmail": "Shard [{id}] - E-Mail bestätigen"
   },
   "common": {
     "justNow": "gerade eben",
@@ -80,6 +81,17 @@
     "genericBrowser": "Browser",
     "unknownOs": "Unbekanntes OS",
     "deviceName": "{browser} auf {os}"
+  },
+  "confirmEmail": {
+    "title": "Bestätige deine E-Mail-Adresse",
+    "intro": "Bestätige, dass diese Adresse Nachrichten zu deinem Shard erhalten soll: Speicherwarnungen, Abrechnung und Servicenachrichten.",
+    "confirm": "Adresse bestätigen",
+    "sent": "Falls der Link noch gültig war, ist deine Adresse jetzt bestätigt und erhält Nachrichten zu deinem Shard.",
+    "sentHint": "Ein Bestätigungslink ist eine Stunde lang gültig und funktioniert einmal. Wenn die Einstellungen die Adresse noch als wartend anzeigen, fordere dort mit Erneut senden eine neue E-Mail an.",
+    "invalid": "Dieser Link ist unvollständig, es gibt also nichts zu bestätigen. Öffne den Link aus der Bestätigungsmail noch einmal, oder fordere in den Einstellungen eine neue E-Mail an.",
+    "failed": "Die Bestätigung hat deinen Shard nicht erreicht. Versuch es gleich noch einmal.",
+    "rateLimited": "Zu viele Bestätigungsversuche. Warte eine Minute und versuch es dann noch einmal.",
+    "continue": "Weiter zu deinem Shard"
   },
   "terminals": {
     "title": "Geräte",
@@ -164,6 +176,36 @@
     "description": "Beschreibung"
   },
   "settings": {
+    "owner": {
+      "title": "Inhaber",
+      "loading": "Inhaberdaten werden geladen…",
+      "loadFailed": "Deine Inhaberdaten konnten nicht geladen werden, deshalb lassen sich Name und E-Mail gerade nicht ändern.",
+      "name": "Name",
+      "nameHint": "Dein Name als Inhaber dieses Shards. Der Name auf deiner öffentlichen Seite ist ein anderer und wird unter Öffentliche Ansicht bearbeitet.",
+      "email": "E-Mail",
+      "noAddress": "Noch keine Adresse.",
+      "noAddressPrompt": "Trag eine ein, damit wir dich zu deinem Shard erreichen können: Speicherwarnungen, Abrechnung und Servicenachrichten gehen dorthin.",
+      "pendingLabel": "Wartet auf Bestätigung",
+      "pendingNote": "Öffne den Link in der Bestätigungsmail an diese Adresse, oder sende sie erneut, falls sie nie angekommen ist. Ein Link ist eine Stunde lang gültig.",
+      "pendingNoMail": "Dieser Shard kann keine E-Mails senden, deshalb lässt sich diese Adresse nicht bestätigen. Verwirf sie und gib die Adresse erneut ein.",
+      "deliveryFailed": "Die Adresse wurde gespeichert, aber die Bestätigungsmail konnte noch nicht gesendet werden. Sende sie gleich noch einmal.",
+      "noVerification": "Dieser Shard kann keine E-Mails senden, deshalb wird die Adresse ohne Bestätigungsschritt so übernommen, wie du sie eingibst.",
+      "resend": "Erneut senden",
+      "discard": "Verwerfen",
+      "mailSent": "Bestätigungsmail gesendet",
+      "mailSentTo": "Öffne den Link, der an {email} gesendet wurde.",
+      "addressSaved": "Adresse gespeichert",
+      "addressRemoved": "Adresse entfernt",
+      "discarded": "Adressänderung verworfen",
+      "nameEmpty": "Der Name darf nicht leer sein",
+      "nameFailed": "Der Name konnte nicht gespeichert werden",
+      "nameInvalid": "Der Name darf höchstens 200 Zeichen lang sein.",
+      "emailFailed": "Die Adresse konnte nicht gespeichert werden",
+      "emailInvalid": "Das ist keine gültige E-Mail-Adresse.",
+      "resendFailed": "Die Bestätigungsmail konnte nicht gesendet werden",
+      "discardFailed": "Die Adressänderung konnte nicht verworfen werden",
+      "notOwner": "Nur der Inhaber des Shards kann diese Adresse ändern."
+    },
     "title": "Einstellungen",
     "profileUnavailable": "Einige Metadaten dieses Shards konnten nicht geladen werden, daher sind manche Einstellungen nicht verfügbar.",
     "sub": {
@@ -237,8 +279,6 @@
       "title": "Über",
       "machineId": "Maschinen-ID",
       "shardId": "Shard-ID",
-      "owner": "Eigentümer",
-      "ownerEmail": "E-Mail des Eigentümers",
       "created": "Erstellt",
       "assigned": "Zugewiesen",
       "scheduledDelete": "Löschung geplant",

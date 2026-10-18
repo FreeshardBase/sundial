@@ -20,7 +20,7 @@ const NAV = [
   { route: 'settings', labelKey: 'dock.settings', glyph: 'gear', key: 's' },
 ];
 
-const HIDDEN_ROUTES = ['welcome', 'pair', 'restart'];
+const HIDDEN_ROUTES = ['welcome', 'pair', 'restart', 'confirm-email'];
 
 class FsDock extends HTMLElement {
   #unsubs = [];
