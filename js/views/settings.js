@@ -107,6 +107,7 @@ class ViewSettings extends FsElement {
     document.title = t('title.settings', { id: shortShardId() });
     const state = store.state;
     const profile = state.profile;
+    // Rebuilding detaches the owner card, which blurs a field being edited in it.
     const focused = this.#ownerCard.contains(document.activeElement) ? document.activeElement : null;
     this.innerHTML = `
       <div class="page-title">

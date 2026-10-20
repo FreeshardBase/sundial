@@ -28,7 +28,7 @@ test('ownerEmailState: a pending candidate wins over the live address', () => {
   assert.equal(ownerEmailState({ email: null, pending_email: 'b@x.org' }), 'pending');
 });
 
-test('ownerEmailState: set and none', () => {
+test('ownerEmailState: an address without a candidate is set, no address is none', () => {
   assert.equal(ownerEmailState({ email: 'a@x.org', pending_email: null }), 'set');
   assert.equal(ownerEmailState({ email: null, pending_email: null }), 'none');
   assert.equal(ownerEmailState({}), 'none');

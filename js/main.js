@@ -26,6 +26,7 @@ import './views/peers.js';
 import './views/public.js';
 import './views/settings.js';
 import './views/restart.js';
+import './views/confirm-email.js';
 
 defineRoutes({
   '': { tag: 'view-home' },

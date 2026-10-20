@@ -39,6 +39,8 @@ class FsOwnerCard extends FsElement {
     // Settings re-renders its whole tree and re-attaches this same element.
     // A re-attach must neither refetch nor re-render (that would throw away an
     // edit in progress); only the first connect and a language switch render.
+    // watch() always adds 'locale' and fires once at once (#renderedLocale is
+    // still null then), which is the first render.
     this.watch([], (state) => { if (state.locale !== this.#renderedLocale) this.render(); });
     if (!this.#loaded) {
       this.#loaded = true;
@@ -74,7 +76,7 @@ class FsOwnerCard extends FsElement {
         <div class="owner-name-slot"></div>
         <p class="muted owner-hint">${t('settings.owner.nameHint')}</p>
         <div class="owner-email-slot"></div>
-        ${this.emailHints()}`;
+        ${this.emailStatus()}`;
     }
     this.innerHTML = `<section class="fs-sheet settings-card owner-card"><h2>${t('settings.owner.title')}</h2>${body}</section>`;
     if (this.#user) {
@@ -89,7 +91,7 @@ class FsOwnerCard extends FsElement {
     this.wire();
   }
 
-  emailHints() {
+  emailStatus() {
     const state = ownerEmailState(this.#user);
     const hints = [];
     if (state === 'none') {
@@ -170,6 +172,7 @@ class FsOwnerCard extends FsElement {
     try {
       this.#user = await api.getMe();
     } catch {
+      // Unreadable now: show what was typed. The next load shows the stored form.
       this.#user = { ...this.#user, pending_email: address };
     }
   }

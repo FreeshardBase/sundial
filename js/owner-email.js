@@ -5,7 +5,7 @@
 // definition, `pending_email` is an unverified candidate, so the pair alone
 // says which state the address is in.
 
-export const CONFIRM_EMAIL_PARAM = 'confirm_email';
+const CONFIRM_EMAIL_PARAM = 'confirm_email';
 
 // The controller's mail link is `https://<shard-domain>/?confirm_email=<token>`.
 // Returns the token, or null when the query carries none.

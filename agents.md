@@ -306,8 +306,8 @@ delete_after (expired trial); deploy blocked until revived.
 - Pending/confirm flows (a change accepted but not in effect yet): render the candidate
   with `pendingChange()` from `js/components/pending-change.js` (dashed sheet, state label,
   status line or warning notice, equal-weight follow-up actions); keep the state derivation
-  a pure function next to the feature (`js/owner-email.js`) so it is unit-testable.
-
+  a pure function (`js/owner-email.js`) so it is unit-testable. The owner email is the first
+  caller; generalise the helper when a second one shows what varies.
 - Custom element names: `fs-*` (e.g. `fs-dock`, `fs-sparkline`, `view-home`).
 - Component = one JS file, template via template literal, styles in a `@scope`d <style> in
   its light DOM or in `css/components/*.css`.

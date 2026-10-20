@@ -31,7 +31,7 @@ async function stubOwner(page, { reads, emailEnabled = true, patch, resend, disc
     if (url.pathname.endsWith('/email/pending') && discard) return discard(route);
     return route.fulfill({ status: 500, json: { detail: 'unstubbed' } });
   });
-  return { calls, reads: () => n };
+  return { calls, readCount: () => n };
 }
 
 async function editField(page, field, value) {
@@ -88,7 +88,7 @@ test('an email edit in progress survives a Settings re-render', async ({ page })
   await expect(page.locator('.disk-gauge-info .alert--warn')).toBeVisible();
   await expect(card(page).locator('.owner-email input')).toHaveValue('half-typed@exa');
   await expect(card(page).locator('.owner-email input')).toBeFocused();
-  expect(stub.reads()).toBe(1);
+  expect(stub.readCount()).toBe(1);
 });
 
 test('an email edit in progress survives a name save rebuilding the card', async ({ page }) => {
@@ -176,7 +176,7 @@ test('502 from PATCH: the stored candidate is shown from a refetch, not reported
   await expect(pending.locator('.pending-change__notice')).toContainText('was saved, but the confirmation email could not be sent');
   await expect(pending.locator('[data-act="resend"]')).toBeVisible();
   await expect(page.locator('.toast--error')).toHaveCount(0);
-  expect(stub.reads()).toBeGreaterThanOrEqual(2);
+  expect(stub.readCount()).toBeGreaterThanOrEqual(2);
 });
 
 test('a successful resend clears the delivery-failed message', async ({ page }) => {
@@ -326,7 +326,7 @@ test('an unreadable owner row says so instead of spinning', async ({ page }) => 
   await expect(card(page).locator('fs-editable-text')).toHaveCount(0);
 });
 
-test('the About list no longer carries the controller copy of owner and email', async ({ page }) => {
+test('the About list shows neither owner nor owner email', async ({ page }) => {
   await page.goto('/settings');
   await expect(page.locator('.about-fields')).toContainText('Shard ID');
   // the mock profile still has owner / owner_email: they must not render

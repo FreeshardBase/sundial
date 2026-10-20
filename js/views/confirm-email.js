@@ -24,7 +24,7 @@ export function holdConfirmToken(token) {
 
 class ViewConfirmEmail extends FsElement {
   #token = heldToken;
-  #state = 'idle'; // idle | confirming | sent | failed | rate-limited
+  #state = 'idle'; // idle | confirming | sent | failed | rate-limited | invalid
 
   connectedCallback() {
     this.watch(['meta'], () => this.render());
