@@ -8,7 +8,7 @@ const initial = {
     is_anonymous: true,
     device_id: 'unknown',
     device_name: 'unknown',
-    identity: { id: '', name: '', email: '', description: '', public_key_pem: '', domain: '' },
+    identity: { id: '', name: '', description: '', public_key_pem: '', domain: '' },
   },
   version: null,        // latest UI version from version.json (update notice)
   profile: null,        // controller profile; null when unreachable

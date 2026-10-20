@@ -1,6 +1,6 @@
 // Boot: register views, hydrate the store (load-all-upfront), route, connect WS.
 
-import { defineRoutes, startRouter, navigate, currentRoute } from './router.js';
+import { defineRoutes, startRouter, navigate, currentRoute, href } from './router.js';
 import { store } from './store.js';
 import * as actions from './actions.js';
 import { startWebSocket, onMessage } from './ws.js';
@@ -10,6 +10,8 @@ import { startMetrics } from './metrics.js';
 import { initI18n, t } from './i18n.js';
 import { registerServiceWorker } from './pwa.js';
 import { followOidcReturn, oidcReturnQuery } from './oidc-return.js';
+import { readConfirmEmailToken, searchWithoutConfirmToken } from './owner-email.js';
+import { holdConfirmToken } from './views/confirm-email.js';
 
 import './components/dock.js';
 import './components/banner.js';
@@ -24,6 +26,7 @@ import './views/peers.js';
 import './views/public.js';
 import './views/settings.js';
 import './views/restart.js';
+import './views/confirm-email.js';
 
 defineRoutes({
   '': { tag: 'view-home' },
@@ -35,9 +38,26 @@ defineRoutes({
   public: { tag: 'view-public' },
   settings: { tag: 'view-settings' },
   restart: { tag: 'view-restart' },
+  'confirm-email': { tag: 'view-confirm-email' },
 });
 
+// Routes an unpaired browser may stay on. The confirmation link is opened in
+// whatever reads mail, usually a device this shard has never seen.
+const PUBLIC_ROUTES = ['pair', 'welcome', 'confirm-email'];
+
+// The mail link is `<shard>/?confirm_email=<token>`, whatever path it lands
+// on. Take the token out of the URL (address bar, history, Referer) and hand
+// it to the confirmation view, before anything else routes.
+function takeConfirmEmailLink() {
+  const token = readConfirmEmailToken(location.search);
+  if (!token) return false;
+  holdConfirmToken(token);
+  history.replaceState(null, '', href('confirm-email') + searchWithoutConfirmToken(location.search));
+  return true;
+}
+
 async function boot() {
+  const confirming = takeConfirmEmailLink();
   await Promise.all([
     initI18n().catch((e) => console.error('i18n init failed', e)),
     actions.queryMetaData().catch((e) => console.log('meta', e)),
@@ -50,11 +70,12 @@ async function boot() {
   ]);
 
   // Already paired and sent here by an app login: go straight back to it.
-  if (!store.state.meta.is_anonymous && followOidcReturn()) return;
+  // A confirmation link wins: leaving would drop its token unspent.
+  if (!confirming && !store.state.meta.is_anonymous && followOidcReturn()) return;
 
   startRouter();
 
-  if (store.state.meta.is_anonymous && !['pair', 'welcome'].includes(currentRoute())) {
+  if (store.state.meta.is_anonymous && !PUBLIC_ROUTES.includes(currentRoute())) {
     navigate('welcome', { replace: true, query: oidcReturnQuery() });
   }
 

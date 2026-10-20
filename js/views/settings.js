@@ -1,4 +1,4 @@
-// Settings — subscription, disk, backup, size, tours reset, about.
+// Settings — owner, subscription, disk, backup, size, tours reset, about.
 
 import { FsElement, esc } from '../components/base.js';
 import { store, shortShardId } from '../store.js';
@@ -9,6 +9,7 @@ import { icon } from '../components/icons.js';
 import { toastSuccess, toastError, errorMessage } from '../components/toast.js';
 import { diskGaugeReading, formatRelative, formatAbsolute } from '../util.js';
 import '../components/gauge.js';
+import '../components/owner-card.js';
 import { computeMonthlyPrice, centsToEur } from '../pricing.js';
 import { navigate } from '../router.js';
 import { onMessage } from '../ws.js';
@@ -33,6 +34,9 @@ class ViewSettings extends FsElement {
   #pollTimer = null;
   #pollTimeout = null;
   #pollingTimedOut = false;
+  // One instance for the view's lifetime: render() rebuilds the tree, and a
+  // fresh card would refetch and drop an edit in progress.
+  #ownerCard = document.createElement('fs-owner-card');
 
   connectedCallback() {
     this.watch(['profile', 'disk_usage', 'meta'], () => this.render());
@@ -103,6 +107,8 @@ class ViewSettings extends FsElement {
     document.title = t('title.settings', { id: shortShardId() });
     const state = store.state;
     const profile = state.profile;
+    // Rebuilding detaches the owner card, which blurs a field being edited in it.
+    const focused = this.#ownerCard.contains(document.activeElement) ? document.activeElement : null;
     this.innerHTML = `
       <div class="page-title">
         <h1>${t('settings.title')}</h1>
@@ -110,6 +116,7 @@ class ViewSettings extends FsElement {
       </div>
       ${profile === null ? `<p class="alert alert--warn">${t('settings.profileUnavailable')}</p>` : ''}
       <div class="settings-grid">
+        <div class="owner-card-slot"></div>
         ${profile ? this.subscriptionCard() : ''}
         ${this.diskCard()}
         ${this.backupCard()}
@@ -123,6 +130,8 @@ class ViewSettings extends FsElement {
 
     const du = state.disk_usage;
     const diskRatio = du.total_gb > 0 ? (du.total_gb - du.free_gb) / du.total_gb : 0;
+    this.querySelector('.owner-card-slot').replaceWith(this.#ownerCard);
+    focused?.focus();
     this.querySelector('.disk-gauge').reading = { ...diskGaugeReading(du), label: fmtPercent(diskRatio) };
     this.wire();
   }
@@ -319,8 +328,6 @@ class ViewSettings extends FsElement {
     return [
       profile ? field(t('settings.about.machineId'), esc(profile.vm_id || unknown), true) : '',
       field(t('settings.about.shardId'), esc(wrapped || unknown), true),
-      profile ? field(t('settings.about.owner'), esc(profile.owner || unknown)) : '',
-      profile ? field(t('settings.about.ownerEmail'), esc(profile.owner_email || unknown)) : '',
       profile ? field(t('settings.about.created'), profile.time_created ? formatRelative(profile.time_created) : unknown, false, profile.time_created ? abs(profile.time_created) : '') : '',
       profile ? field(t('settings.about.assigned'), profile.time_assigned ? formatRelative(profile.time_assigned) : unknown, false, profile.time_assigned ? abs(profile.time_assigned) : '') : '',
       profile ? field(t('settings.about.scheduledDelete'), profile.delete_after ? formatRelative(profile.delete_after) : t('settings.about.never'), false, profile.delete_after ? abs(profile.delete_after) : '') : '',
@@ -339,6 +346,7 @@ class ViewSettings extends FsElement {
       try { await queryProfile({ refresh: true }); } catch (e) { toastError(t('toast.loadError'), errorMessage(e)); }
       queryDiskUsage().catch(() => {});
       this.refreshBackupInfo();
+      this.#ownerCard.load();
     });
     act('dismiss-cancel', () => {
       this.#cancelAlert = false;

@@ -1,5 +1,6 @@
 // Public — edit the identity shown on the public welcome page:
-// avatar, name, email, description (markdown).
+// avatar, name, description (markdown). The owner's email is not public;
+// it lives on the user row and is edited in Settings → Owner.
 
 import { FsElement, esc } from '../components/base.js';
 import { shortShardId } from '../store.js';
@@ -13,7 +14,7 @@ import '../components/avatar.js';
 import '../components/editable-text.js';
 
 class ViewPublic extends FsElement {
-  #identity = { id: '', name: '', email: '', description: '' };
+  #identity = { id: '', name: '', description: '' };
   #avatarRef = `/core/protected/identities/default/avatar?${performance.now()}`;
 
   async connectedCallback() {
@@ -53,7 +54,6 @@ class ViewPublic extends FsElement {
         </div>
       </div>
       <fs-editable-text id="f-name" title="${t('public.name')}" value="${esc(id.name)}"></fs-editable-text>
-      <fs-editable-text id="f-email" title="${t('public.email')}" value="${esc(id.email)}"></fs-editable-text>
       <fs-editable-text id="f-description" title="${t('public.description')}" value="${esc(id.description)}" rows="5"></fs-editable-text>`;
 
     const file = this.querySelector('.avatar-file');
@@ -78,7 +78,7 @@ class ViewPublic extends FsElement {
       }
     });
 
-    for (const field of ['name', 'email', 'description']) {
+    for (const field of ['name', 'description']) {
       this.querySelector(`#f-${field}`).addEventListener('edited', async (e) => {
         try {
           await api.putIdentity({ id: this.#identity.id, [field]: e.detail.value });

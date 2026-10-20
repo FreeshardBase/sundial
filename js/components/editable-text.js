@@ -19,6 +19,9 @@ class FsEditableText extends FsElement {
   }
 
   connectedCallback() {
+    // Re-attached mid-edit (a parent rebuilt its tree around this element):
+    // the input is still in place, keep it.
+    if (this.#state !== 'off' && this.firstElementChild) return;
     this.#value = this.getAttribute('value') ?? '';
     this.render();
   }

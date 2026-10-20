@@ -51,7 +51,6 @@ SECURITY_HEADERS = security_headers()
 IDENTITY = {
     "id": "geszt8y57h0ylg2q08wqqxbp7evv5vrxdhypp547x2qf67yaehwrzlbk1s3gjtjdtj23jsj10r6pjwvqn0a56hqdg6ht5vjfzff2ka2",
     "name": "Max Mustermann",
-    "email": "max@example.org",
     "description": "This is **my** shard.\n\nSelf-hosting, but easy.",
     "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkq...dev-mock...\n-----END PUBLIC KEY-----",
     "domain": "localhost:8021",
@@ -140,6 +139,21 @@ STATE = {
         "last_passphrase_access_info": None,
     },
 }
+
+# The owner's user row (GET/PATCH /protected/users/me, freeshard#220): `email`
+# is verified by definition, `pending_email` is the unconfirmed candidate. In
+# the mock a confirmation link is `/?confirm_email=dev-token`.
+USER = {
+    "id": 1,
+    "username": "owner",
+    "display_name": "Max Mustermann",
+    "email": "max@example.org",
+    "pending_email": None,
+    "role": "owner",
+}
+DEV_CONFIRM_TOKEN = "dev-token"
+# GET /protected/settings → email_enabled; --no-email mimics a self-hosted shard.
+SETTINGS = {"email_enabled": True}
 
 SOCKETS: set[web.WebSocketResponse] = set()
 
@@ -370,6 +384,58 @@ def make_mock_routes() -> list[web.RouteDef]:
         print("feedback:", (await req.json()).get("text"))
         return json_response({})
 
+    @r.get("/core/protected/users/me")
+    async def get_me(req):
+        return json_response(USER)
+
+    @r.patch("/core/protected/users/me")
+    async def patch_me(req):
+        body = await req.json()
+        if "display_name" in body:
+            if not body["display_name"]:
+                return json_response({"detail": "display_name cannot be null."}, status=422)
+            USER["display_name"] = body["display_name"]
+        if "email" in body:
+            address = body["email"]
+            if address is not None and "@" not in address:
+                return json_response({"detail": [{"msg": "value is not a valid email address"}]}, status=422)
+            if address is None:
+                USER.update(email=None, pending_email=None)
+            elif SETTINGS["email_enabled"]:
+                USER["pending_email"] = address
+                print(f"confirmation mail to {address}: /?confirm_email={DEV_CONFIRM_TOKEN}")
+            else:
+                USER.update(email=address, pending_email=None)
+        return json_response(USER)
+
+    @r.post("/core/protected/users/me/email/resend")
+    async def resend_confirmation(req):
+        if not SETTINGS["email_enabled"]:
+            return json_response({"detail": "This shard does not send confirmation email."}, status=409)
+        if not USER["pending_email"]:
+            return json_response({"detail": "No address is waiting for confirmation."}, status=409)
+        print(f"confirmation mail to {USER['pending_email']}: /?confirm_email={DEV_CONFIRM_TOKEN}")
+        return web.Response(status=204)
+
+    @r.delete("/core/protected/users/me/email/pending")
+    async def delete_pending_email(req):
+        USER["pending_email"] = None
+        return web.Response(status=204)
+
+    @r.post("/core/public/users/confirm-email")
+    async def confirm_email(req):
+        # 204 whether or not the token matched, like shard_core (no probing).
+        token = (await req.json()).get("token")
+        if not isinstance(token, str) or not token:
+            return json_response({"detail": [{"msg": "String should have at least 1 character"}]}, status=422)
+        if token == DEV_CONFIRM_TOKEN and USER["pending_email"]:
+            USER.update(email=USER["pending_email"], pending_email=None)
+        return web.Response(status=204)
+
+    @r.get("/core/protected/settings")
+    async def get_settings(req):
+        return json_response(SETTINGS)
+
     @r.post("/core/protected/settings/prune-images")
     async def prune(req):
         return json_response({"message": "Reclaimed 1.2 GB"})
@@ -443,10 +509,14 @@ def main() -> None:
     p.add_argument("--host", default="127.0.0.1")
     p.add_argument("--proxy", help="forward /core to this shard origin instead of mocking")
     p.add_argument("--anonymous", action="store_true", help="start unpaired")
+    p.add_argument("--no-email", action="store_true",
+                   help="shard cannot send mail (self-hosted): addresses are set directly")
     args = p.parse_args()
 
     if args.anonymous:
         STATE["paired"] = False
+    if args.no_email:
+        SETTINGS["email_enabled"] = False
 
     app = web.Application()
     if args.proxy:

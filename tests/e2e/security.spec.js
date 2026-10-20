@@ -36,7 +36,7 @@ test('no CSP violations while visiting every view', async ({ page }) => {
       window.__cspViolations.push(`${e.violatedDirective} <- ${e.blockedURI || 'inline'}`);
     });
   });
-  for (const route of ['', 'apps', 'terminals', 'peers', 'public', 'settings', 'welcome', 'pair']) {
+  for (const route of ['', 'apps', 'terminals', 'peers', 'public', 'settings', 'welcome', 'pair', 'confirm-email']) {
     await page.goto(`/${route}`);
     await page.waitForLoadState('networkidle');
   }
