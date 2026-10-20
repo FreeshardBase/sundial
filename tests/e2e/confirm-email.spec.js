@@ -107,6 +107,16 @@ test('confirm is disabled while in flight; a 422 says the link is invalid', asyn
   expect(posts).toHaveLength(1);
 });
 
+test('a paired browser with an app login return still lands on the confirm screen', async ({ page }) => {
+  const authorize = [];
+  await page.route('**/core/public/oidc/authorize**', (route) => { authorize.push(route.request().url()); return route.fulfill({ body: 'authorize' }); });
+  await stubConfirm(page);
+  const rd = encodeURIComponent('http://127.0.0.1:8021/core/public/oidc/authorize?client_id=app');
+  await page.goto(`/?confirm_email=tok-both&oidc_rd=${rd}`);
+  await expect(page.locator('view-confirm-email [data-act="confirm"]')).toBeVisible();
+  expect(authorize).toEqual([]);
+});
+
 test('rate limited: says so and keeps the button', async ({ page }) => {
   await stubConfirm(page, 429);
   await page.goto('/?confirm_email=tok-429');

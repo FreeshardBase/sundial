@@ -50,13 +50,14 @@ const PUBLIC_ROUTES = ['pair', 'welcome', 'confirm-email'];
 // it to the confirmation view, before anything else routes.
 function takeConfirmEmailLink() {
   const token = readConfirmEmailToken(location.search);
-  if (!token) return;
+  if (!token) return false;
   holdConfirmToken(token);
   history.replaceState(null, '', href('confirm-email') + searchWithoutConfirmToken(location.search));
+  return true;
 }
 
 async function boot() {
-  takeConfirmEmailLink();
+  const confirming = takeConfirmEmailLink();
   await Promise.all([
     initI18n().catch((e) => console.error('i18n init failed', e)),
     actions.queryMetaData().catch((e) => console.log('meta', e)),
@@ -69,7 +70,8 @@ async function boot() {
   ]);
 
   // Already paired and sent here by an app login: go straight back to it.
-  if (!store.state.meta.is_anonymous && followOidcReturn()) return;
+  // A confirmation link wins: leaving would drop its token unspent.
+  if (!confirming && !store.state.meta.is_anonymous && followOidcReturn()) return;
 
   startRouter();
 
