@@ -244,6 +244,55 @@ test('discard drops the candidate', async ({ page }) => {
   expect(calls.map((c) => `${c.method} ${c.path}`)).toEqual(['DELETE /core/protected/users/me/email/pending']);
 });
 
+test('a failed discard keeps the candidate and says so', async ({ page }) => {
+  await stubOwner(page, {
+    reads: [user({ email: 'old@example.org', pending_email: 'new@example.org' })],
+    discard: (route) => route.fulfill({ status: 500, json: { detail: 'boom' } }),
+  });
+  await page.goto('/settings');
+  await card(page).locator('[data-act="discard"]').click();
+  await expect(page.locator('.toast--error')).toBeVisible();
+  await expect(page.locator('.toast--success')).toHaveCount(0);
+  await expect(card(page).locator('.pending-change__value')).toHaveText('new@example.org');
+});
+
+test('resend: disabled while in flight, a 429 shows the detail', async ({ page }) => {
+  let release;
+  const held = new Promise((r) => { release = r; });
+  const { calls } = await stubOwner(page, {
+    reads: [user({ pending_email: 'new@example.org' })],
+    resend: async (route) => {
+      await held;
+      return route.fulfill({ status: 429, json: { detail: 'Too many confirmation emails requested. Try again later.' } });
+    },
+  });
+  await page.goto('/settings');
+  const resend = card(page).locator('[data-act="resend"]');
+  await resend.click();
+  await expect(resend).toBeDisabled();
+  release();
+  await expect(page.locator('.toast--error .toast__msg')).toHaveText('Too many confirmation emails requested. Try again later.');
+  await expect(resend).toBeEnabled();
+  expect(calls).toHaveLength(1);
+});
+
+test('an unreadable /settings keeps mail on: resend stays offered', async ({ page }) => {
+  await stubOwner(page, { reads: [user({ pending_email: 'new@example.org' })] });
+  await page.route('**/core/protected/settings', (route) => route.fulfill({ status: 500, json: { detail: 'boom' } }));
+  await page.goto('/settings');
+  await expect(card(page).locator('.pending-change__value')).toHaveText('new@example.org');
+  await expect(card(page).locator('[data-act="resend"]')).toBeVisible();
+  await expect(card(page).locator('[data-email-state="direct"]')).toHaveCount(0);
+});
+
+test('a candidate address is shown as text, not markup', async ({ page }) => {
+  await stubOwner(page, { reads: [user({ pending_email: '<img src=x onerror=1>@example.org' })] });
+  await page.goto('/settings');
+  const value = card(page).locator('.pending-change__value');
+  await expect(value).toHaveText('<img src=x onerror=1>@example.org');
+  await expect(value.locator('img')).toHaveCount(0);
+});
+
 test('verification disabled: the address is set directly, no resend control', async ({ page }) => {
   await stubOwner(page, {
     reads: [user({})],
@@ -253,6 +302,7 @@ test('verification disabled: the address is set directly, no resend control', as
   await page.goto('/settings');
   await expect(card(page).locator('[data-email-state="direct"]')).toContainText('cannot send email');
   // no promise of mail the shard cannot send
+  await expect(card(page).locator('[data-email-state="none"]')).toBeVisible();
   await expect(card(page).locator('[data-email-state="none"]')).not.toContainText('reach you');
 
   await editField(page, 'email', 'direct@example.org');

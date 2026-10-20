@@ -18,14 +18,17 @@ async function stubConfirm(page, status = 204) {
 }
 
 // Let anything the view might fire on its own (a microtask, a timer, a
-// follow-up fetch) run before asserting that it did not.
+// follow-up fetch) run before asserting that it did not. Needs
+// page.clock.install() before goto; a minute of fake time covers any timer.
 async function drain(page) {
   await page.waitForLoadState('networkidle');
-  await page.evaluate(() => new Promise((r) => setTimeout(r, 100)));
+  await page.clock.runFor(60_000);
+  await page.waitForLoadState('networkidle');
 }
 
 test('lands on the confirm screen, strips the token, and does not confirm on its own', async ({ page }) => {
   const posts = await stubConfirm(page);
+  await page.clock.install();
   await page.goto('/?confirm_email=tok-123');
   await expect(page.locator('view-confirm-email')).toBeVisible();
   await expect(page).toHaveURL('/confirm-email');
@@ -43,6 +46,7 @@ test('lands on the confirm screen, strips the token, and does not confirm on its
 test('works on a never-paired browser: no redirect to welcome, continue leads there', async ({ page }) => {
   await page.route('**/core/public/meta/whoami', (route) => route.fulfill({ json: { type: 'anonymous' } }));
   const posts = await stubConfirm(page);
+  await page.clock.install();
   await page.goto('/?confirm_email=tok-anon');
   await expect(page.locator('view-confirm-email')).toBeVisible();
   await drain(page);
@@ -66,6 +70,43 @@ test('works under the /sundial/ base', async ({ page }) => {
   expect(posts).toEqual([{ token: 'tok-sub' }]);
 });
 
+test('the token URL is replaced, not kept in history', async ({ page }) => {
+  await stubConfirm(page);
+  await page.goto('/?confirm_email=tok-hist');
+  await expect(page).toHaveURL('/confirm-email');
+  await page.goBack();
+  expect(page.url()).not.toContain('confirm_email');
+});
+
+test('boot requests do not carry the token in their Referer', async ({ page }) => {
+  const referers = [];
+  page.on('request', (r) => { if (new URL(r.url()).pathname.startsWith('/core/')) referers.push(r.headers().referer ?? ''); });
+  await stubConfirm(page);
+  await page.goto('/?confirm_email=tok-ref');
+  await expect(page.locator('view-confirm-email')).toBeVisible();
+  await page.waitForLoadState('networkidle');
+  expect(referers.length).toBeGreaterThan(0);
+  expect(referers.filter((r) => r.includes('tok-ref'))).toEqual([]);
+});
+
+test('confirm is disabled while in flight; a 422 says the link is invalid', async ({ page }) => {
+  let release;
+  const held = new Promise((r) => { release = r; });
+  const posts = [];
+  await page.route(CONFIRM, async (route) => {
+    posts.push(route.request().postDataJSON());
+    await held;
+    return route.fulfill({ status: 422, json: { detail: [] } });
+  });
+  await page.goto('/?confirm_email=tok-422');
+  const button = page.locator('[data-act="confirm"]');
+  await button.click();
+  await expect(button).toBeDisabled();
+  release();
+  await expect(page.locator('.confirm-email__invalid')).toBeVisible();
+  expect(posts).toHaveLength(1);
+});
+
 test('rate limited: says so and keeps the button', async ({ page }) => {
   await stubConfirm(page, 429);
   await page.goto('/?confirm_email=tok-429');
@@ -87,6 +128,7 @@ test('a failed request never logs the token', async ({ page }) => {
 
 test('without a token there is nothing to confirm', async ({ page }) => {
   const posts = await stubConfirm(page);
+  await page.clock.install();
   await page.goto('/confirm-email');
   await expect(page.locator('.confirm-email__invalid')).toContainText('incomplete');
   await expect(page.locator('[data-act="confirm"]')).toHaveCount(0);
