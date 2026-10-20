@@ -70,6 +70,7 @@ test('pending: live address plus the candidate, with resend and discard', async 
   const pending = card(page).locator('.pending-change');
   await expect(pending.locator('.pending-change__value')).toHaveText('new@example.org');
   await expect(pending).toContainText('valid for one hour');
+  await expect(pending).toContainText('Until then, messages still go to old@example.org.');
   await expect(pending.locator('[data-act="resend"]')).toBeVisible();
   await expect(pending.locator('[data-act="discard"]')).toBeVisible();
 });

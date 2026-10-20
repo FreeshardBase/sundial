@@ -105,7 +105,9 @@ class FsOwnerCard extends FsElement {
       hints.push(pendingChange({
         label: t('settings.owner.pendingLabel'),
         value: this.#user.pending_email,
-        note: this.#emailEnabled ? t('settings.owner.pendingNote') : t('settings.owner.pendingNoMail'),
+        note: `${this.#emailEnabled ? t('settings.owner.pendingNote') : t('settings.owner.pendingNoMail')} ${this.#user.email
+          ? t('settings.owner.pendingLive', { email: this.#user.email })
+          : t('settings.owner.pendingLiveNone')}`,
         notice: this.#deliveryFailed ? t('settings.owner.deliveryFailed') : '',
         actions,
       }));
