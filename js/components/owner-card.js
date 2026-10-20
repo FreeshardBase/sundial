@@ -4,7 +4,7 @@
 // once the owner opens the mailed link (unless the shard cannot send mail,
 // `GET /protected/settings` → email_enabled: false, then it is set directly).
 
-import { FsElement, esc } from './base.js';
+import { FsElement } from './base.js';
 import { store } from '../store.js';
 import * as api from '../api/client.js';
 import { toastSuccess, toastError, errorMessage } from './toast.js';
@@ -12,6 +12,13 @@ import { pendingChange } from './pending-change.js';
 import { ownerEmailState, isDeliveryFailure } from '../owner-email.js';
 import { t } from '../i18n.js';
 import './editable-text.js';
+
+function editableField(className, onEdited) {
+  const field = document.createElement('fs-editable-text');
+  field.className = className;
+  field.addEventListener('edited', (e) => onEdited(e.detail));
+  return field;
+}
 
 class FsOwnerCard extends FsElement {
   #user = null;
@@ -22,6 +29,11 @@ class FsOwnerCard extends FsElement {
   #busy = false;
   #loaded = false;
   #renderedLocale = null;
+  // One instance per field for the card's lifetime, like the card itself in
+  // Settings: render() rebuilds the card after every save, resend and discard,
+  // and a fresh field would drop an edit in progress in the other one.
+  #nameField = editableField('owner-name', (detail) => this.saveName(detail));
+  #emailField = editableField('owner-email', (detail) => this.saveEmail(detail));
 
   connectedCallback() {
     // Settings re-renders its whole tree and re-attaches this same element.
@@ -51,6 +63,7 @@ class FsOwnerCard extends FsElement {
 
   render() {
     this.#renderedLocale = store.state.locale;
+    const focused = this.contains(document.activeElement) ? document.activeElement : null;
     let body;
     if (this.#loadFailed) {
       body = `<p class="alert alert--warn">${t('settings.owner.loadFailed')}</p>`;
@@ -58,12 +71,21 @@ class FsOwnerCard extends FsElement {
       body = `<p class="muted"><span class="fs-spinner fs-spinner--sm"></span> ${t('settings.owner.loading')}</p>`;
     } else {
       body = `
-        <fs-editable-text class="owner-name" title="${t('settings.owner.name')}" value="${esc(this.#user.display_name)}"></fs-editable-text>
+        <div class="owner-name-slot"></div>
         <p class="muted owner-hint">${t('settings.owner.nameHint')}</p>
-        <fs-editable-text class="owner-email" title="${t('settings.owner.email')}" value="${esc(this.#user.email ?? '')}"></fs-editable-text>
+        <div class="owner-email-slot"></div>
         ${this.emailHints()}`;
     }
     this.innerHTML = `<section class="fs-sheet settings-card owner-card"><h2>${t('settings.owner.title')}</h2>${body}</section>`;
+    if (this.#user) {
+      this.#nameField.setAttribute('title', t('settings.owner.name'));
+      this.#nameField.setAttribute('value', this.#user.display_name);
+      this.#emailField.setAttribute('title', t('settings.owner.email'));
+      this.#emailField.setAttribute('value', this.#user.email ?? '');
+      this.querySelector('.owner-name-slot').replaceWith(this.#nameField);
+      this.querySelector('.owner-email-slot').replaceWith(this.#emailField);
+    }
+    if (focused?.isConnected) focused.focus();
     this.wire();
   }
 
@@ -93,8 +115,6 @@ class FsOwnerCard extends FsElement {
   }
 
   wire() {
-    this.querySelector('.owner-name')?.addEventListener('edited', (e) => this.saveName(e.detail));
-    this.querySelector('.owner-email')?.addEventListener('edited', (e) => this.saveEmail(e.detail));
     this.querySelector('[data-act="resend"]')?.addEventListener('click', () => this.resend());
     this.querySelector('[data-act="discard"]')?.addEventListener('click', () => this.discard());
   }
@@ -118,6 +138,13 @@ class FsOwnerCard extends FsElement {
 
   async saveEmail({ value, done }) {
     const address = value.trim();
+    // Unchanged: a PATCH would re-send the confirmation mail and spend the
+    // shard's send budget for nothing.
+    if (address === (this.#user.email ?? '') && !this.#user.pending_email) {
+      done();
+      this.render();
+      return;
+    }
     this.#deliveryFailed = false;
     try {
       // An empty field clears the address; '' itself is rejected by the API.

@@ -107,6 +107,7 @@ class ViewSettings extends FsElement {
     document.title = t('title.settings', { id: shortShardId() });
     const state = store.state;
     const profile = state.profile;
+    const focused = this.#ownerCard.contains(document.activeElement) ? document.activeElement : null;
     this.innerHTML = `
       <div class="page-title">
         <h1>${t('settings.title')}</h1>
@@ -129,6 +130,7 @@ class ViewSettings extends FsElement {
     const du = state.disk_usage;
     const diskRatio = du.total_gb > 0 ? (du.total_gb - du.free_gb) / du.total_gb : 0;
     this.querySelector('.owner-card-slot').replaceWith(this.#ownerCard);
+    focused?.focus();
     this.querySelector('.disk-gauge').reading = { ...diskGaugeReading(du), label: fmtPercent(diskRatio) };
     this.wire();
   }

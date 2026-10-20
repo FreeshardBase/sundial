@@ -87,7 +87,38 @@ test('an email edit in progress survives a Settings re-render', async ({ page })
   });
   await expect(page.locator('.disk-gauge-info .alert--warn')).toBeVisible();
   await expect(card(page).locator('.owner-email input')).toHaveValue('half-typed@exa');
+  await expect(card(page).locator('.owner-email input')).toBeFocused();
   expect(stub.reads()).toBe(1);
+});
+
+test('an email edit in progress survives a name save rebuilding the card', async ({ page }) => {
+  let releaseName;
+  const nameHeld = new Promise((r) => { releaseName = r; });
+  await stubOwner(page, {
+    reads: [user({ email: 'old@example.org' })],
+    patch: async (route, body) => {
+      await nameHeld;
+      return route.fulfill({ json: user({ email: 'old@example.org', ...body }) });
+    },
+  });
+  await page.goto('/settings');
+  await editField(page, 'name', 'Erika Musterfrau');
+  const email = card(page).locator('.owner-email');
+  await email.locator('[data-act="edit"]').click();
+  await email.locator('input').fill('half-typed@exa');
+  releaseName();
+  await expect(card(page).locator('.owner-name .editable-value')).toHaveText('Erika Musterfrau');
+  await expect(email.locator('input')).toHaveValue('half-typed@exa');
+  await expect(email.locator('input')).toBeFocused();
+});
+
+test('confirming an unchanged address sends nothing', async ({ page }) => {
+  const { calls } = await stubOwner(page, { reads: [user({ email: 'row@example.org' })] });
+  await page.goto('/settings');
+  await editField(page, 'email', ' row@example.org ');
+  await expect(card(page).locator('.owner-email .editable-value')).toHaveText('row@example.org');
+  await expect(card(page).locator('.pending-change')).toHaveCount(0);
+  expect(calls).toEqual([]);
 });
 
 test('name writes through with PATCH {display_name}', async ({ page }) => {
