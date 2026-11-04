@@ -50,6 +50,16 @@ gen-client:
     git commit -m "set version to {{version}}"
     echo "Version set to {{version}} and committed"
 
+# Release from a branch (default main): just release-minor [branch] [--dry-run] [--yes]
+release-major *args:
+    @python3 scripts/release.py major {{args}}
+
+release-minor *args:
+    @python3 scripts/release.py minor {{args}}
+
+release-patch *args:
+    @python3 scripts/release.py patch {{args}}
+
 _set-version-files version:
     #!/usr/bin/env python3
     import json, re
