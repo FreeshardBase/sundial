@@ -3427,7 +3427,8 @@
      "minimum_freeshard_version": {
       "anyOf": [
        {
-        "type": "string"
+        "type": "string",
+        "description": "PEP 440 version specifier, e.g. \">=0.41.3\""
        },
        {
         "type": "null"
