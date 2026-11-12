@@ -27,6 +27,11 @@ export async function queryUser() {
   store.set({ user: await api.getMe() });
 }
 
+export async function querySettings() {
+  // An unreadable setting keeps the default (mail on), matching the Owner card.
+  store.set({ email_enabled: (await api.getSettings()).email_enabled !== false });
+}
+
 export async function queryTours() {
   store.set({ tours: await api.listTours() });
 }

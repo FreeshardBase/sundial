@@ -65,6 +65,7 @@ async function boot() {
     actions.queryTours().catch(() => console.error('Failed to load tours')),
     actions.queryProfile().catch(() => console.error('Failed to load profile')),
     actions.queryUser().catch(() => {}),
+    actions.querySettings().catch(() => {}),
     actions.queryUiVersion(),
     actions.queryDiskUsage().catch(() => {}),
     actions.refreshApps().catch(() => {}),

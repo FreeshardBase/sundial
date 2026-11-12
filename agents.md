@@ -216,10 +216,12 @@ Shared components:
   variant), shown above nav (Sundial: above content / attached to dock).
 - **OwnerEmailBanner** (`js/components/owner-email-banner.js`) — persistent, non-dismissable
   shell hint shown while the owner has no verified address (store `user`: role `owner`,
-  `email` null): some apps cannot sign the owner in until the address is confirmed. Pending
-  candidate → points to the inbox + resend; no address → links to the Owner card
-  (`settings?section=owner`). Goes away once `email` is set. Sits with the update banner in
-  the sticky `#top-banners` column so the two stack rather than overlap.
+  `email` null): some apps cannot sign the owner in until the address is confirmed. A
+  confirmable candidate (`pending_email` set **and** store `email_enabled`) → points to the
+  inbox + resend; otherwise (no address, or a leftover candidate on a mail-disabled shard) →
+  links to the Owner card (`settings?section=owner`). Goes away once `email` is set. Sits
+  with the update banner in the sticky `#top-banners` column so the two stack rather than
+  overlap.
 - **ShardIdBadge** — Daylight Instrument spec: diamond logomark + 6-char short id mono,
   variable-width perimeter fingerprint frame (hash-derived; port of `build_guide.py badge()`;
   NOTE ids are base36 not hex — JS uses base36 parse + mulberry32 PRNG, deterministic but
@@ -234,7 +236,8 @@ Shared components:
 State (old Vuex → Sundial store): `meta` {is_anonymous, device_id, device_name, identity
 {id,name,email,description,public_key_pem,domain}}, `version`, `profile` (nullable — controller
 passthrough may fail), `user` (owner row from `GET /protected/users/me`; null until loaded /
-when unreadable), `apps[]`, `terminals[]`, `tours[]`, `disk_usage` {total_gb, free_gb,
+when unreadable), `email_enabled` (`GET /protected/settings`; false = self-hosted shard that
+cannot send mail), `apps[]`, `terminals[]`, `tours[]`, `disk_usage` {total_gb, free_gb,
 disk_space_low, +derived disk_space_warning free<5}, `websocket` {disconnectedSince}.
 Getters: short id = `identity.id[:6]`, shard_href, tour_seen(name).
 

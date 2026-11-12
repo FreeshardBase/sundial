@@ -7,10 +7,13 @@
 // verified (store `user` refreshed).
 //
 // Two variants, on the same split as the Owner card:
-//   pending — a candidate is on file: point at the inbox, offer resend.
-//   none    — no address at all: link to the Owner card to add one.
-// Self-hosted shards (mail disabled) set the address directly and so never
-// have a pending candidate, which is exactly the "none" variant.
+//   pending — a confirmable candidate is on file: point at the inbox, offer
+//             resend.
+//   none    — no address to confirm: link to the Owner card to add one.
+// A pending candidate only counts when the shard can send mail: a self-hosted
+// shard (mail disabled) sets the address directly and confirms nothing, so any
+// leftover candidate is unconfirmable and the owner sees the "none" variant —
+// which is where they can discard it and set an address directly.
 
 import { store } from '../store.js';
 import * as api from '../api/client.js';
@@ -24,7 +27,7 @@ class FsOwnerEmailBanner extends HTMLElement {
 
   connectedCallback() {
     this.render();
-    this.#unsub = store.subscribe(['user', 'locale'], () => this.render());
+    this.#unsub = store.subscribe(['user', 'email_enabled', 'locale'], () => this.render());
   }
 
   disconnectedCallback() {
@@ -39,10 +42,13 @@ class FsOwnerEmailBanner extends HTMLElement {
       this.innerHTML = '';
       return;
     }
-    const action = user.pending_email
+    // A candidate is only confirmable while the shard can send mail; otherwise
+    // there is nothing to resend and the owner must add an address instead.
+    const pending = Boolean(user.pending_email) && store.state.email_enabled;
+    const action = pending
       ? `<button class="fs-btn owner-email-banner__action" data-act="resend" ${this.#busy ? 'disabled' : ''}>${t('settings.owner.resend')}</button>`
       : `<a class="fs-btn owner-email-banner__action" href="${href('settings', 'section=owner')}">${t('ownerEmailBanner.add')}</a>`;
-    const text = user.pending_email
+    const text = pending
       ? t('ownerEmailBanner.pending', { email: user.pending_email })
       : t('ownerEmailBanner.none');
     this.innerHTML = `

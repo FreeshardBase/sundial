@@ -190,7 +190,9 @@ test('502 from PATCH: the stored candidate is shown from a refetch, not reported
 
 test('a successful resend clears the delivery-failed message', async ({ page }) => {
   const { calls } = await stubOwner(page, {
-    reads: [user({}), user({ pending_email: 'new@example.org' })],
+    // Boot hydration then the card's first load both read no candidate; only
+    // the refetch after the 502 sees it.
+    reads: [user({}), user({}), user({ pending_email: 'new@example.org' })],
     patch: (route) => route.fulfill({ status: 502, json: { detail: 'The address was saved but the confirmation email could not be sent.' } }),
     resend: (route) => route.fulfill({ status: 204 }),
   });

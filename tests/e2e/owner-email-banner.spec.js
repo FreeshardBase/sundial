@@ -11,9 +11,12 @@ function user(fields) {
   return { ...OWNER, email: null, pending_email: null, ...fields };
 }
 
-// Serves GET /users/me from `row` and records resend calls.
-async function stubUser(page, row, { resend } = {}) {
+// Serves GET /users/me from `row`, GET /settings from `emailEnabled`, and
+// records resend calls.
+async function stubUser(page, row, { resend, emailEnabled = true } = {}) {
   const calls = [];
+  await page.route('**/core/protected/settings', (route) =>
+    route.fulfill({ json: { email_enabled: emailEnabled } }));
   await page.route((url) => url.pathname.startsWith('/core/protected/users/me'), (route) => {
     const req = route.request();
     const url = new URL(req.url());
@@ -75,6 +78,17 @@ test('pending: a failed resend reports the error and keeps the hint', async ({ p
   await banner(page).locator('[data-act="resend"]').click();
   await expect(page.locator('.toast--error .toast__msg')).toHaveText('Too many confirmation emails requested. Try again later.');
   await expect(banner(page)).toBeVisible();
+});
+
+test('mail disabled: a leftover candidate still shows only the no-address variant', async ({ page }) => {
+  // A self-hosted shard cannot send mail, so a leftover pending_email is
+  // unconfirmable: offer "add an address", never a resend that would fail.
+  await stubUser(page, user({ pending_email: 'stale@example.org' }), { emailEnabled: false });
+  await page.goto('/');
+  await expect(banner(page)).toBeVisible();
+  await expect(banner(page)).toContainText('no confirmed email address');
+  await expect(banner(page).locator('[data-act="resend"]')).toHaveCount(0);
+  await expect(banner(page).locator('.owner-email-banner__action')).toHaveText('Add an address');
 });
 
 test('a member session with no address sees no owner hint', async ({ page }) => {

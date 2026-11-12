@@ -13,6 +13,7 @@ const initial = {
   version: null,        // latest UI version from version.json (update notice)
   profile: null,        // controller profile; null when unreachable
   user: null,           // owner's user row (GET /protected/users/me); null until loaded / when unreadable
+  email_enabled: true,  // GET /protected/settings → email_enabled; false on a self-hosted shard that cannot send mail
   apps: [],
   terminals: [],
   tours: [],
