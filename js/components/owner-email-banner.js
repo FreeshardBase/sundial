@@ -36,14 +36,10 @@ class FsOwnerEmailBanner extends HTMLElement {
 
   render() {
     const user = store.state.user;
-    // Only the owner, and only while unverified. A verified address (`email`
-    // set) or a non-owner session shows nothing.
     if (!user || user.role !== 'owner' || user.email) {
       this.innerHTML = '';
       return;
     }
-    // A candidate is only confirmable while the shard can send mail; otherwise
-    // there is nothing to resend and the owner must add an address instead.
     const pending = Boolean(user.pending_email) && store.state.email_enabled;
     const action = pending
       ? `<button class="fs-btn owner-email-banner__action" data-act="resend" ${this.#busy ? 'disabled' : ''}>${t('settings.owner.resend')}</button>`
