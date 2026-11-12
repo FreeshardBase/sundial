@@ -181,7 +181,8 @@ Views (all must exist in Sundial; branch-switching in Apps deliberately DROPPED)
     mail not sent" (`isDeliveryFailure()`): refetch, say so, offer resend; a bare proxy 502
     is a real failure. Settings keeps one card instance across its re-renders.
     The card mirrors its loaded/edited user row into store `user` so the
-    app-shell owner-email banner stays in step. `?section=owner` scrolls here.
+    app-shell owner-email banner stays in step. It is the first card, so a link
+    to Settings lands on it with no scroll needed.
   - Subscription (profile-driven states: trial w/ delete_after countdown, interstitial
     (`?sub=return` → poll 3s/60s timeout), active (+pending upgrade), grace/ended;
     subscribe/reactivate → POST `management/api/shards/self/subscribe` → approval_url redirect;
@@ -219,7 +220,7 @@ Shared components:
   `email` null): some apps cannot sign the owner in until the address is confirmed. A
   confirmable candidate (`pending_email` set **and** store `email_enabled`) → points to the
   inbox + resend; otherwise (no address, or a leftover candidate on a mail-disabled shard) →
-  links to the Owner card (`settings?section=owner`). Goes away once `email` is set. Sits
+  links to the Owner card (Settings). Goes away once `email` is set. Sits
   with the update banner in the sticky `#top-banners` column so the two stack rather than
   overlap.
 - **ShardIdBadge** — Daylight Instrument spec: diamond logomark + 6-char short id mono,

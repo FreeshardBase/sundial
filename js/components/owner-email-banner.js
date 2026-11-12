@@ -47,7 +47,7 @@ class FsOwnerEmailBanner extends HTMLElement {
     const pending = Boolean(user.pending_email) && store.state.email_enabled;
     const action = pending
       ? `<button class="fs-btn owner-email-banner__action" data-act="resend" ${this.#busy ? 'disabled' : ''}>${t('settings.owner.resend')}</button>`
-      : `<a class="fs-btn owner-email-banner__action" href="${href('settings', 'section=owner')}">${t('ownerEmailBanner.add')}</a>`;
+      : `<a class="fs-btn owner-email-banner__action" href="${href('settings')}">${t('ownerEmailBanner.add')}</a>`;
     const text = pending
       ? t('ownerEmailBanner.pending', { email: user.pending_email })
       : t('ownerEmailBanner.none');
