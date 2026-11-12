@@ -36,6 +36,11 @@
   "update": {
     "available": "A new version ({version}) is ready. Refresh to update."
   },
+  "ownerEmailBanner": {
+    "pending": "Confirm your email address {email} to finish setting it up. Until you do, some apps may not be able to sign you in. Open the confirmation link in your inbox, or send it again.",
+    "none": "Your Shard has no confirmed email address yet. Until you add one, some apps may not be able to sign you in.",
+    "add": "Add an address"
+  },
   "feedback": {
     "title": "Quick feedback",
     "placeholder": "What's on your mind?",

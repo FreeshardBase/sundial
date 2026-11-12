@@ -56,6 +56,9 @@ class ViewSettings extends FsElement {
     if (params.get('section') === 'size') {
       this.after(50, () => this.querySelector('#section-size')?.scrollIntoView({ block: 'center' }));
     }
+    if (params.get('section') === 'owner') {
+      this.after(50, () => this.#ownerCard.scrollIntoView({ block: 'center' }));
+    }
   }
 
   disconnectedCallback() {

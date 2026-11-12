@@ -36,6 +36,11 @@
   "update": {
     "available": "Eine neue Version ({version}) steht bereit. Zum Aktualisieren neu laden."
   },
+  "ownerEmailBanner": {
+    "pending": "Bestätige deine E-Mail-Adresse {email}, um sie fertig einzurichten. Bis dahin können dich manche Apps womöglich nicht anmelden. Öffne den Bestätigungslink in deinem Postfach oder sende ihn erneut.",
+    "none": "Dein Shard hat noch keine bestätigte E-Mail-Adresse. Bis du eine hinzufügst, können dich manche Apps womöglich nicht anmelden.",
+    "add": "Adresse hinzufügen"
+  },
   "feedback": {
     "title": "Kurzes Feedback",
     "placeholder": "Was liegt dir auf dem Herzen?",

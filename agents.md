@@ -180,6 +180,8 @@ Views (all must exist in Sundial; branch-switching in Apps deliberately DROPPED)
     sets directly, no resend. A 502 from PATCH **with the API's JSON detail** means "stored,
     mail not sent" (`isDeliveryFailure()`): refetch, say so, offer resend; a bare proxy 502
     is a real failure. Settings keeps one card instance across its re-renders.
+    The card mirrors its loaded/edited user row into store `user` so the
+    app-shell owner-email banner stays in step. `?section=owner` scrolls here.
   - Subscription (profile-driven states: trial w/ delete_after countdown, interstitial
     (`?sub=return` → poll 3s/60s timeout), active (+pending upgrade), grace/ended;
     subscribe/reactivate → POST `management/api/shards/self/subscribe` → approval_url redirect;
@@ -212,6 +214,12 @@ Shared components:
   Sundial extras: "Classic UI" link → `/` (when at /sundial/), theme toggle.
 - **Banner** — CMS banners from blob `cnc/banners.json` (from_ts/to_ts window, markdown,
   variant), shown above nav (Sundial: above content / attached to dock).
+- **OwnerEmailBanner** (`js/components/owner-email-banner.js`) — persistent, non-dismissable
+  shell hint shown while the owner has no verified address (store `user`: role `owner`,
+  `email` null): some apps cannot sign the owner in until the address is confirmed. Pending
+  candidate → points to the inbox + resend; no address → links to the Owner card
+  (`settings?section=owner`). Goes away once `email` is set. Sits with the update banner in
+  the sticky `#top-banners` column so the two stack rather than overlap.
 - **ShardIdBadge** — Daylight Instrument spec: diamond logomark + 6-char short id mono,
   variable-width perimeter fingerprint frame (hash-derived; port of `build_guide.py badge()`;
   NOTE ids are base36 not hex — JS uses base36 parse + mulberry32 PRNG, deterministic but
@@ -225,7 +233,8 @@ Shared components:
 
 State (old Vuex → Sundial store): `meta` {is_anonymous, device_id, device_name, identity
 {id,name,email,description,public_key_pem,domain}}, `version`, `profile` (nullable — controller
-passthrough may fail), `apps[]`, `terminals[]`, `tours[]`, `disk_usage` {total_gb, free_gb,
+passthrough may fail), `user` (owner row from `GET /protected/users/me`; null until loaded /
+when unreadable), `apps[]`, `terminals[]`, `tours[]`, `disk_usage` {total_gb, free_gb,
 disk_space_low, +derived disk_space_warning free<5}, `websocket` {disconnectedSince}.
 Getters: short id = `identity.id[:6]`, shard_href, tour_seen(name).
 

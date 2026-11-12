@@ -48,10 +48,17 @@ class FsOwnerCard extends FsElement {
     }
   }
 
+  // Keep the shared store's `user` in step with the card: the app-shell
+  // owner-email hint reads it and must reflect an edit made here at once.
+  #commitUser(user) {
+    this.#user = user;
+    store.set({ user });
+  }
+
   async load() {
     const [user, settings] = await Promise.allSettled([api.getMe(), api.getSettings()]);
     if (user.status === 'fulfilled') {
-      this.#user = user.value;
+      this.#commitUser(user.value);
       this.#loadFailed = false;
       this.#deliveryFailed = false;
     } else {
@@ -132,7 +139,7 @@ class FsOwnerCard extends FsElement {
       return;
     }
     try {
-      this.#user = await api.patchMe({ display_name: name });
+      this.#commitUser(await api.patchMe({ display_name: name }));
     } catch (e) {
       toastError(t('settings.owner.nameFailed'), this.failureText(e, t('settings.owner.nameInvalid')));
     }
@@ -152,7 +159,7 @@ class FsOwnerCard extends FsElement {
     this.#deliveryFailed = false;
     try {
       // An empty field clears the address; '' itself is rejected by the API.
-      this.#user = await api.patchMe({ email: address || null });
+      this.#commitUser(await api.patchMe({ email: address || null }));
       if (ownerEmailState(this.#user) === 'pending') {
         toastSuccess(t('settings.owner.mailSent'), t('settings.owner.mailSentTo', { email: this.#user.pending_email }));
       } else {
@@ -172,10 +179,10 @@ class FsOwnerCard extends FsElement {
   async showStoredCandidate(address) {
     this.#deliveryFailed = true;
     try {
-      this.#user = await api.getMe();
+      this.#commitUser(await api.getMe());
     } catch {
       // Unreadable now: show what was typed. The next load shows the stored form.
-      this.#user = { ...this.#user, pending_email: address };
+      this.#commitUser({ ...this.#user, pending_email: address });
     }
   }
 
@@ -200,7 +207,7 @@ class FsOwnerCard extends FsElement {
       await api.deletePendingEmail();
       this.#deliveryFailed = false;
       // 204 carries no body; the one field it cleared is applied here.
-      this.#user = { ...this.#user, pending_email: null };
+      this.#commitUser({ ...this.#user, pending_email: null });
       toastSuccess(t('settings.owner.discarded'));
     } catch (e) {
       toastError(t('settings.owner.discardFailed'), this.failureText(e));
