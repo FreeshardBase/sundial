@@ -81,6 +81,9 @@ test('an email edit in progress survives a Settings re-render', async ({ page })
   const field = card(page).locator('.owner-email');
   await field.locator('[data-act="edit"]').click();
   await field.locator('input').fill('half-typed@exa');
+  // The card has loaded (the boot hydration read plus the card's own); the
+  // re-render below must not add another read to either.
+  const readsBeforeRerender = stub.readCount();
   // a WS disk update re-renders the whole Settings view
   await page.evaluate(async () => {
     const { store } = await import('/js/store.js');
@@ -89,7 +92,7 @@ test('an email edit in progress survives a Settings re-render', async ({ page })
   await expect(page.locator('.disk-gauge-info .alert--warn')).toBeVisible();
   await expect(card(page).locator('.owner-email input')).toHaveValue('half-typed@exa');
   await expect(card(page).locator('.owner-email input')).toBeFocused();
-  expect(stub.readCount()).toBe(1);
+  expect(stub.readCount()).toBe(readsBeforeRerender);
 });
 
 test('an email edit in progress survives a name save rebuilding the card', async ({ page }) => {
@@ -158,10 +161,15 @@ test('emptying the field clears the address with PATCH {email: null}', async ({ 
 });
 
 test('502 from PATCH: the stored candidate is shown from a refetch, not reported as a failed save', async ({ page }) => {
-  // First read: no candidate. Later reads: the candidate as shard_core stored
-  // it (normalised domain), so only the recovery refetch can put it on screen.
+  // Boot hydration and the card's first load both read no candidate. Only the
+  // recovery refetch after the 502 sees the candidate as shard_core stored it
+  // (normalised domain), so only it can put the pending block on screen.
   const stub = await stubOwner(page, {
-    reads: [user({ email: 'old@example.org' }), user({ email: 'old@example.org', pending_email: 'new@example.org' })],
+    reads: [
+      user({ email: 'old@example.org' }),
+      user({ email: 'old@example.org' }),
+      user({ email: 'old@example.org', pending_email: 'new@example.org' }),
+    ],
     patch: (route) => route.fulfill({
       status: 502,
       json: { detail: 'The address was saved but the confirmation email could not be sent. Send it again in a moment.' },
@@ -182,7 +190,9 @@ test('502 from PATCH: the stored candidate is shown from a refetch, not reported
 
 test('a successful resend clears the delivery-failed message', async ({ page }) => {
   const { calls } = await stubOwner(page, {
-    reads: [user({}), user({ pending_email: 'new@example.org' })],
+    // Boot hydration then the card's first load both read no candidate; only
+    // the refetch after the 502 sees it.
+    reads: [user({}), user({}), user({ pending_email: 'new@example.org' })],
     patch: (route) => route.fulfill({ status: 502, json: { detail: 'The address was saved but the confirmation email could not be sent.' } }),
     resend: (route) => route.fulfill({ status: 204 }),
   });

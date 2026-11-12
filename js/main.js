@@ -17,6 +17,7 @@ import './components/dock.js';
 import './components/banner.js';
 import './components/shard-down-overlay.js';
 import './components/update-banner.js';
+import './components/owner-email-banner.js';
 import './views/home.js';
 import './views/welcome.js';
 import './views/pair.js';
@@ -63,6 +64,8 @@ async function boot() {
     actions.queryMetaData().catch((e) => console.log('meta', e)),
     actions.queryTours().catch(() => console.error('Failed to load tours')),
     actions.queryProfile().catch(() => console.error('Failed to load profile')),
+    actions.queryUser().catch(() => {}),
+    actions.querySettings().catch(() => {}),
     actions.queryUiVersion(),
     actions.queryDiskUsage().catch(() => {}),
     actions.refreshApps().catch(() => {}),

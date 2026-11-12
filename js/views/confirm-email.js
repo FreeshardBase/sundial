@@ -10,6 +10,7 @@
 import { FsElement, esc } from '../components/base.js';
 import { store, shortShardId } from '../store.js';
 import * as api from '../api/client.js';
+import { queryUser } from '../actions.js';
 import { href } from '../router.js';
 import { icon } from '../components/icons.js';
 import { t } from '../i18n.js';
@@ -37,6 +38,10 @@ class ViewConfirmEmail extends FsElement {
       await api.confirmEmail({ token: this.#token });
       this.#state = 'sent';
       heldToken = null;
+      // On a paired device the shell's owner-email hint is watching store
+      // `user`; refresh it so a just-confirmed address clears the hint without
+      // a reload. Unpaired devices (the common case) have no row to refresh.
+      if (!store.state.meta.is_anonymous) queryUser().catch(() => {});
     } catch (e) {
       // The status only: the error never carries the token, but keep it that way.
       console.error('Email confirmation request failed', e?.status ?? 'network');
