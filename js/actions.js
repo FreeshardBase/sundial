@@ -23,6 +23,10 @@ export async function queryProfile({ refresh = false } = {}) {
   store.set({ profile });
 }
 
+export async function queryUser() {
+  store.set({ user: await api.getMe() });
+}
+
 export async function queryTours() {
   store.set({ tours: await api.listTours() });
 }

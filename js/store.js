@@ -12,6 +12,7 @@ const initial = {
   },
   version: null,        // latest UI version from version.json (update notice)
   profile: null,        // controller profile; null when unreachable
+  user: null,           // owner's user row (GET /protected/users/me); null until loaded / when unreadable
   apps: [],
   terminals: [],
   tours: [],
