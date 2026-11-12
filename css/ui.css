@@ -265,3 +265,4 @@ textarea.fs-input { line-height: 1.45; resize: vertical; }
 
 .update-banner__refresh,
 .owner-email-banner__action { flex: none; }
+.owner-email-banner__action { text-decoration: none; }
