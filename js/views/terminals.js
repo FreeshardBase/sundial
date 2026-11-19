@@ -62,8 +62,8 @@ class ViewTerminals extends FsElement {
   pillHtml(term) {
     const failed = hasFailedLockout(term);
     return `
-      <button class="unpaired-pill fs-focusable${failed ? ' unpaired-pill--failed' : ''}" data-unpaired-id="${esc(term.id)}">
-        ${icon(this.deviceIcon(term.icon), 'icon--sm')}
+      <button class="unpaired-pill fs-focusable${failed ? ' unpaired-pill--failed' : ''}" data-unpaired-id="${esc(term.id)}" title="${esc(term.name)}">
+        ${icon(failed ? 'warn' : this.deviceIcon(term.icon), 'icon--sm')}
         <span class="unpaired-pill__name">${esc(term.name)}</span>
       </button>`;
   }
@@ -112,7 +112,7 @@ class ViewTerminals extends FsElement {
     body.innerHTML = `
       <div class="unpaired-detail__head">
         ${icon(this.deviceIcon(term.icon), 'icon--xl')}
-        <h2>${esc(term.name)}</h2>
+        <p class="unpaired-detail__name">${esc(term.name)}</p>
       </div>
       <div class="unpaired-detail__meta">
         ${row(t('unpaired.paired'), term.paired_at)}
