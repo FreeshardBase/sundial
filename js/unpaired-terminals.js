@@ -1,7 +1,7 @@
 // Pure helpers for the Devices view's "pending disconnects" section: devices
 // that are unpaired but still hold undelivered app lockouts (OIDC back-channel
-// logouts). Kept DOM-free so the state ranking and copy mapping stay
-// unit-testable, mirroring js/owner-email.js.
+// logouts). A failed-lockout check, an i18n state-key mapping, and an app-name
+// label. DOM-free and unit-tested, like js/owner-email.js.
 
 import { appDisplayName } from './components/app-tile.js';
 
@@ -10,8 +10,7 @@ import { appDisplayName } from './components/app-tile.js';
 // raw enum value into the UI.
 const KNOWN_STATES = ['waiting_for_start', 'retrying', 'waiting_for_install', 'failed'];
 
-// Whether a device has at least one lockout that could not be delivered — the
-// trigger for the distinct pill styling and the retry/dismiss actions.
+// Whether a device has at least one lockout that could not be delivered.
 export function hasFailedLockout(terminal) {
   return (terminal.lockouts ?? []).some((l) => l.state === 'failed');
 }

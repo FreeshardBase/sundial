@@ -152,11 +152,11 @@ Views (all must exist in Sundial; branch-switching in Apps deliberately DROPPED)
   (store `unpaired_terminals`, from `GET /protected/terminals/unpaired`, replaced live by WS
   `unpaired_terminals_update`): devices unpaired but still holding undelivered app lockouts
   (OIDC back-channel logouts, never named that to the user). Hidden when empty; one small pill
-  per device (danger tone when any lockout `failed`, the worst state wins), an info popup, and a
-  click-through detail with paired/last-seen/unpaired timestamps (`null` → "?"), per-app lockout
-  state copy, and — only when a lockout failed — Retry (`POST .../unpaired/{id}/retry`) and
-  Dismiss (`DELETE .../unpaired/{id}`, confirmed). Pure ranking/copy helpers in
-  `js/unpaired-terminals.js`; app display names via `appDisplayName`, falling back to `app_name`.
+  per device (danger tone when any lockout `failed`), an info popup, and a click-through detail
+  with paired/last-seen/unpaired timestamps (`null` → "?"), per-app lockout state copy, and —
+  only when a lockout failed — Retry (`POST .../unpaired/{id}/retry`) and Dismiss
+  (`DELETE .../unpaired/{id}`, confirmed). Pure copy helpers in `js/unpaired-terminals.js`; app
+  display names via `appDisplayName`, falling back to `app_name`.
 - **Apps** (store) — installed + available sections; store metadata from Azure blob
   `https://storageaccountportab0da.blob.core.windows.net/app-store/master/all_apps/store_metadata.json`
   (branch fixed to `master` in Sundial; NO branch switching); featured-first sort;

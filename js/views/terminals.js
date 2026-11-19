@@ -71,7 +71,7 @@ class ViewTerminals extends FsElement {
   wireUnpaired() {
     this.querySelector('.unpaired-info')?.addEventListener('click', () => this.openUnpairedInfo());
     for (const pill of this.querySelectorAll('.unpaired-pill')) {
-      const term = store.state.unpaired_terminals.find((d) => d.id === pill.dataset.unpairedId);
+      const term = store.state.unpaired_terminals.find((u) => u.id === pill.dataset.unpairedId);
       pill.addEventListener('click', () => this.openUnpairedDetail(term));
     }
   }
@@ -88,10 +88,25 @@ class ViewTerminals extends FsElement {
   }
 
   openUnpairedDetail(term) {
+    let footer = null;
+    if (hasFailedLockout(term)) {
+      footer = document.createElement('div');
+      footer.innerHTML = `
+        <button class="fs-btn fs-btn--danger" data-act="dismiss">${t('unpaired.dismiss')}</button>
+        <button class="fs-btn fs-btn--primary" data-act="retry">${t('unpaired.retry')}</button>`;
+    }
+
+    const modal = openModal({ title: t('unpaired.detailTitle'), body: this.unpairedDetailBody(term), footer });
+    footer?.querySelector('[data-act="retry"]').addEventListener('click',
+      () => this.runUnpairedAction(() => api.retryUnpairedTerminal(term.id), () => modal.close()));
+    footer?.querySelector('[data-act="dismiss"]').addEventListener('click', () => this.confirmDismiss(term, modal));
+  }
+
+  unpairedDetailBody(term) {
     const apps = store.state.apps;
+    const lockouts = term.lockouts ?? [];
     const row = (label, value) =>
       `<div class="unpaired-detail__row"><span class="fs-label">${label}</span><span>${value ? esc(formatAbsolute(value)) : '?'}</span></div>`;
-    const lockouts = term.lockouts ?? [];
 
     const body = document.createElement('div');
     body.innerHTML = `
@@ -113,27 +128,21 @@ class ViewTerminals extends FsElement {
               <span class="muted">${t(`unpaired.state.${lockoutStateKey(l.state)}`)}</span>
             </li>`).join('')}
         </ul>` : ''}`;
+    return body;
+  }
 
-    let footer = null;
-    if (hasFailedLockout(term)) {
-      footer = document.createElement('div');
-      footer.innerHTML = `
-        <button class="fs-btn fs-btn--danger" data-act="dismiss">${t('unpaired.dismiss')}</button>
-        <button class="fs-btn fs-btn--primary" data-act="retry">${t('unpaired.retry')}</button>`;
+  // Runs one unpaired-device API call: on success closes the dialog(s) via
+  // onDone and refreshes the list; on failure toasts the error and leaves the
+  // dialog open so the owner can try again.
+  async runUnpairedAction(action, onDone) {
+    try {
+      await action();
+    } catch (e) {
+      toastError(t('unpaired.actionFailed'), errorMessage(e));
+      return;
     }
-
-    const modal = openModal({ title: t('unpaired.detailTitle'), body, footer });
-    footer?.querySelector('[data-act="retry"]').addEventListener('click', async () => {
-      try {
-        await api.retryUnpairedTerminal(term.id);
-      } catch (e) {
-        toastError(t('unpaired.actionFailed'), errorMessage(e));
-        return;
-      }
-      modal.close();
-      await refreshUnpairedTerminals().catch(() => {});
-    });
-    footer?.querySelector('[data-act="dismiss"]').addEventListener('click', () => this.confirmDismiss(term, modal));
+    onDone();
+    await refreshUnpairedTerminals().catch(() => {});
   }
 
   confirmDismiss(term, detailModal) {
@@ -147,17 +156,9 @@ class ViewTerminals extends FsElement {
       footer,
     });
     footer.querySelector('[data-act="cancel"]').addEventListener('click', () => modal.close());
-    footer.querySelector('[data-act="confirm"]').addEventListener('click', async () => {
-      try {
-        await api.dismissUnpairedTerminal(term.id);
-      } catch (e) {
-        toastError(t('unpaired.actionFailed'), errorMessage(e));
-        return;
-      }
-      modal.close();
-      detailModal.close();
-      await refreshUnpairedTerminals().catch(() => {});
-    });
+    footer.querySelector('[data-act="confirm"]').addEventListener('click',
+      () => this.runUnpairedAction(() => api.dismissUnpairedTerminal(term.id),
+        () => { modal.close(); detailModal.close(); }));
   }
 
   deviceIcon(name) {
