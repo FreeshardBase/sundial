@@ -145,15 +145,18 @@ Views (all must exist in Sundial; branch-switching in Apps deliberately DROPPED)
   (name "Browser on OS" + icon smartphone/tablet/notebook), `?code=` auto-pair in URL,
   redirect to `/` when already terminal-typed, error alert.
 - **Terminals** ("Devices") — terminal cards (icon, name inline-edit, icon rotate when editing,
-  last-connection relative time ticking 1s, "This" badge for own device, delete);
+  last-connection relative time ticking 1s, "This" badge for own device, unpair via DELETE,
+  worded "Unpair"/"Entkoppeln" so it sounds like the pairing it undoes);
   pair-new-device modal: GET pairing-code, QR link `https://{domain}/#/pair?code=X`
   (Sundial: use its own pair URL), expiry progress bar (created→valid_until), refresh on expiry,
-  closes on WS `terminal_add`. Below the cards, a muted "Pending disconnects" line
+  closes on WS `terminal_add`. Below everything, "Pair new device" included, a muted "Not fully unpaired yet" line
   (store `unpaired_terminals`, from `GET /protected/terminals/unpaired`, replaced live by WS
   `unpaired_terminals_update`): devices unpaired but still holding undelivered app lockouts
-  (OIDC back-channel logouts, never named that to the user). Hidden when empty; one small pill
+  (OIDC back-channel logouts, never named that to the user). Bottom-aligned: the view is a flex column filling the viewport above the dock's
+  reserved clearance (`#view` padding-bottom), so on a short page the section rests just above the dock and
+  on a long one it follows the button. Hidden when empty; one small pill
   per device (danger tone when any lockout `failed`), an info popup, and a click-through detail
-  with paired/last-seen/unpaired timestamps (`null` → "?"), per-app lockout state copy, and —
+  with paired/last-seen/unpaired timestamps (`null` → `common.unknown`), per-app lockout state copy, and —
   only when a lockout failed — Retry (`POST .../unpaired/{id}/retry`) and Dismiss
   (`DELETE .../unpaired/{id}`, confirmed). Pure copy helpers in `js/unpaired-terminals.js`; app
   display names via `appDisplayName`, falling back to `app_name`.

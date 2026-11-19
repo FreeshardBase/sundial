@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-// Devices → "Pending disconnects": unpaired devices that still hold undelivered
+// Devices → "Not fully unpaired yet": unpaired devices that still hold undelivered
 // app lockouts. GET /protected/terminals/unpaired is stubbed per test via
 // page.route, and the retry/dismiss endpoints answer 204 while recording the
 // call — the mock server's shared STATE stays untouched. Live updates are
@@ -55,6 +55,68 @@ test('no section when there are no unpaired devices', async ({ page }) => {
   await expect(section(page)).toHaveCount(0);
 });
 
+test('the section uses unpair wording, not disconnect', async ({ page }) => {
+  await stubUnpaired(page, [device({})]);
+  await page.goto('/terminals');
+  await expect(section(page)).toContainText('Not fully unpaired yet');
+  await expect(page.locator('.unpaired-info')).toHaveAttribute('aria-label', 'About devices not fully unpaired yet');
+  await page.locator('.unpaired-info').click();
+  await expect(page.locator('.modal-sheet .modal-title h2')).toHaveText('Not fully unpaired yet');
+});
+
+test('the section sits below "Pair new device", resting just above the dock', async ({ page }) => {
+  await stubUnpaired(page, [device({})]);
+  await page.goto('/terminals');
+  await expect(section(page)).toBeVisible();
+  const button = await page.locator('.pair-new').boundingBox();
+  const box = await section(page).boundingBox();
+  const dock = await page.locator('.dock').boundingBox();
+  const viewport = page.viewportSize();
+  // below everything else, the button included
+  expect(box.y).toBeGreaterThan(button.y + button.height);
+  // never overlapping the dock
+  expect(box.y + box.height).toBeLessThanOrEqual(dock.y);
+  // short page: pushed down to the bottom of the viewport's content area, so
+  // the gap to the dock is the view's dock clearance only, not free page space
+  expect(box.y + box.height).toBeGreaterThan(viewport.height / 2);
+  const clearance = await page.locator('#view').evaluate((el) => parseFloat(getComputedStyle(el).paddingBottom));
+  expect(Math.abs(viewport.height - clearance - (box.y + box.height))).toBeLessThanOrEqual(1);
+});
+
+test('on a long page the section follows the button and still ends above the dock', async ({ page }) => {
+  const many = Array.from({ length: 24 }, (_, i) => ({
+    id: `t${i}`, name: `Device ${i}`, icon: 'notebook', last_connection: '2026-11-01T09:12:00Z',
+  }));
+  await page.route((url) => url.pathname === '/core/protected/terminals', (route) => route.fulfill({ json: many }));
+  await stubUnpaired(page, [device({})]);
+  await page.goto('/terminals');
+  await expect(page.locator('.terminal-card')).toHaveCount(24);
+  await section(page).scrollIntoViewIfNeeded();
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  const button = await page.locator('.pair-new').boundingBox();
+  const box = await section(page).boundingBox();
+  const dock = await page.locator('.dock').boundingBox();
+  expect(box.y).toBeGreaterThan(button.y + button.height);
+  // follows the button directly: only the section's own top margin between them
+  expect(box.y - (button.y + button.height)).toBeLessThan(80);
+  expect(box.y + box.height).toBeLessThanOrEqual(dock.y);
+});
+
+test('a paired device card offers "Unpair device", not "Remove"', async ({ page }) => {
+  await stubUnpaired(page, []);
+  await page.goto('/terminals');
+  const card = page.locator('.terminal-card[data-id="def456"]');
+  await card.locator('[data-act="edit"]').click();
+  const unpair = card.locator('[data-act="unpair"]');
+  await expect(unpair).toHaveAttribute('aria-label', 'Unpair device');
+  await unpair.click();
+  const modal = page.locator('.modal-sheet');
+  await expect(modal).toContainText('Unpair device');
+  await expect(modal.locator('[data-act="unpair"]')).toHaveText('Unpair');
+  // read-only towards the mock STATE: cancel instead of confirming
+  await modal.locator('[data-act="cancel"]').click();
+});
+
 test('one device shows one pill, several show several', async ({ page }) => {
   await stubUnpaired(page, [device({}), FAILED, device({ id: 'dev3', name: 'Tablet' })]);
   await page.goto('/terminals');
@@ -70,7 +132,7 @@ test('a failed lockout gives the pill the distinct failed styling', async ({ pag
   await expect(pills(page).filter({ hasText: 'Old Laptop' })).not.toHaveClass(/unpaired-pill--failed/);
 });
 
-test('info popup explains what pending disconnects are', async ({ page }) => {
+test('info popup explains what not fully unpaired devices are', async ({ page }) => {
   await stubUnpaired(page, [device({})]);
   await page.goto('/terminals');
   await page.locator('.unpaired-info').click();
@@ -103,15 +165,15 @@ test('detail view shows each lockout state copy and the app display name', async
   await expect(apps.nth(2)).toContainText('nextcloud');
 });
 
-test('a missing timestamp shows "?" against its label', async ({ page }) => {
+test('a missing timestamp shows the translated "unknown" against its label', async ({ page }) => {
   await stubUnpaired(page, [device({ paired_at: null })]);
   await page.goto('/terminals');
   await pills(page).first().click();
   const row = (label) =>
     page.locator('.unpaired-detail__row', { has: page.getByText(label, { exact: true }) });
-  await expect(row('Paired')).toContainText('?');
+  await expect(row('Paired')).toContainText('unknown');
   // the other rows still carry real values
-  await expect(row('Last seen')).not.toContainText('?');
+  await expect(row('Last seen')).not.toContainText('unknown');
 });
 
 test('a pending-only device has no retry/dismiss actions', async ({ page }) => {

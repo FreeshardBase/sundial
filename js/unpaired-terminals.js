@@ -1,4 +1,4 @@
-// Pure helpers for the Devices view's "pending disconnects" section: devices
+// Pure helpers for the Devices view's "not fully unpaired yet" section: devices
 // that are unpaired but still hold undelivered app lockouts (OIDC back-channel
 // logouts). A failed-lockout check, an i18n state-key mapping, and an app-name
 // label. DOM-free and unit-tested, like js/owner-email.js.

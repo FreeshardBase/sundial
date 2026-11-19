@@ -207,9 +207,14 @@
 .terminal-card__time { margin: 4px 0 0; font-size: var(--fs-small); }
 .terminal-card__controls { display: flex; flex-direction: column; gap: 4px; }
 
-.terminal-actions { margin-top: var(--space-5); text-align: center; }
+/* Flex column filling #view: the actions row takes the spare height, which
+ * pushes the unpaired section (last child) down onto the dock clearance on a
+ * short page; on a long one it simply follows the button. */
+view-terminals { flex: 1 0 auto; display: flex; flex-direction: column; }
 
-/* ---- pending disconnects (unpaired devices still holding app lockouts) ---- */
+.terminal-actions { flex: 1 0 auto; margin-top: var(--space-5); text-align: center; }
+
+/* ---- not fully unpaired yet (unpaired devices still holding app lockouts) ---- */
 
 .unpaired-section {
   margin-top: var(--space-5);

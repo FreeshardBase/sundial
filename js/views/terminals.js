@@ -1,5 +1,6 @@
-// Devices — paired terminals: edit name/icon, delete, pair new device
-// (QR + one-time code with validity countdown).
+// Devices — paired terminals: edit name/icon, unpair, pair new device
+// (QR + one-time code with validity countdown), and below everything the
+// devices not fully unpaired yet.
 
 import { FsElement, esc } from '../components/base.js';
 import { store, shortShardId, shardHref } from '../store.js';
@@ -32,10 +33,10 @@ class ViewTerminals extends FsElement {
       <div class="terminal-grid">
         ${terminals.map((term) => this.cardHtml(term)).join('')}
       </div>
-      ${this.unpairedSectionHtml()}
       <div class="terminal-actions">
         <button class="fs-btn fs-btn--primary fs-focusable pair-new">${icon('plus')} ${t('terminals.pairNew')}</button>
-      </div>`;
+      </div>
+      ${this.unpairedSectionHtml()}`;
 
     this.querySelector('.pair-new').addEventListener('click', () => this.startPairing());
     for (const card of this.querySelectorAll('.terminal-card')) {
@@ -106,7 +107,7 @@ class ViewTerminals extends FsElement {
     const apps = store.state.apps;
     const lockouts = Array.isArray(term.lockouts) ? term.lockouts : [];
     const row = (label, value) =>
-      `<div class="unpaired-detail__row"><span class="fs-label">${label}</span><span>${value ? esc(formatAbsolute(value)) : '?'}</span></div>`;
+      `<div class="unpaired-detail__row"><span class="fs-label">${label}</span><span>${value ? esc(formatAbsolute(value)) : t('common.unknown')}</span></div>`;
 
     const body = document.createElement('div');
     body.innerHTML = `
@@ -190,7 +191,7 @@ class ViewTerminals extends FsElement {
           ${edit ? `
             <button class="icon-btn" data-act="cancel" aria-label="${t('common.cancel')}">${icon('x')}</button>
             <button class="icon-btn icon-btn--ok" data-act="confirm" aria-label="${t('common.save')}">${icon('check')}</button>
-            ${!isThis ? `<button class="icon-btn icon-btn--danger" data-act="delete" aria-label="${t('terminals.removeDevice')}">${icon('trash')}</button>` : ''}
+            ${!isThis ? `<button class="icon-btn icon-btn--danger" data-act="unpair" aria-label="${t('terminals.unpairDevice')}">${icon('trash')}</button>` : ''}
           ` : `
             <button class="icon-btn fs-focusable" data-act="edit" aria-label="${t('terminals.editDevice')}">${icon('pencil')}</button>
           `}
@@ -254,19 +255,19 @@ class ViewTerminals extends FsElement {
     card.querySelector('[data-act="confirm"]')?.addEventListener('click', confirm);
     card.querySelector('[data-act="icon-prev"]')?.addEventListener('click', () => rotate(-1));
     card.querySelector('[data-act="icon-next"]')?.addEventListener('click', () => rotate(1));
-    card.querySelector('[data-act="delete"]')?.addEventListener('click', () => this.confirmDelete(term));
+    card.querySelector('[data-act="unpair"]')?.addEventListener('click', () => this.confirmUnpair(term));
   }
 
-  confirmDelete(term) {
+  confirmUnpair(term) {
     const body = document.createElement('div');
-    body.innerHTML = `<p>${t('terminals.removeConfirmBody')}</p>`;
+    body.innerHTML = `<p>${t('terminals.unpairConfirmBody')}</p>`;
     const footer = document.createElement('div');
     footer.innerHTML = `
       <button class="fs-btn" data-act="cancel">${t('common.cancel')}</button>
-      <button class="fs-btn fs-btn--danger" data-act="remove">${t('terminals.remove')}</button>`;
-    const modal = openModal({ title: t('terminals.removeDevice'), body, footer });
+      <button class="fs-btn fs-btn--danger" data-act="unpair">${t('terminals.unpair')}</button>`;
+    const modal = openModal({ title: t('terminals.unpairDevice'), body, footer });
     footer.querySelector('[data-act="cancel"]').addEventListener('click', () => modal.close());
-    footer.querySelector('[data-act="remove"]').addEventListener('click', async () => {
+    footer.querySelector('[data-act="unpair"]').addEventListener('click', async () => {
       await api.unpairTerminalById(term.id);
       this.#editing.delete(term.id);
       modal.close();
