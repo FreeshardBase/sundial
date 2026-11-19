@@ -148,7 +148,15 @@ Views (all must exist in Sundial; branch-switching in Apps deliberately DROPPED)
   last-connection relative time ticking 1s, "This" badge for own device, delete);
   pair-new-device modal: GET pairing-code, QR link `https://{domain}/#/pair?code=X`
   (Sundial: use its own pair URL), expiry progress bar (created→valid_until), refresh on expiry,
-  closes on WS `terminal_add`.
+  closes on WS `terminal_add`. Below the cards, a muted "Pending disconnects" line
+  (store `unpaired_terminals`, from `GET /protected/terminals/unpaired`, replaced live by WS
+  `unpaired_terminals_update`): devices unpaired but still holding undelivered app lockouts
+  (OIDC back-channel logouts, never named that to the user). Hidden when empty; one small pill
+  per device (danger tone when any lockout `failed`, the worst state wins), an info popup, and a
+  click-through detail with paired/last-seen/unpaired timestamps (`null` → "?"), per-app lockout
+  state copy, and — only when a lockout failed — Retry (`POST .../unpaired/{id}/retry`) and
+  Dismiss (`DELETE .../unpaired/{id}`, confirmed). Pure ranking/copy helpers in
+  `js/unpaired-terminals.js`; app display names via `appDisplayName`, falling back to `app_name`.
 - **Apps** (store) — installed + available sections; store metadata from Azure blob
   `https://storageaccountportab0da.blob.core.windows.net/app-store/master/all_apps/store_metadata.json`
   (branch fixed to `master` in Sundial; NO branch switching); featured-first sort;
@@ -238,14 +246,15 @@ State (old Vuex → Sundial store): `meta` {is_anonymous, device_id, device_name
 {id,name,email,description,public_key_pem,domain}}, `version`, `profile` (nullable — controller
 passthrough may fail), `user` (owner row from `GET /protected/users/me`; null until loaded /
 when unreadable), `email_enabled` (`GET /protected/settings`; false = self-hosted shard that
-cannot send mail), `apps[]`, `terminals[]`, `tours[]`, `disk_usage` {total_gb, free_gb,
+cannot send mail), `apps[]`, `terminals[]`, `unpaired_terminals[]` (devices unpaired but still
+holding undelivered app lockouts), `tours[]`, `disk_usage` {total_gb, free_gb,
 disk_space_low, +derived disk_space_warning free<5}, `websocket` {disconnectedSince}.
 Getters: short id = `identity.id[:6]`, shard_href, tour_seen(name).
 
 Boot sequence (old App.vue): parallel query meta+tours+profile+version+disk; if anonymous →
 redirect /welcome (unless already Pair/Welcome); WS connect loop 1s when authed; version poll
-60s. WS messages: `heartbeat` (30s), `apps_update`, `terminals_update`, `terminal_add`,
-`backup_update` {error?}, `disk_usage_update`, `app_install_error` {name,error},
+60s. WS messages: `heartbeat` (30s), `apps_update`, `terminals_update`, `unpaired_terminals_update`,
+`terminal_add`, `backup_update` {error?}, `disk_usage_update`, `app_install_error` {name,error},
 `subscription_updated` (→ force profile refetch). Toasts on install error / backup done+failed.
 
 Auth: JWT cookie issued by `POST /core/public/pair/terminal?code=X` (body: {name, icon}).
@@ -258,8 +267,8 @@ Public: `GET /public/meta/{whoami,whoareyou,avatar,version}`, `GET /public/healt
 way, 422 malformed, 429 on a flood of misses). (`meta/version` → `{version}`, the shard's own running
 freeshard version; read as plain JSON for the store version gate, not via the generated client.)
 Protected: apps (GET list, GET/POST/DELETE `{name}`, POST `{name}/reinstall`, GET `{name}/icon`,
-POST multipart custom), terminals (GET, GET/PUT/DELETE `id/{id}`, GET `name/{name}`,
-GET `pairing-code`), identities (GET/PUT, default, avatar GET/PUT/DELETE, make-default),
+POST multipart custom), terminals (GET, GET/PUT/DELETE `id/{id}` — DELETE unpairs — GET `name/{name}`,
+GET `pairing-code`, GET `unpaired`, POST `unpaired/{id}/retry`, DELETE `unpaired/{id}`), identities (GET/PUT, default, avatar GET/PUT/DELETE, make-default),
 peers (GET/PUT, GET/DELETE `{id}`), backup (info, passphrase, start), stats (disk, tasks),
 help/tours (GET/PUT/DELETE), feedback/quick (POST), settings (GET → `{email_enabled}`),
 settings/prune-images (POST), users/me (GET, PATCH `{display_name?, email?}` — email null
