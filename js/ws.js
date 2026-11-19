@@ -44,7 +44,10 @@ function isPlainObject(v) {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
-function handle(message) {
+// Routes one validated WS message to its store patch and onMessage() consumers.
+// Exported for unit tests. A malformed message is dropped, leaving the store
+// untouched.
+export function handle(message) {
   if (!validateMessage(message)) {
     console.warn('Dropped malformed WS message', message?.message_type);
     return;
