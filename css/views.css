@@ -31,6 +31,7 @@
 .icon-btn--danger:hover { color: var(--danger); }
 
 .icon--xl { width: 34px; height: 34px; }
+.icon--sm { width: 16px; height: 16px; }
 
 .hairline { border: 0; border-top: var(--border-w) solid var(--border); margin: var(--space-4) 0; }
 .hairline-grow { flex: 1; border-top: var(--border-w) solid var(--border); }
@@ -206,7 +207,55 @@
 .terminal-card__time { margin: 4px 0 0; font-size: var(--fs-small); }
 .terminal-card__controls { display: flex; flex-direction: column; gap: 4px; }
 
-.terminal-actions { margin-top: var(--space-5); text-align: center; }
+/* Flex column filling #view: the actions row takes the spare height, which
+ * pushes the unpaired section (last child) down onto the dock clearance on a
+ * short page; on a long one it simply follows the button. */
+view-terminals { flex: 1 0 auto; display: flex; flex-direction: column; }
+
+.terminal-actions { flex: 1 0 auto; margin-top: var(--space-5); text-align: center; }
+
+/* ---- not fully unpaired yet (unpaired devices still holding app lockouts) ---- */
+
+.unpaired-section {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: var(--border-w) solid var(--border);
+}
+.unpaired-section__line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+}
+.unpaired-section__line .icon-btn { padding: 2px; }
+
+.unpaired-pills { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+.unpaired-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-1) var(--space-3);
+  border: var(--border-w) solid var(--border-cool);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--ink-muted);
+  font: 400 var(--fs-small)/1 var(--font-ui);
+  cursor: pointer;
+}
+.unpaired-pill:hover { color: var(--ink); }
+.unpaired-pill--failed { border-color: var(--danger); color: var(--danger); }
+.unpaired-pill__name { max-width: 24ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.unpaired-about { margin: 0; padding-left: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); }
+
+.unpaired-detail__head { display: flex; align-items: center; gap: var(--space-3); color: var(--line); }
+.unpaired-detail__name { margin: 0; color: var(--ink); font: 600 var(--fs-h2)/1.25 var(--font-ui); }
+.unpaired-detail__meta { display: flex; flex-direction: column; gap: var(--space-1); }
+.unpaired-detail__row { display: flex; justify-content: space-between; gap: var(--space-4); }
+.unpaired-detail__apps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--space-2); }
+.unpaired-detail__app { display: flex; justify-content: space-between; gap: var(--space-4); }
+.unpaired-detail__app--failed .unpaired-detail__app-name { color: var(--danger); }
 
 .pairing-modal { text-align: center; display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
 .pairing-qr { width: 150px; height: 150px; image-rendering: pixelated; background: white; border-radius: 4px; padding: 6px; }

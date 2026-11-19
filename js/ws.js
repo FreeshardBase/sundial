@@ -24,6 +24,7 @@ export function validateMessage(message) {
   switch (message.message_type) {
     case 'apps_update':
     case 'terminals_update':
+    case 'unpaired_terminals_update':
       return Array.isArray(body) && body.every(isPlainObject);
     case 'disk_usage_update':
       return isPlainObject(body)
@@ -43,7 +44,10 @@ function isPlainObject(v) {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
-function handle(message) {
+// Routes one validated WS message to its store patch and onMessage() consumers.
+// Exported for unit tests. A malformed message is dropped, leaving the store
+// untouched.
+export function handle(message) {
   if (!validateMessage(message)) {
     console.warn('Dropped malformed WS message', message?.message_type);
     return;
@@ -55,6 +59,9 @@ function handle(message) {
       break;
     case 'terminals_update':
       store.set({ terminals: body });
+      break;
+    case 'unpaired_terminals_update':
+      store.set({ unpaired_terminals: body });
       break;
     case 'disk_usage_update':
       store.set({ disk_usage: { ...body, disk_space_warning: body.free_gb < 5 } });

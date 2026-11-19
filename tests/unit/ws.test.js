@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { installDom } from './helpers/env.js';
 
 installDom();
-const { validateMessage } = await import('../../js/ws.js');
+const { validateMessage, handle } = await import('../../js/ws.js');
+const { store } = await import('../../js/store.js');
 
 test('rejects non-object envelopes and missing message_type', () => {
   assert.equal(validateMessage(null), false);
@@ -13,13 +14,17 @@ test('rejects non-object envelopes and missing message_type', () => {
   assert.equal(validateMessage({ message_type: 42 }), false);
 });
 
-test('apps_update / terminals_update require an array of objects', () => {
+test('apps_update / terminals_update / unpaired_terminals_update require an array of objects', () => {
   assert.equal(validateMessage({ message_type: 'apps_update', message: [] }), true);
   assert.equal(validateMessage({ message_type: 'apps_update', message: [{ name: 'x' }] }), true);
   assert.equal(validateMessage({ message_type: 'apps_update', message: { name: 'x' } }), false);
   assert.equal(validateMessage({ message_type: 'apps_update', message: ['<script>'] }), false);
   assert.equal(validateMessage({ message_type: 'terminals_update', message: null }), false);
   assert.equal(validateMessage({ message_type: 'terminals_update', message: [null] }), false);
+  assert.equal(validateMessage({ message_type: 'unpaired_terminals_update', message: [] }), true);
+  assert.equal(validateMessage({ message_type: 'unpaired_terminals_update', message: [{ id: 'x' }] }), true);
+  assert.equal(validateMessage({ message_type: 'unpaired_terminals_update', message: { id: 'x' } }), false);
+  assert.equal(validateMessage({ message_type: 'unpaired_terminals_update', message: [null] }), false);
 });
 
 test('disk_usage_update requires numeric totals', () => {
@@ -52,4 +57,19 @@ test('bodyless message types pass through', () => {
   assert.equal(validateMessage({ message_type: 'heartbeat' }), true);
   assert.equal(validateMessage({ message_type: 'terminal_add' }), true);
   assert.equal(validateMessage({ message_type: 'subscription_updated' }), true);
+});
+
+test('handle(unpaired_terminals_update) replaces the store list', () => {
+  const list = [{ id: 'a', name: 'A', lockouts: [{ app_name: 'immich', state: 'failed' }] }];
+  handle({ message_type: 'unpaired_terminals_update', message: list });
+  assert.deepEqual(store.state.unpaired_terminals, list);
+
+  handle({ message_type: 'unpaired_terminals_update', message: [] });
+  assert.deepEqual(store.state.unpaired_terminals, []);
+});
+
+test('handle drops a malformed unpaired_terminals_update without touching the store', () => {
+  store.set({ unpaired_terminals: [{ id: 'keep' }] });
+  handle({ message_type: 'unpaired_terminals_update', message: { not: 'an array' } });
+  assert.deepEqual(store.state.unpaired_terminals, [{ id: 'keep' }]);
 });

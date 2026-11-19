@@ -83,6 +83,20 @@ STATE = {
         {"id": "def456", "name": "Max's Phone", "icon": "smartphone",
          "last_connection": (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()},
     ],
+    "unpaired_terminals": [
+        {"id": "old111", "name": "Old Laptop", "icon": "notebook",
+         "paired_at": "2026-02-10T09:12:00Z",
+         "last_connection": (datetime.now(timezone.utc) - timedelta(days=9)).isoformat(),
+         "unpaired_at": (datetime.now(timezone.utc) - timedelta(hours=3)).isoformat(),
+         "lockouts": [{"app_name": "immich", "state": "waiting_for_start"},
+                      {"app_name": "nextcloud", "state": "retrying"}]},
+        {"id": "old222", "name": "Lost Phone", "icon": "smartphone",
+         "paired_at": None,
+         "last_connection": (datetime.now(timezone.utc) - timedelta(days=40)).isoformat(),
+         "unpaired_at": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat(),
+         "lockouts": [{"app_name": "immich", "state": "failed"},
+                      {"app_name": "vaultwarden", "state": "waiting_for_install"}]},
+    ],
     "tours": [{"name": "usage prompt", "status": "seen"}],
     "disk": {"total_gb": 29.4, "free_gb": 17.2, "disk_space_low": False},
     "profile": {
@@ -265,6 +279,27 @@ def make_mock_routes() -> list[web.RouteDef]:
     @r.get("/core/protected/terminals")
     async def terminals(req):
         return json_response(STATE["terminals"])
+
+    @r.get("/core/protected/terminals/unpaired")
+    async def unpaired_terminals(req):
+        return json_response(STATE["unpaired_terminals"])
+
+    @r.post("/core/protected/terminals/unpaired/{id}/retry")
+    async def retry_unpaired(req):
+        for term in STATE["unpaired_terminals"]:
+            if term["id"] == req.match_info["id"]:
+                for lockout in term["lockouts"]:
+                    if lockout["state"] == "failed":
+                        lockout["state"] = "retrying"
+        await broadcast("unpaired_terminals_update", STATE["unpaired_terminals"])
+        return web.Response(status=204)
+
+    @r.delete("/core/protected/terminals/unpaired/{id}")
+    async def dismiss_unpaired(req):
+        STATE["unpaired_terminals"] = [
+            t for t in STATE["unpaired_terminals"] if t["id"] != req.match_info["id"]]
+        await broadcast("unpaired_terminals_update", STATE["unpaired_terminals"])
+        return web.Response(status=204)
 
     @r.get("/core/protected/terminals/pairing-code")
     async def pairing_code(req):

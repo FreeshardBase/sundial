@@ -953,6 +953,27 @@
     }
    }
   },
+  "/internal/owner": {
+   "get": {
+    "tags": [
+     "/internal"
+    ],
+    "summary": "Get Owner",
+    "operationId": "get_owner_internal_owner_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OutputOwner"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/public/health": {
    "get": {
     "tags": [
@@ -2258,6 +2279,31 @@
     }
    }
   },
+  "/protected/terminals/unpaired": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "List Unpaired Terminals",
+    "operationId": "list_unpaired_terminals_protected_terminals_unpaired_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/UnpairedTerminal"
+         },
+         "type": "array",
+         "title": "Response List Unpaired Terminals Protected Terminals Unpaired Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/protected/terminals/id/{id_}": {
    "get": {
     "tags": [
@@ -2281,7 +2327,9 @@
       "description": "Successful Response",
       "content": {
        "application/json": {
-        "schema": {}
+        "schema": {
+         "$ref": "#/components/schemas/Terminal"
+        }
        }
       }
      },
@@ -2349,8 +2397,9 @@
     "tags": [
      "/protected"
     ],
-    "summary": "Delete Terminal By Id",
-    "operationId": "delete_terminal_by_id_protected_terminals_id__id___delete",
+    "summary": "Unpair Terminal By Id",
+    "description": "Unpair a device: enqueue its lockouts, revoke its OIDC grants,\nand flag it unpaired. A device that owed no lockout is deleted outright;\notherwise the flagged row stays until every lockout is delivered.",
+    "operationId": "unpair_terminal_by_id_protected_terminals_id__id___delete",
     "parameters": [
      {
       "name": "id_",
@@ -2407,6 +2456,77 @@
         }
        }
       }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/terminals/unpaired/{id_}/retry": {
+   "post": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Retry Unpaired Terminal",
+    "operationId": "retry_unpaired_terminal_protected_terminals_unpaired__id___retry_post",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/protected/terminals/unpaired/{id_}": {
+   "delete": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Dismiss Unpaired Terminal",
+    "description": "Dismiss an unpaired device: delete it and, by cascade, its remaining\nlockouts, which are then never delivered. The barrier set is rebuilt.",
+    "operationId": "dismiss_unpaired_terminal_protected_terminals_unpaired__id___delete",
+    "parameters": [
+     {
+      "name": "id_",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "title": "Id "
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
      },
      "422": {
       "description": "Validation Error",
@@ -4000,6 +4120,34 @@
     "type": "object",
     "title": "Lifecycle"
    },
+   "Lockout": {
+    "properties": {
+     "app_name": {
+      "type": "string",
+      "title": "App Name"
+     },
+     "state": {
+      "$ref": "#/components/schemas/LockoutState"
+     }
+    },
+    "type": "object",
+    "required": [
+     "app_name",
+     "state"
+    ],
+    "title": "Lockout"
+   },
+   "LockoutState": {
+    "type": "string",
+    "enum": [
+     "waiting_for_start",
+     "retrying",
+     "waiting_for_install",
+     "failed"
+    ],
+    "title": "LockoutState",
+    "description": "Per-app delivery state of one back-channel logout for an unpaired\ndevice. Derived when read (service/terminal_lockouts._derive_state), never\nstored. Delivered rows are not reported."
+   },
    "NotifyRequest": {
     "properties": {
      "type": {
@@ -4093,6 +4241,41 @@
      "domain"
     ],
     "title": "OutputIdentity"
+   },
+   "OutputOwner": {
+    "properties": {
+     "id": {
+      "type": "integer",
+      "title": "Id"
+     },
+     "username": {
+      "type": "string",
+      "title": "Username"
+     },
+     "display_name": {
+      "type": "string",
+      "title": "Display Name"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "username",
+     "display_name"
+    ],
+    "title": "OutputOwner",
+    "description": "The owner fields an app sidecar may read over /internal.\n\nemail is users.email: an address confirmed by a delivered link, or\nowner-asserted directly when the shard sends no mail (email.enabled =\nfalse). It is None when there is no such address. pending_email, the token\nhash and its expiry are deliberately absent: they are an unverified\ncandidate a sidecar must never act on."
    },
    "OutputSettings": {
     "properties": {
@@ -4671,6 +4854,18 @@
       ],
       "title": "Last Connection"
      },
+     "paired_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Paired At"
+     },
      "user_id": {
       "anyOf": [
        {
@@ -4714,6 +4909,72 @@
      "unseen"
     ],
     "title": "TourStatus"
+   },
+   "UnpairedTerminal": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "icon": {
+      "$ref": "#/components/schemas/Icon",
+      "default": "unknown"
+     },
+     "paired_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Paired At"
+     },
+     "last_connection": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Connection"
+     },
+     "unpaired_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unpaired At"
+     },
+     "lockouts": {
+      "items": {
+       "$ref": "#/components/schemas/Lockout"
+      },
+      "type": "array",
+      "title": "Lockouts",
+      "default": []
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "name"
+    ],
+    "title": "UnpairedTerminal"
    },
    "VMSize": {
     "type": "string",

@@ -49,6 +49,10 @@ export async function refreshTerminals() {
   store.set({ terminals: await api.listAllTerminals() });
 }
 
+export async function refreshUnpairedTerminals() {
+  store.set({ unpaired_terminals: await api.listUnpairedTerminals() });
+}
+
 export async function markTourSeen(name) {
   await api.putTour({ name, status: 'seen' });
   await queryTours();

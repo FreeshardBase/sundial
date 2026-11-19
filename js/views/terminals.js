@@ -1,24 +1,28 @@
-// Devices — paired terminals: edit name/icon, delete, pair new device
-// (QR + one-time code with validity countdown).
+// Devices — paired terminals: edit name/icon, unpair, pair new device
+// (QR + one-time code with validity countdown), and below everything the
+// devices not fully unpaired yet.
 
 import { FsElement, esc } from '../components/base.js';
 import { store, shortShardId, shardHref } from '../store.js';
-import { refreshTerminals } from '../actions.js';
+import { refreshTerminals, refreshUnpairedTerminals } from '../actions.js';
 import * as api from '../api/client.js';
 import { icon } from '../components/icons.js';
 import { openModal } from '../components/modal.js';
 import { formatRelative, formatAbsolute, parseUtc } from '../util.js';
 import { onMessage } from '../ws.js';
+import { toastError, errorMessage } from '../components/toast.js';
 import { generate } from 'lean-qr';
 import { t } from '../i18n.js';
+import { hasFailedLockout, lockoutStateKey, lockoutAppLabel } from '../unpaired-terminals.js';
 
 class ViewTerminals extends FsElement {
   #editing = new Map();   // id -> { name, icon, syncing }
 
   connectedCallback() {
-    this.watch(['terminals'], () => this.render());
+    this.watch(['terminals', 'unpaired_terminals'], () => this.render());
     this.every(30_000, () => this.renderTimes());
     refreshTerminals().catch(() => {});
+    refreshUnpairedTerminals().catch(() => {});
   }
 
   render() {
@@ -31,12 +35,131 @@ class ViewTerminals extends FsElement {
       </div>
       <div class="terminal-actions">
         <button class="fs-btn fs-btn--primary fs-focusable pair-new">${icon('plus')} ${t('terminals.pairNew')}</button>
-      </div>`;
+      </div>
+      ${this.unpairedSectionHtml()}`;
 
     this.querySelector('.pair-new').addEventListener('click', () => this.startPairing());
     for (const card of this.querySelectorAll('.terminal-card')) {
       this.wireCard(card, terminals.find((term) => term.id === card.dataset.id));
     }
+    this.wireUnpaired();
+  }
+
+  unpairedSectionHtml() {
+    const unpaired = store.state.unpaired_terminals;
+    if (!unpaired.length) return '';
+    return `
+      <div class="unpaired-section">
+        <p class="unpaired-section__line">
+          <span class="fs-label">${t('unpaired.sectionLabel')}</span>
+          <button class="icon-btn fs-focusable unpaired-info" aria-label="${t('unpaired.aboutLabel')}">${icon('info')}</button>
+        </p>
+        <div class="unpaired-pills">
+          ${unpaired.map((term) => this.pillHtml(term)).join('')}
+        </div>
+      </div>`;
+  }
+
+  pillHtml(term) {
+    const failed = hasFailedLockout(term);
+    return `
+      <button class="unpaired-pill fs-focusable${failed ? ' unpaired-pill--failed' : ''}" data-unpaired-id="${esc(term.id)}" title="${esc(term.name)}">
+        ${icon(failed ? 'warn' : this.deviceIcon(term.icon), 'icon--sm')}
+        <span class="unpaired-pill__name">${esc(term.name)}</span>
+      </button>`;
+  }
+
+  wireUnpaired() {
+    this.querySelector('.unpaired-info')?.addEventListener('click', () => this.openUnpairedInfo());
+    for (const pill of this.querySelectorAll('.unpaired-pill')) {
+      const term = store.state.unpaired_terminals.find((u) => u.id === pill.dataset.unpairedId);
+      pill.addEventListener('click', () => this.openUnpairedDetail(term));
+    }
+  }
+
+  openUnpairedInfo() {
+    openModal({
+      title: t('unpaired.aboutTitle'),
+      body: `<ul class="unpaired-about">
+        <li>${t('unpaired.aboutUnreachable')}</li>
+        <li>${t('unpaired.aboutKeepSignin')}</li>
+        <li>${t('unpaired.aboutAutomatic')}</li>
+      </ul>`,
+    });
+  }
+
+  openUnpairedDetail(term) {
+    let footer = null;
+    if (hasFailedLockout(term)) {
+      footer = document.createElement('div');
+      footer.innerHTML = `
+        <button class="fs-btn fs-btn--danger" data-act="dismiss">${t('unpaired.dismiss')}</button>
+        <button class="fs-btn fs-btn--primary" data-act="retry">${t('unpaired.retry')}</button>`;
+    }
+
+    const modal = openModal({ title: t('unpaired.detailTitle'), body: this.unpairedDetailBody(term), footer });
+    footer?.querySelector('[data-act="retry"]').addEventListener('click',
+      () => this.runUnpairedAction(() => api.retryUnpairedTerminal(term.id), () => modal.close()));
+    footer?.querySelector('[data-act="dismiss"]').addEventListener('click', () => this.confirmDismiss(term, modal));
+  }
+
+  unpairedDetailBody(term) {
+    const apps = store.state.apps;
+    const lockouts = Array.isArray(term.lockouts) ? term.lockouts : [];
+    const row = (label, value) =>
+      `<div class="unpaired-detail__row"><span class="fs-label">${label}</span><span>${value ? esc(formatAbsolute(value)) : t('common.unknown')}</span></div>`;
+
+    const body = document.createElement('div');
+    body.innerHTML = `
+      <div class="unpaired-detail__head">
+        ${icon(this.deviceIcon(term.icon), 'icon--xl')}
+        <p class="unpaired-detail__name">${esc(term.name)}</p>
+      </div>
+      <div class="unpaired-detail__meta">
+        ${row(t('unpaired.paired'), term.paired_at)}
+        ${row(t('unpaired.lastSeen'), term.last_connection)}
+        ${row(t('unpaired.unpaired'), term.unpaired_at)}
+      </div>
+      ${lockouts.length ? `
+        <p>${t('unpaired.appsIntro')}</p>
+        <ul class="unpaired-detail__apps">
+          ${lockouts.map((l) => `
+            <li class="unpaired-detail__app${l.state === 'failed' ? ' unpaired-detail__app--failed' : ''}">
+              <span class="unpaired-detail__app-name">${esc(lockoutAppLabel(l.app_name, apps))}</span>
+              <span class="muted">${t(`unpaired.state.${lockoutStateKey(l.state)}`)}</span>
+            </li>`).join('')}
+        </ul>` : ''}`;
+    return body;
+  }
+
+  // Runs one unpaired-device API call: on success closes the dialog(s) via
+  // onDone and refreshes the list; on failure toasts the error and leaves the
+  // dialog open so the owner can try again.
+  async runUnpairedAction(action, onDone) {
+    try {
+      await action();
+    } catch (e) {
+      toastError(t('unpaired.actionFailed'), errorMessage(e));
+      return;
+    }
+    onDone();
+    await refreshUnpairedTerminals().catch(() => {});
+  }
+
+  confirmDismiss(term, detailModal) {
+    const footer = document.createElement('div');
+    footer.innerHTML = `
+      <button class="fs-btn" data-act="cancel">${t('common.cancel')}</button>
+      <button class="fs-btn fs-btn--danger" data-act="confirm">${t('unpaired.dismiss')}</button>`;
+    const modal = openModal({
+      title: t('unpaired.dismissTitle'),
+      body: `<p>${t('unpaired.dismissBody', { name: term.name })}</p>`,
+      footer,
+    });
+    footer.querySelector('[data-act="cancel"]').addEventListener('click', () => modal.close());
+    footer.querySelector('[data-act="confirm"]').addEventListener('click',
+      () => this.runUnpairedAction(() => api.dismissUnpairedTerminal(term.id),
+        () => { modal.close(); detailModal.close(); }));
   }
 
   deviceIcon(name) {
@@ -68,7 +191,7 @@ class ViewTerminals extends FsElement {
           ${edit ? `
             <button class="icon-btn" data-act="cancel" aria-label="${t('common.cancel')}">${icon('x')}</button>
             <button class="icon-btn icon-btn--ok" data-act="confirm" aria-label="${t('common.save')}">${icon('check')}</button>
-            ${!isThis ? `<button class="icon-btn icon-btn--danger" data-act="delete" aria-label="${t('terminals.removeDevice')}">${icon('trash')}</button>` : ''}
+            ${!isThis ? `<button class="icon-btn icon-btn--danger" data-act="unpair" aria-label="${t('terminals.unpairDevice')}">${icon('trash')}</button>` : ''}
           ` : `
             <button class="icon-btn fs-focusable" data-act="edit" aria-label="${t('terminals.editDevice')}">${icon('pencil')}</button>
           `}
@@ -132,20 +255,20 @@ class ViewTerminals extends FsElement {
     card.querySelector('[data-act="confirm"]')?.addEventListener('click', confirm);
     card.querySelector('[data-act="icon-prev"]')?.addEventListener('click', () => rotate(-1));
     card.querySelector('[data-act="icon-next"]')?.addEventListener('click', () => rotate(1));
-    card.querySelector('[data-act="delete"]')?.addEventListener('click', () => this.confirmDelete(term));
+    card.querySelector('[data-act="unpair"]')?.addEventListener('click', () => this.confirmUnpair(term));
   }
 
-  confirmDelete(term) {
+  confirmUnpair(term) {
     const body = document.createElement('div');
-    body.innerHTML = `<p>${t('terminals.removeConfirmBody')}</p>`;
+    body.innerHTML = `<p>${t('terminals.unpairConfirmBody')}</p>`;
     const footer = document.createElement('div');
     footer.innerHTML = `
       <button class="fs-btn" data-act="cancel">${t('common.cancel')}</button>
-      <button class="fs-btn fs-btn--danger" data-act="remove">${t('terminals.remove')}</button>`;
-    const modal = openModal({ title: t('terminals.removeDevice'), body, footer });
+      <button class="fs-btn fs-btn--danger" data-act="unpair">${t('terminals.unpair')}</button>`;
+    const modal = openModal({ title: t('terminals.unpairDevice'), body, footer });
     footer.querySelector('[data-act="cancel"]').addEventListener('click', () => modal.close());
-    footer.querySelector('[data-act="remove"]').addEventListener('click', async () => {
-      await api.deleteTerminalById(term.id);
+    footer.querySelector('[data-act="unpair"]').addEventListener('click', async () => {
+      await api.unpairTerminalById(term.id);
       this.#editing.delete(term.id);
       modal.close();
       await refreshTerminals().catch(() => {});
