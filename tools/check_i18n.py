@@ -14,7 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # Dynamic t(`...${x}...`) call sites and the key prefixes they can produce.
-DYNAMIC_PREFIXES = ["settings.language.", "usage.cases."]
+DYNAMIC_PREFIXES = ["settings.language.", "usage.cases.", "unpaired.state."]
 # Keys referenced via variables (e.g. NAV labelKey, subscribeLabel key vars).
 INDIRECT_KEYS = {
     "dock.home", "dock.apps", "dock.devices", "dock.public", "dock.settings",

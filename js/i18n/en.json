@@ -116,6 +116,30 @@
     "navigateTo": "Navigate to {!link} and use the one-time pairing code",
     "codeExpired": "Pairing code expired"
   },
+  "unpaired": {
+    "sectionLabel": "Pending disconnects",
+    "aboutLabel": "About pending disconnects",
+    "aboutTitle": "Pending disconnects",
+    "aboutUnreachable": "These devices are unpaired and can no longer reach your shard.",
+    "aboutKeepSignin": "Some apps keep their own sign-in, so they still have to be told to sign the device out.",
+    "aboutAutomatic": "This happens automatically, usually the next time the app starts.",
+    "detailTitle": "Device detail",
+    "paired": "Paired",
+    "lastSeen": "Last seen",
+    "unpaired": "Unpaired",
+    "appsIntro": "We still need to sign this device out of these apps:",
+    "state": {
+      "waiting_for_start": "Happens the next time the app starts",
+      "retrying": "In progress",
+      "waiting_for_install": "The app is uninstalled; happens if it is installed again",
+      "failed": "Could not be delivered",
+      "unknown": "Pending"
+    },
+    "retry": "Retry",
+    "dismiss": "Dismiss",
+    "dismissTitle": "Dismiss device",
+    "dismissBody": "This removes {name} and drops the sign-outs still waiting for it, so it may stay signed in to those apps."
+  },
   "apps": {
     "title": "Apps",
     "refreshStore": "Refresh app store",
