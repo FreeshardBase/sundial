@@ -145,7 +145,7 @@ class ViewTerminals extends FsElement {
     const modal = openModal({ title: t('terminals.removeDevice'), body, footer });
     footer.querySelector('[data-act="cancel"]').addEventListener('click', () => modal.close());
     footer.querySelector('[data-act="remove"]').addEventListener('click', async () => {
-      await api.deleteTerminalById(term.id);
+      await api.unpairTerminalById(term.id);
       this.#editing.delete(term.id);
       modal.close();
       await refreshTerminals().catch(() => {});

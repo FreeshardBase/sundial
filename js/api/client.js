@@ -194,6 +194,12 @@ export async function call(method, path, { query, json, form } = {}) {
  */
 
 /**
+ * @typedef {Object} Lockout
+ * @property {string} app_name
+ * @property {LockoutState} state
+ */
+
+/**
  * @typedef {Object} NotifyRequest
  * @property {string} type
  */
@@ -214,6 +220,14 @@ export async function call(method, path, { query, json, form } = {}) {
  * @property {boolean} is_default
  * @property {string} public_key_pem
  * @property {string} domain
+ */
+
+/**
+ * @typedef {Object} OutputOwner
+ * @property {number} id
+ * @property {string} username
+ * @property {string} display_name
+ * @property {string|null=} email
  */
 
 /**
@@ -322,6 +336,7 @@ export async function call(method, path, { query, json, form } = {}) {
  * @property {string} name
  * @property {Icon=} icon
  * @property {string|null=} last_connection
+ * @property {string|null=} paired_at
  * @property {number|null=} user_id
  */
 
@@ -329,6 +344,17 @@ export async function call(method, path, { query, json, form } = {}) {
  * @typedef {Object} Tour
  * @property {string} name
  * @property {TourStatus} status
+ */
+
+/**
+ * @typedef {Object} UnpairedTerminal
+ * @property {string} id
+ * @property {string} name
+ * @property {Icon=} icon
+ * @property {string|null=} paired_at
+ * @property {string|null=} last_connection
+ * @property {string|null=} unpaired_at
+ * @property {Array<Lockout>=} lockouts
  */
 
 // ---- operations ----
@@ -640,9 +666,16 @@ export function listAllTerminals() {
   return call('GET', `/protected/terminals`);
 }
 
+/** GET /protected/terminals/unpaired — List Unpaired Terminals
+ * @returns {Promise<Array<UnpairedTerminal>>}
+ */
+export function listUnpairedTerminals() {
+  return call('GET', `/protected/terminals/unpaired`);
+}
+
 /** GET /protected/terminals/id/{id_} — Get Terminal By Id
  * @param {string} id
- * @returns {Promise<Response>}
+ * @returns {Promise<Terminal>}
  */
 export function getTerminalById(id) {
   return call('GET', `/protected/terminals/id/${encodeURIComponent(id)}`);
@@ -657,11 +690,11 @@ export function editTerminal(id, body) {
   return call('PUT', `/protected/terminals/id/${encodeURIComponent(id)}`, { json: body });
 }
 
-/** DELETE /protected/terminals/id/{id_} — Delete Terminal By Id
+/** DELETE /protected/terminals/id/{id_} — Unpair Terminal By Id
  * @param {string} id
  * @returns {Promise<Response>}
  */
-export function deleteTerminalById(id) {
+export function unpairTerminalById(id) {
   return call('DELETE', `/protected/terminals/id/${encodeURIComponent(id)}`);
 }
 
@@ -671,6 +704,22 @@ export function deleteTerminalById(id) {
  */
 export function getTerminalByName(name) {
   return call('GET', `/protected/terminals/name/${encodeURIComponent(name)}`);
+}
+
+/** POST /protected/terminals/unpaired/{id_}/retry — Retry Unpaired Terminal
+ * @param {string} id
+ * @returns {Promise<Response>}
+ */
+export function retryUnpairedTerminal(id) {
+  return call('POST', `/protected/terminals/unpaired/${encodeURIComponent(id)}/retry`);
+}
+
+/** DELETE /protected/terminals/unpaired/{id_} — Dismiss Unpaired Terminal
+ * @param {string} id
+ * @returns {Promise<Response>}
+ */
+export function dismissUnpairedTerminal(id) {
+  return call('DELETE', `/protected/terminals/unpaired/${encodeURIComponent(id)}`);
 }
 
 /** GET /protected/terminals/pairing-code — New Pairing Code
