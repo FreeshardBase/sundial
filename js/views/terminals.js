@@ -104,7 +104,7 @@ class ViewTerminals extends FsElement {
 
   unpairedDetailBody(term) {
     const apps = store.state.apps;
-    const lockouts = term.lockouts ?? [];
+    const lockouts = Array.isArray(term.lockouts) ? term.lockouts : [];
     const row = (label, value) =>
       `<div class="unpaired-detail__row"><span class="fs-label">${label}</span><span>${value ? esc(formatAbsolute(value)) : '?'}</span></div>`;
 

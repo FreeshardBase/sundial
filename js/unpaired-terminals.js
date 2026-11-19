@@ -12,7 +12,7 @@ const KNOWN_STATES = ['waiting_for_start', 'retrying', 'waiting_for_install', 'f
 
 // Whether a device has at least one lockout that could not be delivered.
 export function hasFailedLockout(terminal) {
-  return (terminal.lockouts ?? []).some((l) => l.state === 'failed');
+  return Array.isArray(terminal.lockouts) && terminal.lockouts.some((l) => l.state === 'failed');
 }
 
 // i18n key suffix for a lockout state's copy; unknown states collapse to
