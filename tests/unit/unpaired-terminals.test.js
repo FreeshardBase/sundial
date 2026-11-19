@@ -3,24 +3,8 @@ import assert from 'node:assert/strict';
 import { installDom } from './helpers/env.js';
 
 installDom();
-const { worstLockoutState, hasFailedLockout, lockoutStateKey, lockoutAppLabel } =
+const { hasFailedLockout, lockoutStateKey, lockoutAppLabel } =
   await import('../../js/unpaired-terminals.js');
-
-test('worstLockoutState returns the highest-severity state present', () => {
-  assert.equal(worstLockoutState([{ state: 'waiting_for_start' }, { state: 'failed' }]), 'failed');
-  assert.equal(worstLockoutState([{ state: 'retrying' }, { state: 'waiting_for_install' }]), 'waiting_for_install');
-  assert.equal(worstLockoutState([{ state: 'waiting_for_start' }]), 'waiting_for_start');
-});
-
-test('worstLockoutState returns null for no lockouts', () => {
-  assert.equal(worstLockoutState([]), null);
-  assert.equal(worstLockoutState(), null);
-});
-
-test('worstLockoutState sorts an unknown state below every known one', () => {
-  assert.equal(worstLockoutState([{ state: 'mystery' }, { state: 'retrying' }]), 'retrying');
-  assert.equal(worstLockoutState([{ state: 'mystery' }]), 'mystery');
-});
 
 test('hasFailedLockout is true only when a failed lockout is present', () => {
   assert.equal(hasFailedLockout({ lockouts: [{ state: 'failed' }, { state: 'retrying' }] }), true);

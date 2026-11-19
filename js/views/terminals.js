@@ -11,7 +11,7 @@ import { formatRelative, formatAbsolute, parseUtc } from '../util.js';
 import { onMessage } from '../ws.js';
 import { generate } from 'lean-qr';
 import { t } from '../i18n.js';
-import { worstLockoutState, hasFailedLockout, lockoutStateKey, lockoutAppLabel } from '../unpaired-terminals.js';
+import { hasFailedLockout, lockoutStateKey, lockoutAppLabel } from '../unpaired-terminals.js';
 
 class ViewTerminals extends FsElement {
   #editing = new Map();   // id -> { name, icon, syncing }
@@ -70,7 +70,7 @@ class ViewTerminals extends FsElement {
   wireUnpaired() {
     this.querySelector('.unpaired-info')?.addEventListener('click', () => this.openUnpairedInfo());
     for (const pill of this.querySelectorAll('.unpaired-pill')) {
-      const term = store.state.unpaired_terminals.find((t) => t.id === pill.dataset.unpairedId);
+      const term = store.state.unpaired_terminals.find((d) => d.id === pill.dataset.unpairedId);
       pill.addEventListener('click', () => this.openUnpairedDetail(term));
     }
   }

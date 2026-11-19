@@ -5,24 +5,10 @@
 
 import { appDisplayName } from './components/app-tile.js';
 
-// Lockout states, worst first. A device's pill takes the appearance of its
-// worst lockout (see worstLockoutState); `failed` is the only state the owner
-// can act on, so it ranks highest.
-export const LOCKOUT_STATES = ['failed', 'waiting_for_install', 'retrying', 'waiting_for_start'];
-
-// The highest-severity lockout state across a device's lockouts, or null when
-// there are none. A state this client doesn't know (a newer server) sorts below
-// every known state rather than being dropped.
-export function worstLockoutState(lockouts = []) {
-  let worst = null;
-  let worstRank = Infinity;
-  for (const { state } of lockouts) {
-    const known = LOCKOUT_STATES.indexOf(state);
-    const rank = known === -1 ? LOCKOUT_STATES.length : known;
-    if (rank < worstRank) { worstRank = rank; worst = state; }
-  }
-  return worst;
-}
+// The lockout states this client knows how to render. A state outside this set
+// (a newer server) falls back to generic "pending" copy rather than leaking a
+// raw enum value into the UI.
+const KNOWN_STATES = ['waiting_for_start', 'retrying', 'waiting_for_install', 'failed'];
 
 // Whether a device has at least one lockout that could not be delivered — the
 // trigger for the distinct pill styling and the retry/dismiss actions.
@@ -30,10 +16,10 @@ export function hasFailedLockout(terminal) {
   return (terminal.lockouts ?? []).some((l) => l.state === 'failed');
 }
 
-// i18n key suffix for a lockout state's copy. Unknown states fall back to a
-// generic "pending" line so a newer server never renders a raw enum value.
+// i18n key suffix for a lockout state's copy; unknown states collapse to
+// 'unknown'.
 export function lockoutStateKey(state) {
-  return LOCKOUT_STATES.includes(state) ? state : 'unknown';
+  return KNOWN_STATES.includes(state) ? state : 'unknown';
 }
 
 // The app's display name if Sundial knows the app from its installed list,
