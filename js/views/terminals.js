@@ -3,7 +3,7 @@
 
 import { FsElement, esc } from '../components/base.js';
 import { store, shortShardId, shardHref } from '../store.js';
-import { refreshTerminals } from '../actions.js';
+import { refreshTerminals, refreshUnpairedTerminals } from '../actions.js';
 import * as api from '../api/client.js';
 import { icon } from '../components/icons.js';
 import { openModal } from '../components/modal.js';
@@ -11,14 +11,16 @@ import { formatRelative, formatAbsolute, parseUtc } from '../util.js';
 import { onMessage } from '../ws.js';
 import { generate } from 'lean-qr';
 import { t } from '../i18n.js';
+import { worstLockoutState, hasFailedLockout, lockoutStateKey, lockoutAppLabel } from '../unpaired-terminals.js';
 
 class ViewTerminals extends FsElement {
   #editing = new Map();   // id -> { name, icon, syncing }
 
   connectedCallback() {
-    this.watch(['terminals'], () => this.render());
+    this.watch(['terminals', 'unpaired_terminals', 'apps'], () => this.render());
     this.every(30_000, () => this.renderTimes());
     refreshTerminals().catch(() => {});
+    refreshUnpairedTerminals().catch(() => {});
   }
 
   render() {
@@ -29,6 +31,7 @@ class ViewTerminals extends FsElement {
       <div class="terminal-grid">
         ${terminals.map((term) => this.cardHtml(term)).join('')}
       </div>
+      ${this.unpairedSectionHtml()}
       <div class="terminal-actions">
         <button class="fs-btn fs-btn--primary fs-focusable pair-new">${icon('plus')} ${t('terminals.pairNew')}</button>
       </div>`;
@@ -37,6 +40,112 @@ class ViewTerminals extends FsElement {
     for (const card of this.querySelectorAll('.terminal-card')) {
       this.wireCard(card, terminals.find((term) => term.id === card.dataset.id));
     }
+    this.wireUnpaired();
+  }
+
+  unpairedSectionHtml() {
+    const unpaired = store.state.unpaired_terminals;
+    if (!unpaired.length) return '';
+    return `
+      <div class="unpaired-section">
+        <p class="unpaired-section__line">
+          <span class="fs-label">${t('unpaired.sectionLabel')}</span>
+          <button class="icon-btn fs-focusable unpaired-info" aria-label="${t('unpaired.aboutLabel')}">${icon('info')}</button>
+        </p>
+        <div class="unpaired-pills">
+          ${unpaired.map((term) => this.pillHtml(term)).join('')}
+        </div>
+      </div>`;
+  }
+
+  pillHtml(term) {
+    const failed = hasFailedLockout(term);
+    return `
+      <button class="unpaired-pill fs-focusable${failed ? ' unpaired-pill--failed' : ''}" data-unpaired-id="${esc(term.id)}">
+        ${icon(this.deviceIcon(term.icon), 'icon--sm')}
+        <span class="unpaired-pill__name">${esc(term.name)}</span>
+      </button>`;
+  }
+
+  wireUnpaired() {
+    this.querySelector('.unpaired-info')?.addEventListener('click', () => this.openUnpairedInfo());
+    for (const pill of this.querySelectorAll('.unpaired-pill')) {
+      const term = store.state.unpaired_terminals.find((t) => t.id === pill.dataset.unpairedId);
+      pill.addEventListener('click', () => this.openUnpairedDetail(term));
+    }
+  }
+
+  openUnpairedInfo() {
+    openModal({
+      title: t('unpaired.aboutTitle'),
+      body: `<ul class="unpaired-about">
+        <li>${t('unpaired.aboutUnreachable')}</li>
+        <li>${t('unpaired.aboutKeepSignin')}</li>
+        <li>${t('unpaired.aboutAutomatic')}</li>
+      </ul>`,
+    });
+  }
+
+  openUnpairedDetail(term) {
+    const apps = store.state.apps;
+    const row = (label, value) =>
+      `<div class="unpaired-detail__row"><span class="fs-label">${label}</span><span>${value ? esc(formatAbsolute(value)) : '?'}</span></div>`;
+    const lockouts = term.lockouts ?? [];
+
+    const body = document.createElement('div');
+    body.innerHTML = `
+      <div class="unpaired-detail__head">
+        ${icon(this.deviceIcon(term.icon), 'icon--xl')}
+        <h2>${esc(term.name)}</h2>
+      </div>
+      <div class="unpaired-detail__meta">
+        ${row(t('unpaired.paired'), term.paired_at)}
+        ${row(t('unpaired.lastSeen'), term.last_connection)}
+        ${row(t('unpaired.unpaired'), term.unpaired_at)}
+      </div>
+      <p>${t('unpaired.appsIntro')}</p>
+      <ul class="unpaired-detail__apps">
+        ${lockouts.map((l) => `
+          <li class="unpaired-detail__app${l.state === 'failed' ? ' unpaired-detail__app--failed' : ''}">
+            <span class="unpaired-detail__app-name">${esc(lockoutAppLabel(l.app_name, apps))}</span>
+            <span class="muted">${t(`unpaired.state.${lockoutStateKey(l.state)}`)}</span>
+          </li>`).join('')}
+      </ul>`;
+
+    let footer = null;
+    if (hasFailedLockout(term)) {
+      footer = document.createElement('div');
+      footer.innerHTML = `
+        <button class="fs-btn fs-btn--danger" data-act="dismiss">${t('unpaired.dismiss')}</button>
+        <button class="fs-btn fs-btn--primary" data-act="retry">${t('unpaired.retry')}</button>`;
+    }
+
+    const modal = openModal({ title: t('unpaired.detailTitle'), body, footer });
+    footer?.querySelector('[data-act="retry"]').addEventListener('click', async () => {
+      await api.retryUnpairedTerminal(term.id);
+      modal.close();
+      await refreshUnpairedTerminals().catch(() => {});
+    });
+    footer?.querySelector('[data-act="dismiss"]').addEventListener('click', () => this.confirmDismiss(term, modal));
+  }
+
+  confirmDismiss(term, detailModal) {
+    const footer = document.createElement('div');
+    footer.innerHTML = `
+      <button class="fs-btn" data-act="cancel">${t('common.cancel')}</button>
+      <button class="fs-btn fs-btn--danger" data-act="confirm">${t('unpaired.dismiss')}</button>`;
+    const modal = openModal({
+      title: t('unpaired.dismissTitle'),
+      body: `<p>${t('unpaired.dismissBody', { name: term.name })}</p>`,
+      footer,
+    });
+    footer.querySelector('[data-act="cancel"]').addEventListener('click', () => modal.close());
+    footer.querySelector('[data-act="confirm"]').addEventListener('click', async () => {
+      await api.dismissUnpairedTerminal(term.id);
+      modal.close();
+      detailModal.close();
+      await refreshUnpairedTerminals().catch(() => {});
+    });
   }
 
   deviceIcon(name) {
