@@ -70,6 +70,7 @@ async function boot() {
     actions.queryDiskUsage().catch(() => {}),
     actions.refreshApps().catch(() => {}),
     actions.refreshTerminals().catch(() => {}),
+    actions.refreshUnpairedTerminals().catch(() => {}),
   ]);
 
   // Already paired and sent here by an app login: go straight back to it.

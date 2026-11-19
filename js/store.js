@@ -16,6 +16,7 @@ const initial = {
   email_enabled: true,  // GET /protected/settings → email_enabled; false on a self-hosted shard that cannot send mail
   apps: [],
   terminals: [],
+  unpaired_terminals: [],  // devices unpaired but still holding undelivered app lockouts
   tours: [],
   disk_usage: { total_gb: 0, free_gb: 0, disk_space_low: false, disk_space_warning: false },
   ws: { disconnectedSince: null },
