@@ -138,7 +138,8 @@
     "retry": "Retry",
     "dismiss": "Dismiss",
     "dismissTitle": "Dismiss device",
-    "dismissBody": "This removes {name} and drops the sign-outs still waiting for it, so it may stay signed in to those apps."
+    "dismissBody": "This removes {name} and drops the sign-outs still waiting for it, so it may stay signed in to those apps.",
+    "actionFailed": "That didn't work"
   },
   "apps": {
     "title": "Apps",

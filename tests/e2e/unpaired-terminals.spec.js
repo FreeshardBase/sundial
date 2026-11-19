@@ -23,7 +23,7 @@ const FAILED = device({
   lockouts: [{ app_name: 'immich', state: 'failed' }, { app_name: 'vaultwarden', state: 'retrying' }],
 });
 
-async function stubUnpaired(page, list) {
+async function stubUnpaired(page, list, { actionStatus = 204 } = {}) {
   const calls = [];
   await page.route((url) => url.pathname.startsWith('/core/protected/terminals/unpaired'), (route) => {
     const req = route.request();
@@ -32,7 +32,8 @@ async function stubUnpaired(page, list) {
       return route.fulfill({ json: list });
     }
     calls.push({ method: req.method(), path: url.pathname });
-    return route.fulfill({ status: 204 });
+    if (actionStatus >= 400) return route.fulfill({ status: actionStatus, json: { detail: 'nope' } });
+    return route.fulfill({ status: actionStatus });
   });
   return calls;
 }
@@ -139,6 +140,16 @@ test('dismiss confirms first, then deletes the device', async ({ page }) => {
   await expect(calls.some((c) => c.method === 'DELETE')).toBe(false);
   await confirm.locator('[data-act="confirm"]').click();
   await expect.poll(() => calls.some((c) => c.method === 'DELETE' && c.path.endsWith('/unpaired/dev2'))).toBe(true);
+});
+
+test('a failed retry shows an error toast and keeps the detail open', async ({ page }) => {
+  await stubUnpaired(page, [FAILED], { actionStatus: 500 });
+  await page.goto('/terminals');
+  await pills(page).first().click();
+  await page.locator('.modal-footer [data-act="retry"]').click();
+  await expect(page.locator('.toast--error')).toBeVisible();
+  // the detail modal is still open so the owner can try again or dismiss
+  await expect(page.locator('.modal-footer [data-act="retry"]')).toBeVisible();
 });
 
 test('a live update adds and then removes a pill', async ({ page }) => {

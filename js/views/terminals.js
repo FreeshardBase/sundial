@@ -9,6 +9,7 @@ import { icon } from '../components/icons.js';
 import { openModal } from '../components/modal.js';
 import { formatRelative, formatAbsolute, parseUtc } from '../util.js';
 import { onMessage } from '../ws.js';
+import { toastError, errorMessage } from '../components/toast.js';
 import { generate } from 'lean-qr';
 import { t } from '../i18n.js';
 import { hasFailedLockout, lockoutStateKey, lockoutAppLabel } from '../unpaired-terminals.js';
@@ -17,7 +18,7 @@ class ViewTerminals extends FsElement {
   #editing = new Map();   // id -> { name, icon, syncing }
 
   connectedCallback() {
-    this.watch(['terminals', 'unpaired_terminals', 'apps'], () => this.render());
+    this.watch(['terminals', 'unpaired_terminals'], () => this.render());
     this.every(30_000, () => this.renderTimes());
     refreshTerminals().catch(() => {});
     refreshUnpairedTerminals().catch(() => {});
@@ -103,14 +104,15 @@ class ViewTerminals extends FsElement {
         ${row(t('unpaired.lastSeen'), term.last_connection)}
         ${row(t('unpaired.unpaired'), term.unpaired_at)}
       </div>
-      <p>${t('unpaired.appsIntro')}</p>
-      <ul class="unpaired-detail__apps">
-        ${lockouts.map((l) => `
-          <li class="unpaired-detail__app${l.state === 'failed' ? ' unpaired-detail__app--failed' : ''}">
-            <span class="unpaired-detail__app-name">${esc(lockoutAppLabel(l.app_name, apps))}</span>
-            <span class="muted">${t(`unpaired.state.${lockoutStateKey(l.state)}`)}</span>
-          </li>`).join('')}
-      </ul>`;
+      ${lockouts.length ? `
+        <p>${t('unpaired.appsIntro')}</p>
+        <ul class="unpaired-detail__apps">
+          ${lockouts.map((l) => `
+            <li class="unpaired-detail__app${l.state === 'failed' ? ' unpaired-detail__app--failed' : ''}">
+              <span class="unpaired-detail__app-name">${esc(lockoutAppLabel(l.app_name, apps))}</span>
+              <span class="muted">${t(`unpaired.state.${lockoutStateKey(l.state)}`)}</span>
+            </li>`).join('')}
+        </ul>` : ''}`;
 
     let footer = null;
     if (hasFailedLockout(term)) {
@@ -122,7 +124,12 @@ class ViewTerminals extends FsElement {
 
     const modal = openModal({ title: t('unpaired.detailTitle'), body, footer });
     footer?.querySelector('[data-act="retry"]').addEventListener('click', async () => {
-      await api.retryUnpairedTerminal(term.id);
+      try {
+        await api.retryUnpairedTerminal(term.id);
+      } catch (e) {
+        toastError(t('unpaired.actionFailed'), errorMessage(e));
+        return;
+      }
       modal.close();
       await refreshUnpairedTerminals().catch(() => {});
     });
@@ -141,7 +148,12 @@ class ViewTerminals extends FsElement {
     });
     footer.querySelector('[data-act="cancel"]').addEventListener('click', () => modal.close());
     footer.querySelector('[data-act="confirm"]').addEventListener('click', async () => {
-      await api.dismissUnpairedTerminal(term.id);
+      try {
+        await api.dismissUnpairedTerminal(term.id);
+      } catch (e) {
+        toastError(t('unpaired.actionFailed'), errorMessage(e));
+        return;
+      }
       modal.close();
       detailModal.close();
       await refreshUnpairedTerminals().catch(() => {});

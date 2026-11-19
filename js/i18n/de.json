@@ -138,7 +138,8 @@
     "retry": "Erneut versuchen",
     "dismiss": "Verwerfen",
     "dismissTitle": "Gerät verwerfen",
-    "dismissBody": "Dadurch wird {name} entfernt und die noch ausstehenden Abmeldungen werden verworfen, sodass das Gerät in diesen Apps angemeldet bleiben kann."
+    "dismissBody": "Dadurch wird {name} entfernt und die noch ausstehenden Abmeldungen werden verworfen, sodass das Gerät in diesen Apps angemeldet bleiben kann.",
+    "actionFailed": "Das hat nicht geklappt"
   },
   "apps": {
     "title": "Apps",
