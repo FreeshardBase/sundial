@@ -60,7 +60,8 @@ class ViewConfirmEmail extends FsElement {
     if (st === 'sent') {
       return `
         <p class="alert alert--info confirm-email__sent">${t('confirmEmail.sent')}</p>
-        <p class="muted">${t('confirmEmail.sentHint')}</p>`;
+        <p class="muted">${t('confirmEmail.sentHint')}</p>
+        <p class="muted">${t('confirmEmail.sentAppsHint')}</p>`;
     }
     const busy = st === 'confirming';
     return `

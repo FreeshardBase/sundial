@@ -40,6 +40,7 @@ test('lands on the confirm screen, strips the token, and does not confirm on its
   // hedged: the endpoint answers 204 whether or not the token matched
   await expect(page.locator('.confirm-email__sent')).toContainText('If the link was still valid');
   await expect(page.locator('view-confirm-email')).toContainText('valid for one hour');
+  await expect(page.locator('view-confirm-email')).toContainText('check for a confirmed address every few minutes');
   expect(posts).toEqual([{ token: 'tok-123' }]);
 });
 
