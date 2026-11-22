@@ -93,6 +93,7 @@
     "confirm": "Adresse bestätigen",
     "sent": "Falls der Link noch gültig war, ist deine Adresse jetzt bestätigt und erhält Nachrichten zu deinem Shard.",
     "sentHint": "Ein Bestätigungslink ist eine Stunde lang gültig und funktioniert einmal. Zum Prüfen öffne die Einstellungen auf einem Gerät, das mit deinem Shard gekoppelt ist: Steht die Adresse dort noch als „Wartet auf Bestätigung“, fordere mit „Erneut senden“ eine neue E-Mail an.",
+    "sentAppsHint": "Apps auf diesem Shard prüfen alle paar Minuten, ob die Adresse bestätigt ist. Die Anmeldung dort funktioniert deshalb eventuell erst nach bis zu etwa 5 Minuten — versuch es dann noch einmal.",
     "invalid": "Dieser Link ist unvollständig. Öffne den Link aus der Bestätigungsmail noch einmal oder fordere in den Einstellungen eine neue E-Mail an.",
     "failed": "Die Bestätigung hat deinen Shard nicht erreicht. Versuch es gleich noch einmal.",
     "rateLimited": "Zu viele Bestätigungsversuche. Warte eine Minute und versuch es dann noch einmal.",

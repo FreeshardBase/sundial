@@ -93,6 +93,7 @@
     "confirm": "Confirm address",
     "sent": "If the link was still valid, your address is now confirmed and receives messages about your Shard.",
     "sentHint": "A confirmation link is valid for one hour and works once. To check, open Settings on a device paired with your Shard: if the address still shows as waiting for confirmation, request a new email there with Send again.",
+    "sentAppsHint": "Apps on this Shard check for a confirmed address every few minutes, so sign-in there might not work immediately — give it up to about 5 minutes, then try again.",
     "invalid": "This link is incomplete, so there is nothing to confirm. Open the link from the confirmation email again, or request a new email in Settings.",
     "failed": "The confirmation did not reach your Shard. Try again in a moment.",
     "rateLimited": "Too many confirmation attempts. Wait a minute, then try again.",
