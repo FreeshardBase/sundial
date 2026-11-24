@@ -5,6 +5,15 @@
 // /sundial/ coexistence path) must BOTH send Cache-Control: no-cache for them,
 // and the no-cache block must NOT set its own add_header — nginx drops the
 // inherited security headers (CSP etc.) from any block that declares one.
+//
+// First-party js/ and css/ carry the same risk under stable, unhashed
+// filenames (a core-release shard's update banner reload could still serve a
+// cached js/version.js, reporting the old version forever). vendor/ is
+// deliberately excluded: pinned third-party files that don't change per
+// release, and no-caching them would also fight the separate .mjs
+// default_type location in data/nginx.conf (first matching regex location
+// wins in nginx, so a js|css|vendor no-cache rule placed before it would
+// shadow that mime-type override for vendor's .mjs files).
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -63,4 +72,31 @@ test('deploy no-cache block is nested inside /sundial/ (inherits its security he
     'no-cache block must be nested inside the /sundial/ block so it inherits the security add_header set');
   assert.doesNotMatch(m[2], /add_header/,
     'the no-cache block must not set add_header, or nginx drops the inherited security headers');
+});
+
+// Separate location from the three-file rule above (different regex), so a
+// dedicated matcher per conf. Group 1 is unused here; only presence + body matter.
+const JS_CSS_NO_CACHE_BLOCK = /location\s+~\s+\^([^\s]*)\(js\|css\)\/\s*\{([^}]*)\}/;
+
+test('container nginx also no-caches js/ and css/, but not vendor/', () => {
+  const m = containerNginx.match(JS_CSS_NO_CACHE_BLOCK);
+  assert.ok(m, 'data/nginx.conf is missing the no-cache location for js/ and css/');
+  assert.equal(m[1], '/', 'root conf should match js/ and css/ at /');
+  assert.match(m[2], /expires\s+-1;/, 'expires -1 missing from the js/css no-cache block');
+  assert.doesNotMatch(m[2], /add_header/,
+    'the js/css no-cache block must not set add_header, or nginx drops the server-level security headers');
+  assert.doesNotMatch(containerNginx, /\(js\|css\|vendor\)/,
+    'vendor/ must stay out of the no-cache rule — it would shadow the .mjs default_type override');
+});
+
+test('deploy nginx also no-caches js/ and css/ under /sundial/, nested so it inherits security headers', () => {
+  const m = deployNginx.match(JS_CSS_NO_CACHE_BLOCK);
+  assert.ok(m, 'deploy/nginx-sundial.conf is missing the no-cache location for js/ and css/');
+  assert.equal(m[1], '/sundial/', 'deploy conf must scope the js/css rule to the /sundial/ subpath');
+  assert.match(m[2], /expires\s+-1;/, 'expires -1 missing from the js/css no-cache block');
+
+  const opener = deployNginx.search(/location\s+\/sundial\/\s*\{/);
+  const [open, close] = blockExtent(deployNginx, opener);
+  assert.ok(m.index > open && m.index < close,
+    'js/css no-cache block must be nested inside the /sundial/ block so it inherits the security add_header set');
 });

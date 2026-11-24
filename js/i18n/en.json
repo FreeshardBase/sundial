@@ -224,6 +224,7 @@
       "deliveryFailed": "The address was saved, but the confirmation email could not be sent yet. Send it again in a moment.",
       "noVerification": "This Shard cannot send email, so the address is taken as typed, with no confirmation step.",
       "resend": "Send again",
+      "resendNeutral": "Resend",
       "discard": "Discard",
       "mailSent": "Confirmation email sent",
       "mailSentTo": "Open the link sent to {email}.",

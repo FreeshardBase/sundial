@@ -73,6 +73,8 @@ test('pending: live address plus the candidate, with resend and discard', async 
   await expect(pending).toContainText('Until then, messages still go to old@example.org.');
   await expect(pending.locator('[data-act="resend"]')).toBeVisible();
   await expect(pending.locator('[data-act="discard"]')).toBeVisible();
+  // Nothing failed here: the button offers a resend, not a retry.
+  await expect(pending.locator('[data-act="resend"]')).toHaveText('Resend');
 });
 
 test('an email edit in progress survives a Settings re-render', async ({ page }) => {
@@ -184,6 +186,8 @@ test('502 from PATCH: the stored candidate is shown from a refetch, not reported
   await expect(pending.locator('.pending-change__value')).toHaveText('new@example.org');
   await expect(pending.locator('.pending-change__notice')).toContainText('was saved, but the confirmation email could not be sent');
   await expect(pending.locator('[data-act="resend"]')).toBeVisible();
+  // Something did fail here, so "Send again" (retry framing) is the right label.
+  await expect(pending.locator('[data-act="resend"]')).toHaveText('Send again');
   await expect(page.locator('.toast--error')).toHaveCount(0);
   expect(stub.readCount()).toBeGreaterThanOrEqual(2);
 });
@@ -205,6 +209,7 @@ test('a successful resend clears the delivery-failed message', async ({ page }) 
   await expect(page.locator('.toast--success .toast__title')).toHaveText('Confirmation email sent');
   await expect(pending.locator('.pending-change__notice')).toHaveCount(0);
   await expect(pending.locator('.pending-change__note')).toContainText('valid for one hour');
+  await expect(pending.locator('[data-act="resend"]')).toHaveText('Resend');
   expect(calls.map((c) => `${c.method} ${c.path}`)).toEqual([
     'PATCH /core/protected/users/me',
     'POST /core/protected/users/me/email/resend',

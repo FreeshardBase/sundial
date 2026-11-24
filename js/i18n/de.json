@@ -224,6 +224,7 @@
       "deliveryFailed": "Die Adresse wurde gespeichert, aber die Bestätigungsmail konnte noch nicht gesendet werden. Sende sie gleich noch einmal.",
       "noVerification": "Dieser Shard kann keine E-Mails senden, deshalb wird die Adresse ohne Bestätigungsschritt so übernommen, wie du sie eingibst.",
       "resend": "Erneut senden",
+      "resendNeutral": "Nochmal senden",
       "discard": "Verwerfen",
       "mailSent": "Bestätigungsmail gesendet",
       "mailSentTo": "Öffne den Link, der an {email} gesendet wurde.",

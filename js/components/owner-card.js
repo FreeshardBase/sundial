@@ -107,7 +107,14 @@ class FsOwnerCard extends FsElement {
     }
     if (state === 'pending') {
       const actions = [];
-      if (this.#emailEnabled) actions.push({ act: 'resend', label: t('settings.owner.resend'), disabled: this.#busy });
+      if (this.#emailEnabled) actions.push({
+        act: 'resend',
+        // "Send again" only reads as a retry once something has actually
+        // failed; otherwise it tells an owner whose mail went out fine that
+        // they may have missed it.
+        label: this.#deliveryFailed ? t('settings.owner.resend') : t('settings.owner.resendNeutral'),
+        disabled: this.#busy,
+      });
       actions.push({ act: 'discard', label: t('settings.owner.discard'), disabled: this.#busy });
       hints.push(pendingChange({
         label: t('settings.owner.pendingLabel'),
