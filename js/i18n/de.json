@@ -215,7 +215,7 @@
       "nameHint": "Dein Name als Inhaber dieses Shards. Der Name auf deiner öffentlichen Seite ist ein anderer und wird unter „Öffentlich“ bearbeitet.",
       "email": "E-Mail",
       "noAddress": "Noch keine Adresse.",
-      "noAddressPrompt": "Trag eine ein, damit wir dich zu deinem Shard erreichen können: Speicherwarnungen, Abrechnung und Servicenachrichten gehen dorthin.",
+      "noAddressPrompt": "Du kannst sie jederzeit eintragen.",
       "pendingLabel": "Wartet auf Bestätigung",
       "pendingNote": "Öffne den Link in der Bestätigungsmail an diese Adresse oder sende sie erneut, falls sie nie angekommen ist. Ein Link ist eine Stunde lang gültig.",
       "pendingLive": "Bis dahin gehen Nachrichten weiter an {email}.",

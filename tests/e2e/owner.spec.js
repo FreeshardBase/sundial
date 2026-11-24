@@ -59,7 +59,7 @@ test('none: a prompt, not an error', async ({ page }) => {
   await page.goto('/settings');
   const hint = card(page).locator('[data-email-state="none"]');
   await expect(hint).toContainText('No address yet.');
-  await expect(hint).toContainText('so we can reach you');
+  await expect(hint).toContainText('Add one anytime.');
   await expect(card(page).locator('.alert')).toHaveCount(0);
 });
 
