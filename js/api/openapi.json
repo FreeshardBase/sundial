@@ -4327,6 +4327,11 @@
       ],
       "title": "Pending Email"
      },
+     "pending_email_sent": {
+      "type": "boolean",
+      "title": "Pending Email Sent",
+      "default": false
+     },
      "role": {
       "$ref": "#/components/schemas/Role"
      }

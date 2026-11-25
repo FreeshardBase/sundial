@@ -242,6 +242,7 @@ export async function call(method, path, { query, json, form } = {}) {
  * @property {string} display_name
  * @property {string|null=} email
  * @property {string|null=} pending_email
+ * @property {boolean=} pending_email_sent
  * @property {Role} role
  */
 
