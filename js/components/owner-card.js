@@ -106,13 +106,28 @@ class FsOwnerCard extends FsElement {
         this.#emailEnabled ? ` ${t('settings.owner.noAddressPrompt')}` : ''}</p>`);
     }
     if (state === 'pending') {
+      // A candidate migration 0005 carried over, or that a failed enrichment
+      // fell back to writing raw, never had anything attempted for it —
+      // offering "Resend" would claim a repeat that never happened.
+      const neverSent = this.#emailEnabled && !this.#user.pending_email_sent;
       const actions = [];
-      if (this.#emailEnabled) actions.push({ act: 'resend', label: t('settings.owner.resend'), disabled: this.#busy });
+      if (this.#emailEnabled) actions.push({
+        act: 'resend',
+        // "Send again" only reads as a retry once something has actually
+        // failed; "Resend" otherwise, once something has been tried, so an
+        // owner whose mail went out fine isn't told they may have missed it.
+        label: neverSent
+          ? t('settings.owner.send')
+          : (this.#deliveryFailed ? t('settings.owner.resend') : t('settings.owner.resendNeutral')),
+        disabled: this.#busy,
+      });
       actions.push({ act: 'discard', label: t('settings.owner.discard'), disabled: this.#busy });
       hints.push(pendingChange({
         label: t('settings.owner.pendingLabel'),
         value: this.#user.pending_email,
-        note: `${this.#emailEnabled ? t('settings.owner.pendingNote') : t('settings.owner.pendingNoMail')} ${this.#user.email
+        note: `${this.#emailEnabled
+          ? (neverSent ? t('settings.owner.pendingNeverSent') : t('settings.owner.pendingNote'))
+          : t('settings.owner.pendingNoMail')} ${this.#user.email
           ? t('settings.owner.pendingLive', { email: this.#user.email })
           : t('settings.owner.pendingLiveNone')}`,
         notice: this.#deliveryFailed ? t('settings.owner.deliveryFailed') : '',
@@ -192,6 +207,9 @@ class FsOwnerCard extends FsElement {
     try {
       await api.resendConfirmation();
       this.#deliveryFailed = false;
+      // The click just minted and delivered a token server-side; reflect
+      // that locally rather than waiting for a reload to say so.
+      this.#commitUser({ ...this.#user, pending_email_sent: true });
       toastSuccess(t('settings.owner.mailSent'), t('settings.owner.mailSentTo', { email: this.#user.pending_email }));
     } catch (e) {
       toastError(t('settings.owner.resendFailed'), this.failureText(e));

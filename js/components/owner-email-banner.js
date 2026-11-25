@@ -41,8 +41,13 @@ class FsOwnerEmailBanner extends HTMLElement {
       return;
     }
     const pending = Boolean(user.pending_email) && store.state.email_enabled;
+    // Same distinction as the Owner card: a candidate migration 0005 carried
+    // over, or that a failed enrichment fell back to writing raw, never had
+    // anything attempted for it — "Send again" would claim a repeat that
+    // never happened.
+    const neverSent = pending && !user.pending_email_sent;
     const action = pending
-      ? `<button class="fs-btn owner-email-banner__action" data-act="resend" ${this.#busy ? 'disabled' : ''}>${t('settings.owner.resend')}</button>`
+      ? `<button class="fs-btn owner-email-banner__action" data-act="resend" ${this.#busy ? 'disabled' : ''}>${t(neverSent ? 'settings.owner.send' : 'settings.owner.resend')}</button>`
       : `<a class="fs-btn owner-email-banner__action" href="${href('settings')}">${t('ownerEmailBanner.add')}</a>`;
     const text = pending
       ? t('ownerEmailBanner.pending', { email: user.pending_email })
