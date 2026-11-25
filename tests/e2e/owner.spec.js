@@ -7,7 +7,10 @@ import { test, expect } from '@playwright/test';
 const OWNER = { id: 1, username: 'owner', display_name: 'Max Mustermann', role: 'owner' };
 
 function user(fields) {
-  return { ...OWNER, email: null, pending_email: null, ...fields };
+  // Every existing test here models a candidate something was actually
+  // attempted for; the one "never sent" state gets its own test below with
+  // pending_email_sent: false overridden explicitly.
+  return { ...OWNER, email: null, pending_email: null, pending_email_sent: true, ...fields };
 }
 
 // Serves GET /users/me from `reads` (the last one repeats), GET /settings,
@@ -74,6 +77,33 @@ test('pending: live address plus the candidate, with resend and discard', async 
   await expect(pending.locator('[data-act="resend"]')).toBeVisible();
   await expect(pending.locator('[data-act="discard"]')).toBeVisible();
   // Nothing failed here: the button offers a resend, not a retry.
+  await expect(pending.locator('[data-act="resend"]')).toHaveText('Resend');
+});
+
+test('pending, never sent: offers Send, not a claim of an email that never went out', async ({ page }) => {
+  // The shape migration 0005's carryover (or a failed enrichment's fallback)
+  // leaves behind: a candidate with no delivery ever attempted for it.
+  await stubOwner(page, {
+    reads: [user({ pending_email: 'new@example.org', pending_email_sent: false })],
+  });
+  await page.goto('/settings');
+  const pending = card(page).locator('.pending-change');
+  await expect(pending).toContainText('No confirmation email has been sent for this address yet.');
+  await expect(pending).not.toContainText('if it never arrived');
+  await expect(pending.locator('[data-act="resend"]')).toHaveText('Send');
+});
+
+test('sending a never-sent candidate flips the label to Resend without a reload', async ({ page }) => {
+  await stubOwner(page, {
+    reads: [user({ pending_email: 'new@example.org', pending_email_sent: false })],
+    resend: (route) => route.fulfill({ status: 204 }),
+  });
+  await page.goto('/settings');
+  const pending = card(page).locator('.pending-change');
+  await expect(pending.locator('[data-act="resend"]')).toHaveText('Send');
+
+  await pending.locator('[data-act="resend"]').click();
+  await expect(page.locator('.toast--success .toast__title')).toHaveText('Confirmation email sent');
   await expect(pending.locator('[data-act="resend"]')).toHaveText('Resend');
 });
 

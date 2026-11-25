@@ -8,7 +8,10 @@ import { test, expect } from '@playwright/test';
 const OWNER = { id: 1, username: 'owner', display_name: 'Max Mustermann', role: 'owner' };
 
 function user(fields) {
-  return { ...OWNER, email: null, pending_email: null, ...fields };
+  // Every existing test here models a candidate something was actually
+  // attempted for; the "never sent" state gets its own test below with
+  // pending_email_sent: false overridden explicitly.
+  return { ...OWNER, email: null, pending_email: null, pending_email_sent: true, ...fields };
 }
 
 // Serves GET /users/me from `row`, GET /settings from `emailEnabled`, and
@@ -71,6 +74,12 @@ test('pending: the hint names the candidate and resends from the inbox', async (
   expect(calls).toEqual(['POST /core/protected/users/me/email/resend']);
   // Still unverified, so the hint stays.
   await expect(banner(page)).toBeVisible();
+});
+
+test('pending, never sent: offers Send, not a claim of an email that never went out', async ({ page }) => {
+  await stubUser(page, user({ pending_email: 'new@example.org', pending_email_sent: false }));
+  await page.goto('/');
+  await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Send');
 });
 
 test('pending: resend is disabled while the request is in flight', async ({ page }) => {
