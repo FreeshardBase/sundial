@@ -63,9 +63,7 @@ class ViewConfirmEmail extends FsElement {
       return `<p class="alert alert--danger confirm-email__invalid">${t('confirmEmail.invalid')}</p>`;
     }
     if (st === 'confirmed') {
-      return `
-        <p class="alert alert--info confirm-email__confirmed">${icon('check')} ${t('confirmEmail.confirmed', { email: this.#email })}</p>
-        <p class="muted">${t('confirmEmail.confirmedAppsHint')}</p>`;
+      return `<p class="alert alert--info confirm-email__confirmed">${icon('check')} ${t('confirmEmail.confirmed', { email: this.#email })}</p>`;
     }
     if (st === 'expired') {
       return `<p class="alert alert--warn confirm-email__expired">${t('confirmEmail.expired')}</p>`;

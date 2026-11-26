@@ -89,12 +89,11 @@
   },
   "confirmEmail": {
     "title": "Bestätige deine E-Mail-Adresse",
-    "confirm": "Adresse bestätigen",
+    "confirm": "E-Mail-Adresse bestätigen",
     "confirmed": "{email} ist jetzt bestätigt.",
-    "confirmedAppsHint": "Apps auf diesem Shard prüfen alle paar Minuten, ob die Adresse bestätigt ist. Die Anmeldung dort funktioniert deshalb eventuell erst nach bis zu etwa 5 Minuten — versuch es dann noch einmal.",
-    "expired": "Dieser Link ist abgelaufen oder wurde schon benutzt. Öffne die Einstellungen auf einem Gerät, das mit deinem Shard gekoppelt ist, und fordere dort mit „Erneut senden“ eine neue E-Mail an.",
-    "unknown": "Dieser Link gehört zu keiner wartenden Bestätigung. Öffne den Link aus der Bestätigungsmail noch einmal oder fordere in den Einstellungen eine neue E-Mail an.",
-    "invalid": "Dieser Link ist unvollständig. Öffne den Link aus der Bestätigungsmail noch einmal oder fordere in den Einstellungen eine neue E-Mail an.",
+    "expired": "Dieser Link ist abgelaufen oder wurde schon benutzt. Öffne die Einstellungen auf deinem Shard und klicke auf „Erneut senden“, um eine neue E-Mail anzufordern.",
+    "unknown": "Dieser Link gehört zu keiner wartenden Bestätigung. Fordere in den Einstellungen eine neue E-Mail an.",
+    "invalid": "Dieser Link ist ungültig. Fordere in den Einstellungen eine neue E-Mail an.",
     "failed": "Die Bestätigung hat deinen Shard nicht erreicht. Versuch es gleich noch einmal.",
     "rateLimited": "Zu viele Bestätigungsversuche. Warte eine Minute und versuch es dann noch einmal.",
     "closeHint": "Du kannst diese Seite jetzt schließen."

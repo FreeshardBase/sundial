@@ -47,7 +47,6 @@ test('lands on the confirm screen, strips the token, and does not confirm on its
 
   await page.locator('[data-act="confirm"]').click();
   await expect(page.locator('.confirm-email__confirmed')).toContainText('owner@example.org is now confirmed');
-  await expect(page.locator('view-confirm-email')).toContainText('check for a confirmed address every few minutes');
   expect(posts).toEqual([{ token: 'tok-123' }]);
   // A real confirmation refreshes the shell's owner-email hint on a paired device.
   await expect.poll(() => meCalls.length).toBe(beforeConfirm + 1);
@@ -185,7 +184,7 @@ test('without a token there is nothing to confirm', async ({ page }) => {
   const posts = await stubConfirm(page);
   await page.clock.install();
   await page.goto('/confirm-email');
-  await expect(page.locator('.confirm-email__invalid')).toContainText('incomplete');
+  await expect(page.locator('.confirm-email__invalid')).toContainText('This link is invalid');
   await expect(page.locator('[data-act="confirm"]')).toHaveCount(0);
   await expect(page.locator('.confirm-email__close-hint')).toBeVisible();
   await drain(page);

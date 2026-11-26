@@ -89,12 +89,11 @@
   },
   "confirmEmail": {
     "title": "Confirm your email address",
-    "confirm": "Confirm address",
+    "confirm": "Confirm email address",
     "confirmed": "{email} is now confirmed.",
-    "confirmedAppsHint": "Apps on this Shard check for a confirmed address every few minutes, so sign-in there might not work immediately — give it up to about 5 minutes, then try again.",
-    "expired": "This link has expired or was already used. Open Settings on a device paired with your Shard and request a new one with Send again.",
-    "unknown": "This link doesn't match a pending confirmation. Open the link from the confirmation email again, or request a new one in Settings.",
-    "invalid": "This link is incomplete, so there is nothing to confirm. Open the link from the confirmation email again, or request a new email in Settings.",
+    "expired": "This link has expired or was already used. Open Settings on your Shard and click Send again to request a new one.",
+    "unknown": "This link doesn't match a pending confirmation. Request a new one in Settings.",
+    "invalid": "This link is invalid. Request a new email in Settings.",
     "failed": "The confirmation did not reach your Shard. Try again in a moment.",
     "rateLimited": "Too many confirmation attempts. Wait a minute, then try again.",
     "closeHint": "You can close this page now."
