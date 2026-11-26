@@ -164,6 +164,11 @@ export async function call(method, path, { query, json, form } = {}) {
  */
 
 /**
+ * @typedef {Object} InputPreferences
+ * @property {string|null=} language
+ */
+
+/**
  * @typedef {Object} InputTerminal
  * @property {string} name
  * @property {Icon=} icon
@@ -228,6 +233,11 @@ export async function call(method, path, { query, json, form } = {}) {
  * @property {string} username
  * @property {string} display_name
  * @property {string|null=} email
+ */
+
+/**
+ * @typedef {Object} OutputPreferences
+ * @property {string|null=} language
  */
 
 /**
@@ -658,6 +668,23 @@ export function getPeerById(id) {
  */
 export function deletePeer(id) {
   return call('DELETE', `/protected/peers/${encodeURIComponent(id)}`);
+}
+
+/** GET /protected/preferences — Get Preferences
+ * @param {Object} [query] — {authorization?}
+ * @returns {Promise<OutputPreferences>}
+ */
+export function getPreferences(query = {}) {
+  return call('GET', `/protected/preferences`, { query });
+}
+
+/** PUT /protected/preferences — Put Preferences
+ * @param {InputPreferences} body
+ * @param {Object} [query] — {authorization?}
+ * @returns {Promise<OutputPreferences>}
+ */
+export function putPreferences(body, query = {}) {
+  return call('PUT', `/protected/preferences`, { query, json: body });
 }
 
 /** GET /protected/terminals — List All Terminals

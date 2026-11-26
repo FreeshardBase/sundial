@@ -3,7 +3,7 @@
  "info": {
   "title": "Shard Core",
   "description": "Core software stack that manages all aspects of a Shard",
-  "version": "0.43.0"
+  "version": "0.44.0"
  },
  "paths": {
   "/internal/app_error/{status}": {
@@ -2254,6 +2254,100 @@
     }
    }
   },
+  "/protected/preferences": {
+   "get": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Get Preferences",
+    "description": "The session user's stored UI preferences.\n\nAlways 200 for a valid session: a logged-in user always has a preferences\nobject, even when every field is still empty. An unset language comes back\nas null, which the UI client treats exactly like the 404 an older shard\n(without this endpoint) returns \u2014 fall back to its own language detection.",
+    "operationId": "get_preferences_protected_preferences_get",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "cookie",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OutputPreferences"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "/protected"
+    ],
+    "summary": "Put Preferences",
+    "description": "Write the given fields of the session user's UI preferences; an omitted\nfield is left untouched, so a future multi-field body can update just one.",
+    "operationId": "put_preferences_protected_preferences_put",
+    "parameters": [
+     {
+      "name": "authorization",
+      "in": "cookie",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "title": "Authorization"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/InputPreferences"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/OutputPreferences"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/protected/terminals": {
    "get": {
     "tags": [
@@ -3969,6 +4063,25 @@
     ],
     "title": "InputPeer"
    },
+   "InputPreferences": {
+    "properties": {
+     "language": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 35
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Language"
+     }
+    },
+    "type": "object",
+    "title": "InputPreferences",
+    "description": "A write to the owner's UI preferences.\n\nEvery field is optional and omitted fields are left untouched (read via\n`model_dump(exclude_unset=True)`), so a future client can PUT one field\nwithout clobbering the others. `language` is nullable in that any value it\ndoes carry must normalize, but an *explicit* null is still rejected by the\nroute: there is no \"clear it back to auto-detect\" use case to support, so\nthe only way to leave it alone is to omit it."
+   },
    "InputTerminal": {
     "properties": {
      "name": {
@@ -4276,6 +4389,24 @@
     ],
     "title": "OutputOwner",
     "description": "The owner fields an app sidecar may read over /internal.\n\nemail is users.email: an address confirmed by a delivered link, or\nowner-asserted directly when the shard sends no mail (email.enabled =\nfalse). It is None when there is no such address. pending_email, the token\nhash and its expiry are deliberately absent: they are an unverified\ncandidate a sidecar must never act on."
+   },
+   "OutputPreferences": {
+    "properties": {
+     "language": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Language"
+     }
+    },
+    "type": "object",
+    "title": "OutputPreferences",
+    "description": "The owner's stored UI preferences.\n\nDeliberately an object, not a bare string: multi-user support is coming and\nthis is meant to grow into a fuller per-user profile (more preferences, and\neventually shared identity fields). A `language` of `null` means nothing has\nbeen stored yet, and the client falls back to its own detection \u2014 the same\noutcome an older shard produced by answering this request with a 404."
    },
    "OutputSettings": {
     "properties": {
