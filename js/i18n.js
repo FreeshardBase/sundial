@@ -32,11 +32,17 @@ export async function initI18n() {
     const res = await fetch(`js/i18n/${loc}.json`);   // relative → <base>-aware
     catalogs[loc] = await res.json();
   }));
-  let locale = normalize((await getPreferences())?.language);
+  const shardLocale = normalize((await getPreferences())?.language);
+  let locale = shardLocale;
   if (!locale) {
     try { locale = normalize(localStorage.getItem(STORAGE_KEY)); } catch { /* storage unavailable */ }
   }
-  applyLocale(locale ?? normalize(navigator.language) ?? 'en');
+  locale = locale ?? normalize(navigator.language) ?? 'en';
+  applyLocale(locale);
+  // The shard had no stored preference yet: seed it with whatever this
+  // browser landed on, so the owner's first-visit language sticks for
+  // anything server-side that reads it too (e.g. mail in freeshard#168).
+  if (!shardLocale) putPreferences({ language: locale });
 }
 
 // Switcher path: apply live, persist locally, sync to the shard —

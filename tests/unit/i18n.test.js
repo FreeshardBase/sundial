@@ -50,6 +50,36 @@ test('locale detection order', async (tc) => {
   });
 });
 
+test('seeding the shard preference on first visit', async (tc) => {
+  await tc.test('nothing stored anywhere → seeds the navigator.language fallback', async () => {
+    fetchEnv.config.preferences = { status: 404 };
+    env.storage.delete('sundial.locale');
+    globalThis.navigator.language = 'de-AT';
+    fetchEnv.calls.length = 0;
+    await initI18n();
+    const put = fetchEnv.calls.find((c) => c.init.method === 'PUT');
+    assert.ok(put, 'PUT /protected/preferences sent to seed the resolved locale');
+    assert.deepEqual(JSON.parse(put.init.body), { language: 'de' });
+  });
+
+  await tc.test('a localStorage locale is seeded back too', async () => {
+    fetchEnv.config.preferences = { status: 404 };
+    env.storage.set('sundial.locale', 'de');
+    fetchEnv.calls.length = 0;
+    await initI18n();
+    const put = fetchEnv.calls.find((c) => c.init.method === 'PUT');
+    assert.ok(put);
+    assert.deepEqual(JSON.parse(put.init.body), { language: 'de' });
+  });
+
+  await tc.test('an existing shard preference is never re-written', async () => {
+    fetchEnv.config.preferences = { json: { language: 'de' } };
+    fetchEnv.calls.length = 0;
+    await initI18n();
+    assert.equal(fetchEnv.calls.some((c) => c.init.method === 'PUT'), false);
+  });
+});
+
 test('t() lookup and interpolation', async (tc) => {
   fetchEnv.config.preferences = { status: 404 };
   env.storage.delete('sundial.locale');
