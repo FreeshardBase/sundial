@@ -66,6 +66,7 @@ test('expired: says so, distinctly from both confirmed and unknown, and does not
   await expect(page.locator('.confirm-email__expired')).toContainText('Send again');
   await expect(page.locator('.confirm-email__confirmed')).toHaveCount(0);
   await expect(page.locator('.confirm-email__unknown')).toHaveCount(0);
+  await expect(page.locator('.confirm-email__close-hint')).toBeVisible();
   expect(posts).toEqual([{ token: 'tok-expired' }]);
   expect(meCalls.length).toBe(beforeConfirm);
 });
@@ -81,10 +82,11 @@ test('unknown: says so, distinctly from expired, and does not refresh the user',
   await page.locator('[data-act="confirm"]').click();
   await expect(page.locator('.confirm-email__unknown')).toContainText("doesn't match a pending confirmation");
   await expect(page.locator('.confirm-email__expired')).toHaveCount(0);
+  await expect(page.locator('.confirm-email__close-hint')).toBeVisible();
   expect(meCalls.length).toBe(beforeConfirm);
 });
 
-test('works on a never-paired browser: no redirect to welcome, continue leads there', async ({ page }) => {
+test('works on a never-paired browser: no redirect to welcome, no close hint before confirming', async ({ page }) => {
   await page.route('**/core/public/meta/whoami', (route) => route.fulfill({ json: { type: 'anonymous' } }));
   const posts = await stubConfirm(page);
   await page.clock.install();
@@ -93,10 +95,11 @@ test('works on a never-paired browser: no redirect to welcome, continue leads th
   await drain(page);
   await expect(page).toHaveURL('/confirm-email');
   await expect(page.locator('fs-dock nav')).toHaveCount(0);
-  await expect(page.locator('.confirm-email__continue')).toHaveAttribute('href', '/welcome');
+  await expect(page.locator('.confirm-email__close-hint')).toHaveCount(0);
 
   await page.locator('[data-act="confirm"]').click();
   await expect(page.locator('.confirm-email__confirmed')).toBeVisible();
+  await expect(page.locator('.confirm-email__close-hint')).toBeVisible();
   expect(posts).toEqual([{ token: 'tok-anon' }]);
 });
 
@@ -105,7 +108,6 @@ test('works under the /sundial/ base', async ({ page }) => {
   await page.goto('/sundial/?confirm_email=tok-sub');
   await expect(page.locator('view-confirm-email')).toBeVisible();
   await expect(page).toHaveURL('/sundial/confirm-email');
-  await expect(page.locator('.confirm-email__continue')).toHaveAttribute('href', '/sundial/');
   await page.locator('[data-act="confirm"]').click();
   await expect(page.locator('.confirm-email__confirmed')).toBeVisible();
   expect(posts).toEqual([{ token: 'tok-sub' }]);
@@ -164,6 +166,7 @@ test('rate limited: says so and keeps the button', async ({ page }) => {
   await page.locator('[data-act="confirm"]').click();
   await expect(page.locator('view-confirm-email .alert--warn')).toContainText('Too many confirmation attempts');
   await expect(page.locator('[data-act="confirm"]')).toBeEnabled();
+  await expect(page.locator('.confirm-email__close-hint')).toHaveCount(0);
 });
 
 test('a failed request never logs the token', async ({ page }) => {
@@ -175,6 +178,7 @@ test('a failed request never logs the token', async ({ page }) => {
   await expect(page.locator('view-confirm-email .alert--danger')).toContainText('did not reach your Shard');
   expect(logs.some((l) => l.includes('Email confirmation request failed'))).toBe(true);
   expect(logs.filter((l) => l.includes('secret-token-xyz'))).toEqual([]);
+  await expect(page.locator('.confirm-email__close-hint')).toHaveCount(0);
 });
 
 test('without a token there is nothing to confirm', async ({ page }) => {
@@ -183,6 +187,7 @@ test('without a token there is nothing to confirm', async ({ page }) => {
   await page.goto('/confirm-email');
   await expect(page.locator('.confirm-email__invalid')).toContainText('incomplete');
   await expect(page.locator('[data-act="confirm"]')).toHaveCount(0);
+  await expect(page.locator('.confirm-email__close-hint')).toBeVisible();
   await drain(page);
   expect(posts).toEqual([]);
 });

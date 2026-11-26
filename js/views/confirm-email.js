@@ -13,7 +13,6 @@ import { FsElement, esc } from '../components/base.js';
 import { store, shortShardId } from '../store.js';
 import * as api from '../api/client.js';
 import { queryUser } from '../actions.js';
-import { href } from '../router.js';
 import { icon } from '../components/icons.js';
 import { t } from '../i18n.js';
 import '../components/shard-badge.js';
@@ -76,7 +75,6 @@ class ViewConfirmEmail extends FsElement {
     }
     const busy = st === 'confirming';
     return `
-      <p>${t('confirmEmail.intro')}</p>
       ${st === 'failed' ? `<p class="alert alert--danger">${t('confirmEmail.failed')}</p>` : ''}
       ${st === 'rate-limited' ? `<p class="alert alert--warn">${t('confirmEmail.rateLimited')}</p>` : ''}
       <p><button class="fs-btn fs-btn--primary fs-focusable" data-act="confirm" ${busy ? 'disabled' : ''}>
@@ -85,15 +83,17 @@ class ViewConfirmEmail extends FsElement {
 
   render() {
     document.title = t('title.confirmEmail', { id: shortShardId() });
-    // A never-paired device has no use for the app grid.
-    const onward = store.state.meta.is_anonymous ? href('welcome') : href('');
+    // Opened as its own tab from the mail link — once there's nothing left to
+    // do here (confirmed, dead token, or no token at all), say so can close it
+    // rather than offering a button back into the app it may not even be open in.
+    const done = !this.#token || ['invalid', 'confirmed', 'expired', 'unknown'].includes(this.#state);
     this.innerHTML = `
       <div class="center-page confirm-email">
         <h1>${t('confirmEmail.title')}</h1>
         <p>${t('pair.thisShardIs')}</p>
         <fs-shard-badge shard-id="${esc(shortShardId())}"></fs-shard-badge>
         <div class="confirm-email__body">${this.body()}</div>
-        <a class="fs-btn fs-focusable confirm-email__continue" href="${onward}">${t('confirmEmail.continue')}</a>
+        ${done ? `<p class="muted confirm-email__close-hint">${t('confirmEmail.closeHint')}</p>` : ''}
       </div>`;
     this.querySelector('[data-act="confirm"]')?.addEventListener('click', () => this.confirm());
   }
