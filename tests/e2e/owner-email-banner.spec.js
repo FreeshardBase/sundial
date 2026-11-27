@@ -99,6 +99,19 @@ test('pending, never sent: after a first send the hint switches to the resend wo
   await expect(send).toHaveText('Send again');
 });
 
+test('pending, never sent: a failed first send keeps the never-sent wording', async ({ page }) => {
+  await stubUser(page, user({ pending_email: 'new@example.org', pending_email_sent: false }), {
+    resend: (route) => route.fulfill({ status: 500, json: { detail: 'Mail delivery failed.' } }),
+  });
+  await page.goto('/');
+  await banner(page).locator('[data-act="resend"]').click();
+  await expect(page.locator('.toast--error')).toBeVisible();
+  const text = banner(page).locator('.owner-email-banner__text');
+  await expect(text).toContainText('Send yourself a confirmation link');
+  await expect(text).not.toContainText('again');
+  await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Send');
+});
+
 test('pending: resend is disabled while the request is in flight', async ({ page }) => {
   let release;
   const held = new Promise((r) => { release = r; });
