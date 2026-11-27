@@ -171,6 +171,24 @@ test('German copy renders for the pending, never-sent variant', async ({ page })
   await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Senden');
 });
 
+// The confirmation page is itself the confirm step; the hint's own call to
+// confirm or resend would only compete with it.
+test('the hint stays off the confirm-email page and returns elsewhere', async ({ page }) => {
+  await stubUser(page, user({ pending_email: 'new@example.org' }));
+  await page.goto('/?confirm_email=tok-hidden');
+  await expect(page.locator('view-confirm-email')).toBeVisible();
+  await expect(page.locator('fs-owner-email-banner')).toBeAttached();
+  await expect(banner(page)).toHaveCount(0);
+
+  await page.goto('/');
+  await expect(page.locator('view-home')).toBeVisible();
+  await expect(banner(page)).toBeVisible();
+
+  await page.goto('/settings');
+  await expect(page.locator('view-settings')).toBeVisible();
+  await expect(banner(page)).toBeVisible();
+});
+
 // An edit made in the real Owner card must flow through the store into the
 // shell banner without a reload — the point of the card's #commitUser sync.
 test('adding an address in the Owner card updates the shell banner live', async ({ page }) => {
@@ -194,8 +212,8 @@ test('adding an address in the Owner card updates the shell banner live', async 
   await expect(banner(page).locator('[data-act="resend"]')).toBeVisible();
 });
 
-// Confirming on a paired device refetches the user row, so the banner clears
-// without a manual reload.
+// Confirming on a paired device refetches the user row, so the hint stays
+// cleared once the owner moves on, without a manual reload.
 test('confirming on a paired device clears the shell banner', async ({ page }) => {
   let row = user({ pending_email: 'new@example.org' });
   await page.route('**/core/protected/settings', (route) => route.fulfill({ json: { email_enabled: true } }));
@@ -206,9 +224,10 @@ test('confirming on a paired device clears the shell banner', async ({ page }) =
   });
   await page.goto('/?confirm_email=tok-paired');
   await expect(page.locator('view-confirm-email')).toBeVisible();
-  await expect(banner(page)).toBeVisible();
 
   await page.locator('[data-act="confirm"]').click();
   await expect(page.locator('.confirm-email__confirmed')).toBeVisible();
+
+  await page.goto('/settings');
   await expect(banner(page)).toHaveCount(0);
 });

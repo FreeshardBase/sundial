@@ -14,29 +14,36 @@
 // shard (mail disabled) sets the address directly and confirms nothing, so any
 // leftover candidate is unconfirmable and the owner sees the "none" variant —
 // which is where they can discard it and set an address directly.
+//
+// Hidden on the confirm-email view: that page already is the confirmation
+// step, and the hint's call to confirm or resend would only compete with it.
 
 import { store } from '../store.js';
 import * as api from '../api/client.js';
 import { toastSuccess, toastError, errorMessage } from './toast.js';
-import { href } from '../router.js';
+import { href, currentRoute, onRouteChange } from '../router.js';
 import { t } from '../i18n.js';
 
 class FsOwnerEmailBanner extends HTMLElement {
-  #unsub;
+  #unsubs = [];
   #busy = false;
 
   connectedCallback() {
     this.render();
-    this.#unsub = store.subscribe(['user', 'email_enabled', 'locale'], () => this.render());
+    this.#unsubs.push(
+      onRouteChange(() => this.render()),
+      store.subscribe(['user', 'email_enabled', 'locale'], () => this.render()),
+    );
   }
 
   disconnectedCallback() {
-    this.#unsub?.();
+    for (const u of this.#unsubs) u();
+    this.#unsubs = [];
   }
 
   render() {
     const user = store.state.user;
-    if (!user || user.role !== 'owner' || user.email) {
+    if (!user || user.role !== 'owner' || user.email || currentRoute() === 'confirm-email') {
       this.innerHTML = '';
       return;
     }
