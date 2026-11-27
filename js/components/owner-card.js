@@ -67,18 +67,19 @@ class FsOwnerCard extends FsElement {
   // has already put the row in the store, so it is not committed again.
   #onRemoteUserUpdate(user) {
     if (!this.#user) return;
-    const emailChanged = user.email !== this.#user.email;
-    const addressChanged = emailChanged || user.pending_email !== this.#user.pending_email;
-    // The closed input took focus with it; hand it to the field's edit button.
-    const typing = addressChanged && this.#emailField.contains(document.activeElement);
+    const previous = this.#user;
     this.#user = user;
-    if (addressChanged) this.#emailField.resetToOff();
-    this.render();
-    if (typing) this.#emailField.querySelector('[data-act="edit"]')?.focus();
-    // Only the live address is "the address"; a moved candidate is not live yet.
-    if (addressChanged) {
-      toastSuccess(emailChanged ? t('settings.owner.addressChanged') : t('settings.owner.pendingChanged'));
+    const emailChanged = user.email !== previous.email;
+    if (!emailChanged && user.pending_email === previous.pending_email) {
+      this.render();
+      return;
     }
+    // render()'s own focus restore cannot bring back the input this removes.
+    const emailHadFocus = this.#emailField.contains(document.activeElement);
+    this.#emailField.resetToOff();
+    this.render();
+    if (emailHadFocus) this.#emailField.querySelector('[data-act="edit"]')?.focus();
+    toastSuccess(emailChanged ? t('settings.owner.addressChanged') : t('settings.owner.pendingChanged'));
   }
 
   // Keep the shared store's `user` in step with the card: the app-shell

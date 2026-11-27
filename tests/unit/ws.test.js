@@ -80,19 +80,19 @@ const OWNER_ROW = {
 };
 
 test('owner_user_update requires the GET /users/me shape', () => {
-  const ok = (fields) => validateMessage({ message_type: 'owner_user_update', message: { ...OWNER_ROW, ...fields } });
-  assert.equal(ok({}), true);
-  assert.equal(ok({ email: null, pending_email: 'new@example.org', pending_email_sent: false }), true);
-  assert.equal(ok({ id: '1' }), false);
-  assert.equal(ok({ username: null }), false);
-  assert.equal(ok({ display_name: 42 }), false);
-  assert.equal(ok({ role: undefined }), false);
-  assert.equal(ok({ email: undefined }), false);
-  assert.equal(ok({ email: { $evil: 1 } }), false);
-  assert.equal(ok({ pending_email: 7 }), false);
-  assert.equal(ok({ pending_email: undefined }), false);
-  assert.equal(ok({ pending_email_sent: 'true' }), false);
-  assert.equal(ok({ pending_email_sent: undefined }), false);
+  const valid = (fields) => validateMessage({ message_type: 'owner_user_update', message: { ...OWNER_ROW, ...fields } });
+  assert.equal(valid({}), true);
+  assert.equal(valid({ email: null, pending_email: 'new@example.org', pending_email_sent: false }), true);
+  assert.equal(valid({ id: '1' }), false);
+  assert.equal(valid({ username: null }), false);
+  assert.equal(valid({ display_name: 42 }), false);
+  assert.equal(valid({ role: undefined }), false);
+  assert.equal(valid({ email: undefined }), false);
+  assert.equal(valid({ email: { $evil: 1 } }), false);
+  assert.equal(valid({ pending_email: 7 }), false);
+  assert.equal(valid({ pending_email: undefined }), false);
+  assert.equal(valid({ pending_email_sent: 'true' }), false);
+  assert.equal(valid({ pending_email_sent: undefined }), false);
   assert.equal(validateMessage({ message_type: 'owner_user_update', message: null }), false);
   assert.equal(validateMessage({ message_type: 'owner_user_update', message: [OWNER_ROW] }), false);
 });
