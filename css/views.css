@@ -351,7 +351,6 @@ fs-owner-card { display: block; }
 .settings-card .owner-hint { font-size: var(--fs-small); }
 
 .confirm-email__body { max-width: 52ch; }
-.confirm-email__continue { text-decoration: none; }
 
 .disk-gauge-row { display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-3); }
 .disk-gauge-info { flex: 1; min-width: 0; }

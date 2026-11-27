@@ -132,6 +132,12 @@ export async function call(method, path, { query, json, form } = {}) {
  */
 
 /**
+ * @typedef {Object} ConfirmEmailResult
+ * @property {string} status
+ * @property {string|null=} email
+ */
+
+/**
  * @typedef {Object} DiskUsage
  * @property {number} total_gb
  * @property {number} free_gb
@@ -453,7 +459,7 @@ export function addTerminal(body, query = {}) {
 
 /** POST /public/users/confirm-email — Confirm Email
  * @param {ConfirmEmailInput} body
- * @returns {Promise<Response>}
+ * @returns {Promise<ConfirmEmailResult>}
  */
 export function confirmEmail(body) {
   return call('POST', `/public/users/confirm-email`, { json: body });

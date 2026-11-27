@@ -4,14 +4,15 @@
 //
 // Confirms only on a click: mail scanners and link prefetchers open links on
 // their own, and an automatic POST would let them spend the single-use token.
-// POST /public/users/confirm-email answers 204 whether or not the token
-// matched (so nobody can probe for pending addresses), hence the hedged copy.
+// POST /public/users/confirm-email tells apart 'unknown' (never a real token),
+// 'expired' (was once real, no longer live) and 'confirmed' (just promoted,
+// with the address) — see shard_core's TokenStatus for why distinguishing
+// 'unknown' from 'expired' is safe to show an unauthenticated caller.
 
 import { FsElement, esc } from '../components/base.js';
 import { store, shortShardId } from '../store.js';
 import * as api from '../api/client.js';
 import { queryUser } from '../actions.js';
-import { href } from '../router.js';
 import { icon } from '../components/icons.js';
 import { t } from '../i18n.js';
 import '../components/shard-badge.js';
@@ -25,7 +26,8 @@ export function holdConfirmToken(token) {
 
 class ViewConfirmEmail extends FsElement {
   #token = heldToken;
-  #state = 'idle'; // idle | confirming | sent | failed | rate-limited | invalid
+  #state = 'idle'; // idle | confirming | confirmed | expired | unknown | failed | rate-limited | invalid
+  #email = null; // set only by a 'confirmed' result
 
   connectedCallback() {
     this.watch(['meta'], () => this.render());
@@ -35,13 +37,16 @@ class ViewConfirmEmail extends FsElement {
     this.#state = 'confirming';
     this.render();
     try {
-      await api.confirmEmail({ token: this.#token });
-      this.#state = 'sent';
+      const result = await api.confirmEmail({ token: this.#token });
+      this.#state = result.status; // 'unknown' | 'expired' | 'confirmed'
+      this.#email = result.email;
       heldToken = null;
       // On a paired device the shell's owner-email hint is watching store
       // `user`; refresh it so a just-confirmed address clears the hint without
       // a reload. Unpaired devices (the common case) have no row to refresh.
-      if (!store.state.meta.is_anonymous) queryUser().catch(() => {});
+      if (result.status === 'confirmed' && !store.state.meta.is_anonymous) {
+        queryUser().catch(() => {});
+      }
     } catch (e) {
       // The status only: the error never carries the token, but keep it that way.
       console.error('Email confirmation request failed', e?.status ?? 'network');
@@ -57,15 +62,17 @@ class ViewConfirmEmail extends FsElement {
     if (!this.#token || st === 'invalid') {
       return `<p class="alert alert--danger confirm-email__invalid">${t('confirmEmail.invalid')}</p>`;
     }
-    if (st === 'sent') {
-      return `
-        <p class="alert alert--info confirm-email__sent">${t('confirmEmail.sent')}</p>
-        <p class="muted">${t('confirmEmail.sentHint')}</p>
-        <p class="muted">${t('confirmEmail.sentAppsHint')}</p>`;
+    if (st === 'confirmed') {
+      return `<p class="alert alert--info confirm-email__confirmed">${icon('check')} ${t('confirmEmail.confirmed', { email: this.#email })}</p>`;
+    }
+    if (st === 'expired') {
+      return `<p class="alert alert--warn confirm-email__expired">${t('confirmEmail.expired')}</p>`;
+    }
+    if (st === 'unknown') {
+      return `<p class="alert alert--danger confirm-email__unknown">${t('confirmEmail.unknown')}</p>`;
     }
     const busy = st === 'confirming';
     return `
-      <p>${t('confirmEmail.intro')}</p>
       ${st === 'failed' ? `<p class="alert alert--danger">${t('confirmEmail.failed')}</p>` : ''}
       ${st === 'rate-limited' ? `<p class="alert alert--warn">${t('confirmEmail.rateLimited')}</p>` : ''}
       <p><button class="fs-btn fs-btn--primary fs-focusable" data-act="confirm" ${busy ? 'disabled' : ''}>
@@ -74,15 +81,17 @@ class ViewConfirmEmail extends FsElement {
 
   render() {
     document.title = t('title.confirmEmail', { id: shortShardId() });
-    // A never-paired device has no use for the app grid.
-    const onward = store.state.meta.is_anonymous ? href('welcome') : href('');
+    // Opened as its own tab from the mail link — once there's nothing left to
+    // do here (confirmed, dead token, or no token at all), say so can close it
+    // rather than offering a button back into the app it may not even be open in.
+    const done = !this.#token || ['invalid', 'confirmed', 'expired', 'unknown'].includes(this.#state);
     this.innerHTML = `
       <div class="center-page confirm-email">
         <h1>${t('confirmEmail.title')}</h1>
         <p>${t('pair.thisShardIs')}</p>
         <fs-shard-badge shard-id="${esc(shortShardId())}"></fs-shard-badge>
         <div class="confirm-email__body">${this.body()}</div>
-        <a class="fs-btn fs-focusable confirm-email__continue" href="${onward}">${t('confirmEmail.continue')}</a>
+        ${done ? `<p class="muted confirm-email__close-hint">${t('confirmEmail.closeHint')}</p>` : ''}
       </div>`;
     this.querySelector('[data-act="confirm"]')?.addEventListener('click', () => this.confirm());
   }

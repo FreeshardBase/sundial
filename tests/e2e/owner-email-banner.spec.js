@@ -183,13 +183,13 @@ test('confirming on a paired device clears the shell banner', async ({ page }) =
   await page.route((url) => url.pathname.startsWith('/core/protected/users/me'), (route) => route.fulfill({ json: row }));
   await page.route('**/core/public/users/confirm-email', (route) => {
     row = user({ email: 'new@example.org' });
-    return route.fulfill({ status: 204 });
+    return route.fulfill({ status: 200, json: { status: 'confirmed', email: 'new@example.org' } });
   });
   await page.goto('/?confirm_email=tok-paired');
   await expect(page.locator('view-confirm-email')).toBeVisible();
   await expect(banner(page)).toBeVisible();
 
   await page.locator('[data-act="confirm"]').click();
-  await expect(page.locator('.confirm-email__sent')).toBeVisible();
+  await expect(page.locator('.confirm-email__confirmed')).toBeVisible();
   await expect(banner(page)).toHaveCount(0);
 });

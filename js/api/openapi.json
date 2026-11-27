@@ -3,7 +3,7 @@
  "info": {
   "title": "Shard Core",
   "description": "Core software stack that manages all aspects of a Shard",
-  "version": "0.44.0"
+  "version": "0.45.0"
  },
  "paths": {
   "/internal/app_error/{status}": {
@@ -1275,7 +1275,7 @@
      "/public"
     ],
     "summary": "Confirm Email",
-    "description": "Promote the address the token belongs to.\n\nThe only unauthenticated surface of the address flow, and the token is its\nonly credential: matched in constant time against a stored digest, spent in\na single conditional UPDATE, and valid for an hour.\n\nA request carrying a plausible token always answers 204, whether or not it\nmatched \u2014 anything else would let a caller probe for pending addresses. The\n429 a flood eventually earns is not such a probe: a guess misses whether or\nnot an address is pending.\n\nThere is deliberately no GET: mail scanners and link prefetchers follow\nlinks, and a GET that mutates would burn the single-use token before the\nowner ever clicked. The mail points at the terminal UI\n(https://<shard-domain>/?confirm_email=<token>), which posts here.",
+    "description": "Report which of three outcomes redeeming the token produced.\n\nThe only unauthenticated surface of the address flow, and the token is its\nonly credential: matched in constant time against a stored digest, spent in\na single conditional UPDATE, and valid for an hour.\n\nUNKNOWN and EXPIRED are both safe to return to an unauthenticated caller \u2014\nsee TokenStatus for why distinguishing them costs a guesser nothing. Both\nare charged against the miss limiter below, though: that secrecy argument\nis about what a response may *say*, not about how often it may be asked\nfor, and only CONFIRMED is naturally rate-limited by being single-use.\n\nThere is deliberately no GET: mail scanners and link prefetchers follow\nlinks, and a GET that mutates would burn the single-use token before the\nowner ever clicked. The mail points at the terminal UI\n(https://<shard-domain>/?confirm_email=<token>), which posts here.",
     "operationId": "confirm_email_public_users_confirm_email_post",
     "requestBody": {
      "content": {
@@ -1288,8 +1288,15 @@
      "required": true
     },
     "responses": {
-     "204": {
-      "description": "Successful Response"
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ConfirmEmailResult"
+        }
+       }
+      }
      },
      "422": {
       "description": "Validation Error",
@@ -3907,6 +3914,35 @@
      "token"
     ],
     "title": "ConfirmEmailInput"
+   },
+   "ConfirmEmailResult": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "enum": [
+       "unknown",
+       "expired",
+       "confirmed"
+      ],
+      "title": "Status"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status"
+    ],
+    "title": "ConfirmEmailResult"
    },
    "DiskUsage": {
     "properties": {
