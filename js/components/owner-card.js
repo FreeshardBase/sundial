@@ -10,6 +10,7 @@ import * as api from '../api/client.js';
 import { toastSuccess, toastError, errorMessage } from './toast.js';
 import { pendingChange } from './pending-change.js';
 import { ownerEmailState, isDeliveryFailure } from '../owner-email.js';
+import { onMessage } from '../ws.js';
 import { t } from '../i18n.js';
 import './editable-text.js';
 
@@ -29,6 +30,7 @@ class FsOwnerCard extends FsElement {
   #busy = false;
   #loaded = false;
   #renderedLocale = null;
+  #offRemoteUpdate = null;
   // One instance per field for the card's lifetime, like the card itself in
   // Settings: render() rebuilds the card after every save, resend and discard,
   // and a fresh field would drop an edit in progress in the other one.
@@ -46,10 +48,38 @@ class FsOwnerCard extends FsElement {
       const adopted = this.#adoptBannerSend(state.user);
       if (adopted || state.locale !== this.#renderedLocale) this.render();
     });
+    this.#offRemoteUpdate = onMessage('owner_user_update', (user) => this.#onRemoteUserUpdate(user));
     if (!this.#loaded) {
       this.#loaded = true;
       this.load();
     }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.#offRemoteUpdate?.();
+    this.#offRemoteUpdate = null;
+  }
+
+  // The server's push after any change to the row, from this device or
+  // another. An address change closes an open email edit on purpose: the
+  // half-typed value was aimed at an address that no longer applies. ws.js
+  // has already put the row in the store, so it is not committed again.
+  #onRemoteUserUpdate(user) {
+    if (!this.#user) return;
+    const previous = this.#user;
+    this.#user = user;
+    const emailChanged = user.email !== previous.email;
+    if (!emailChanged && user.pending_email === previous.pending_email) {
+      this.render();
+      return;
+    }
+    // render()'s own focus restore cannot bring back the input this removes.
+    const emailHadFocus = this.#emailField.contains(document.activeElement);
+    this.#emailField.resetToOff();
+    this.render();
+    if (emailHadFocus) this.#emailField.querySelector('[data-act="edit"]')?.focus();
+    toastSuccess(emailChanged ? t('settings.owner.addressChanged') : t('settings.owner.pendingChanged'));
   }
 
   // Keep the shared store's `user` in step with the card: the app-shell

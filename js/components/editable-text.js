@@ -91,6 +91,15 @@ class FsEditableText extends FsElement {
       },
     }));
   }
+
+  // Closes an open edit. A field already syncing is left alone: its caller's
+  // done() closes it, and closing it earlier would let a new edit start that
+  // done() then throws away.
+  resetToOff() {
+    if (this.#state !== 'on') return;
+    this.#state = 'off';
+    this.render();
+  }
 }
 
 customElements.define('fs-editable-text', FsEditableText);
