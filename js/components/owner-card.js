@@ -41,7 +41,9 @@ class FsOwnerCard extends FsElement {
     // edit in progress); only the first connect and a language switch render.
     // watch() always adds 'locale' and fires once at once (#renderedLocale is
     // still null then), which is the first render.
-    this.watch([], (state) => { if (state.locale !== this.#renderedLocale) this.render(); });
+    this.watch(['user'], (state) => {
+      if (state.locale !== this.#renderedLocale || this.#adoptSentFrom(state.user)) this.render();
+    });
     if (!this.#loaded) {
       this.#loaded = true;
       this.load();
@@ -53,6 +55,16 @@ class FsOwnerCard extends FsElement {
   #commitUser(user) {
     this.#user = user;
     store.set({ user });
+  }
+
+  // The shell banner can send the first confirmation mail too; take that over
+  // so the card stops saying nothing was sent. Only that flag: anything else
+  // in the store row is the card's own commit or older than its load.
+  #adoptSentFrom(user) {
+    if (!this.#user || this.#user.pending_email_sent || !user?.pending_email_sent) return false;
+    if (user.pending_email !== this.#user.pending_email) return false;
+    this.#user = { ...this.#user, pending_email_sent: true };
+    return true;
   }
 
   async load() {

@@ -83,9 +83,8 @@ test('pending, never sent: offers Send, not a claim of an email that never went 
   await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Send');
   const text = banner(page).locator('.owner-email-banner__text');
   await expect(text).toContainText('Confirm your email address new@example.org');
-  await expect(text).toContainText('Send yourself a confirmation link');
+  await expect(text).toContainText('Send yourself a confirmation link, then open it');
   await expect(text).not.toContainText('again');
-  await expect(text).not.toContainText('in your inbox');
 });
 
 test('pending, never sent: after a first send the hint switches to the resend wording', async ({ page }) => {
@@ -99,6 +98,19 @@ test('pending, never sent: after a first send the hint switches to the resend wo
   await expect(send).toHaveText('Send again');
 });
 
+test('pending, never sent: a first send from the banner also updates the Owner card', async ({ page }) => {
+  await stubUser(page, user({ pending_email: 'new@example.org', pending_email_sent: false }));
+  await page.goto('/settings');
+  const card = page.locator('fs-owner-card .owner-card');
+  await expect(card).toContainText('No confirmation email has been sent for this address yet.');
+  await expect(card.locator('[data-act="resend"]')).toHaveText('Send');
+  await banner(page).locator('[data-act="resend"]').click();
+  await expect(page.locator('.toast--success')).toBeVisible();
+  await expect(card).toContainText('Open the link in the confirmation email sent to this address');
+  await expect(card).not.toContainText('No confirmation email has been sent');
+  await expect(card.locator('[data-act="resend"]')).toHaveText('Resend');
+});
+
 test('pending, never sent: a failed first send keeps the never-sent wording', async ({ page }) => {
   await stubUser(page, user({ pending_email: 'new@example.org', pending_email_sent: false }), {
     resend: (route) => route.fulfill({ status: 500, json: { detail: 'Mail delivery failed.' } }),
@@ -107,7 +119,7 @@ test('pending, never sent: a failed first send keeps the never-sent wording', as
   await banner(page).locator('[data-act="resend"]').click();
   await expect(page.locator('.toast--error')).toBeVisible();
   const text = banner(page).locator('.owner-email-banner__text');
-  await expect(text).toContainText('Send yourself a confirmation link');
+  await expect(text).toContainText('Send yourself a confirmation link, then open it');
   await expect(text).not.toContainText('again');
   await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Send');
 });
@@ -189,9 +201,8 @@ test('German copy renders for the pending, never-sent variant', async ({ page })
   await page.goto('/');
   const text = banner(page).locator('.owner-email-banner__text');
   await expect(text).toContainText('Bestätige deine E-Mail-Adresse neu@example.org');
-  await expect(text).toContainText('Schick dir dazu einen Bestätigungslink');
+  await expect(text).toContainText('Sende dir einen Bestätigungslink');
   await expect(text).not.toContainText('erneut');
-  await expect(text).not.toContainText('Postfach');
   await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Senden');
 });
 
