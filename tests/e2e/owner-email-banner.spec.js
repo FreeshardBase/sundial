@@ -68,6 +68,7 @@ test('pending: the hint names the candidate and resends from the inbox', async (
   await expect(banner(page)).toContainText('some apps may not be able to sign you in');
   const resend = banner(page).locator('[data-act="resend"]');
   await expect(resend).toHaveText('Send again');
+  await expect(banner(page).locator('.owner-email-banner__text')).toContainText('or send it again');
   await resend.click();
   await expect(page.locator('.toast--success .toast__title')).toHaveText('Confirmation email sent');
   await expect(page.locator('.toast--success .toast__msg')).toContainText('new@example.org');
@@ -79,6 +80,47 @@ test('pending: the hint names the candidate and resends from the inbox', async (
 test('pending, never sent: offers Send, not a claim of an email that never went out', async ({ page }) => {
   await stubUser(page, user({ pending_email: 'new@example.org', pending_email_sent: false }));
   await page.goto('/');
+  await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Send');
+  const text = banner(page).locator('.owner-email-banner__text');
+  await expect(text).toContainText('Confirm your email address new@example.org');
+  await expect(text).toContainText('Send yourself a confirmation link, then open it');
+  await expect(text).not.toContainText('again');
+});
+
+test('pending, never sent: after a first send the hint switches to the resend wording', async ({ page }) => {
+  const { calls } = await stubUser(page, user({ pending_email: 'new@example.org', pending_email_sent: false }));
+  await page.goto('/');
+  const send = banner(page).locator('[data-act="resend"]');
+  await send.click();
+  await expect(page.locator('.toast--success .toast__title')).toHaveText('Confirmation email sent');
+  expect(calls).toEqual(['POST /core/protected/users/me/email/resend']);
+  await expect(banner(page).locator('.owner-email-banner__text')).toContainText('or send it again');
+  await expect(send).toHaveText('Send again');
+});
+
+test('pending, never sent: a first send from the banner also updates the Owner card', async ({ page }) => {
+  await stubUser(page, user({ pending_email: 'new@example.org', pending_email_sent: false }));
+  await page.goto('/settings');
+  const card = page.locator('fs-owner-card .owner-card');
+  await expect(card).toContainText('No confirmation email has been sent for this address yet.');
+  await expect(card.locator('[data-act="resend"]')).toHaveText('Send');
+  await banner(page).locator('[data-act="resend"]').click();
+  await expect(page.locator('.toast--success')).toBeVisible();
+  await expect(card).toContainText('Open the link in the confirmation email sent to this address');
+  await expect(card).not.toContainText('No confirmation email has been sent');
+  await expect(card.locator('[data-act="resend"]')).toHaveText('Resend');
+});
+
+test('pending, never sent: a failed first send keeps the never-sent wording', async ({ page }) => {
+  await stubUser(page, user({ pending_email: 'new@example.org', pending_email_sent: false }), {
+    resend: (route) => route.fulfill({ status: 500, json: { detail: 'Mail delivery failed.' } }),
+  });
+  await page.goto('/');
+  await banner(page).locator('[data-act="resend"]').click();
+  await expect(page.locator('.toast--error')).toBeVisible();
+  const text = banner(page).locator('.owner-email-banner__text');
+  await expect(text).toContainText('Send yourself a confirmation link, then open it');
+  await expect(text).not.toContainText('again');
   await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Send');
 });
 
@@ -149,7 +191,42 @@ test('German copy renders for the pending variant', async ({ page }) => {
   await stubUser(page, user({ pending_email: 'neu@example.org' }));
   await page.goto('/');
   await expect(banner(page)).toContainText('Bestätige deine E-Mail-Adresse neu@example.org');
+  await expect(banner(page).locator('.owner-email-banner__text')).toContainText('sende ihn erneut');
   await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Erneut senden');
+});
+
+test('German copy renders for the pending, never-sent variant', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('sundial.locale', 'de'));
+  await stubUser(page, user({ pending_email: 'neu@example.org', pending_email_sent: false }));
+  await page.goto('/');
+  const text = banner(page).locator('.owner-email-banner__text');
+  await expect(text).toContainText('Bestätige deine E-Mail-Adresse neu@example.org');
+  await expect(text).toContainText('Sende dir einen Bestätigungslink');
+  await expect(text).not.toContainText('erneut');
+  await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Senden');
+});
+
+test('the hint stays off the confirm-email page and returns elsewhere', async ({ page }) => {
+  await stubUser(page, user({ pending_email: 'new@example.org' }));
+  await page.goto('/?confirm_email=tok-hidden');
+  await expect(page.locator('view-confirm-email')).toBeVisible();
+  await expect(page.locator('fs-owner-email-banner')).toBeAttached();
+  await expect(banner(page)).toHaveCount(0);
+
+  await page.goto('/');
+  await expect(page.locator('view-home')).toBeVisible();
+  await expect(banner(page)).toBeVisible();
+
+  await page.goto('/settings');
+  await expect(page.locator('view-settings')).toBeVisible();
+  await expect(banner(page)).toBeVisible();
+
+  await page.goBack();
+  await expect(page.locator('view-home')).toBeVisible();
+  await expect(banner(page)).toBeVisible();
+  await page.goBack();
+  await expect(page.locator('view-confirm-email')).toBeVisible();
+  await expect(banner(page)).toHaveCount(0);
 });
 
 // An edit made in the real Owner card must flow through the store into the
@@ -175,8 +252,8 @@ test('adding an address in the Owner card updates the shell banner live', async 
   await expect(banner(page).locator('[data-act="resend"]')).toBeVisible();
 });
 
-// Confirming on a paired device refetches the user row, so the banner clears
-// without a manual reload.
+// Confirming on a paired device refetches the user row, so the hint stays
+// cleared once the owner moves on, without a manual reload.
 test('confirming on a paired device clears the shell banner', async ({ page }) => {
   let row = user({ pending_email: 'new@example.org' });
   await page.route('**/core/protected/settings', (route) => route.fulfill({ json: { email_enabled: true } }));
@@ -187,9 +264,10 @@ test('confirming on a paired device clears the shell banner', async ({ page }) =
   });
   await page.goto('/?confirm_email=tok-paired');
   await expect(page.locator('view-confirm-email')).toBeVisible();
-  await expect(banner(page)).toBeVisible();
 
   await page.locator('[data-act="confirm"]').click();
   await expect(page.locator('.confirm-email__confirmed')).toBeVisible();
+
+  await page.goto('/settings');
   await expect(banner(page)).toHaveCount(0);
 });

@@ -8,35 +8,42 @@
 //
 // Two variants, on the same split as the Owner card:
 //   pending — a confirmable candidate is on file: point at the inbox, offer
-//             resend.
+//             resend (or a first send, if nothing went out yet).
 //   none    — no address to confirm: link to the Owner card to add one.
 // A pending candidate only counts when the shard can send mail: a self-hosted
 // shard (mail disabled) sets the address directly and confirms nothing, so any
 // leftover candidate is unconfirmable and the owner sees the "none" variant —
 // which is where they can discard it and set an address directly.
+//
+// Hidden on the confirm-email view: that page already is the confirmation
+// step, and the hint's call to confirm or resend would only compete with it.
 
 import { store } from '../store.js';
 import * as api from '../api/client.js';
 import { toastSuccess, toastError, errorMessage } from './toast.js';
-import { href } from '../router.js';
+import { href, currentRoute, onRouteChange } from '../router.js';
 import { t } from '../i18n.js';
 
 class FsOwnerEmailBanner extends HTMLElement {
-  #unsub;
+  #unsubs = [];
   #busy = false;
 
   connectedCallback() {
     this.render();
-    this.#unsub = store.subscribe(['user', 'email_enabled', 'locale'], () => this.render());
+    this.#unsubs.push(
+      onRouteChange(() => this.render()),
+      store.subscribe(['user', 'email_enabled', 'locale'], () => this.render()),
+    );
   }
 
   disconnectedCallback() {
-    this.#unsub?.();
+    for (const u of this.#unsubs) u();
+    this.#unsubs = [];
   }
 
   render() {
     const user = store.state.user;
-    if (!user || user.role !== 'owner' || user.email) {
+    if (!user || user.role !== 'owner' || user.email || currentRoute() === 'confirm-email') {
       this.innerHTML = '';
       return;
     }
@@ -47,11 +54,11 @@ class FsOwnerEmailBanner extends HTMLElement {
     // never happened.
     const neverSent = pending && !user.pending_email_sent;
     const action = pending
-      ? `<button class="fs-btn owner-email-banner__action" data-act="resend" ${this.#busy ? 'disabled' : ''}>${t(neverSent ? 'settings.owner.send' : 'settings.owner.resend')}</button>`
+      ? `<button class="fs-btn owner-email-banner__action" data-act="resend" ${this.#busy ? 'disabled' : ''}>${neverSent ? t('settings.owner.send') : t('settings.owner.resend')}</button>`
       : `<a class="fs-btn owner-email-banner__action" href="${href('settings')}">${t('ownerEmailBanner.add')}</a>`;
-    const text = pending
-      ? t('ownerEmailBanner.pending', { email: user.pending_email })
-      : t('ownerEmailBanner.none');
+    const text = !pending ? t('ownerEmailBanner.none')
+      : neverSent ? t('ownerEmailBanner.pendingNeverSent', { email: user.pending_email })
+      : t('ownerEmailBanner.pending', { email: user.pending_email });
     this.innerHTML = `
       <div class="owner-email-banner" role="status">
         <span class="owner-email-banner__text">${text}</span>
@@ -65,6 +72,8 @@ class FsOwnerEmailBanner extends HTMLElement {
     this.render();
     try {
       await api.resendConfirmation();
+      // The Owner card adopts pending_email_sent from the store row.
+      store.set({ user: { ...store.state.user, pending_email_sent: true } });
       toastSuccess(t('settings.owner.mailSent'), t('settings.owner.mailSentTo', { email: store.state.user.pending_email }));
     } catch (e) {
       toastError(t('settings.owner.resendFailed'), errorMessage(e));
