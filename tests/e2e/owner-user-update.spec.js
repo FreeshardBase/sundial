@@ -39,7 +39,9 @@ async function push(page, row) {
 const banner = (page) => page.locator('.owner-email-banner');
 const emailField = (page) => page.locator('fs-owner-card .owner-email');
 const addressToast = (page) =>
-  page.locator('.toast--success .toast__title', { hasText: 'Your email address was updated' });
+  page.locator('.toast--success .toast__title', { hasText: 'Email address changed' });
+const pendingToast = (page) =>
+  page.locator('.toast--success .toast__title', { hasText: 'Unconfirmed address changed' });
 
 async function startEmailEdit(page, value) {
   await emailField(page).locator('[data-act="edit"]').click();
@@ -65,6 +67,8 @@ test('an address change closes an open email edit without submitting it, and say
   await expect(emailField(page).locator('.editable-value')).toHaveText('new@example.org');
   await expect(page.locator('fs-owner-card .pending-change')).toHaveCount(0);
   await expect(addressToast(page)).toBeVisible();
+  await expect(pendingToast(page)).toHaveCount(0);
+  await expect(emailField(page).locator('[data-act="edit"]')).toBeFocused();
   expect(calls).toEqual([]);
 });
 
@@ -78,6 +82,7 @@ test('a push that leaves the address alone keeps an open edit and shows no toast
   await expect(page.locator('fs-owner-card .owner-name .editable-value')).toHaveText('Erika Musterfrau');
   await expect(emailField(page).locator('input')).toHaveValue('half-typed@exa');
   await expect(addressToast(page)).toHaveCount(0);
+  await expect(pendingToast(page)).toHaveCount(0);
 });
 
 test('a new candidate set elsewhere closes an open edit, though the live address stays', async ({ page }) => {
@@ -88,7 +93,8 @@ test('a new candidate set elsewhere closes an open edit, though the live address
   await push(page, user({ email: 'old@example.org', pending_email: 'other@example.org' }));
   await expect(emailField(page).locator('input')).toHaveCount(0);
   await expect(page.locator('fs-owner-card .pending-change__value')).toHaveText('other@example.org');
-  await expect(addressToast(page)).toBeVisible();
+  await expect(pendingToast(page)).toBeVisible();
+  await expect(addressToast(page)).toHaveCount(0);
 });
 
 test('a live address set directly elsewhere closes an open edit', async ({ page }) => {
@@ -119,7 +125,7 @@ test('the push for this device\'s own save leaves the saving field to finish', a
   await expect(emailField(page).locator('input')).toBeDisabled();
 
   await push(page, user({ email: 'old@example.org', pending_email: 'new@example.org' }));
-  await expect(addressToast(page)).toBeVisible();
+  await expect(pendingToast(page)).toBeVisible();
   await expect(emailField(page).locator('input')).toBeDisabled();
 
   release();
@@ -141,4 +147,5 @@ test('a card left behind by navigating away stops listening', async ({ page }) =
   await push(page, user({ pending_email: 'new@example.org' }));
   await expect(banner(page)).toContainText('new@example.org');
   await expect(addressToast(page)).toHaveCount(0);
+  await expect(pendingToast(page)).toHaveCount(0);
 });

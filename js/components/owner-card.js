@@ -67,11 +67,18 @@ class FsOwnerCard extends FsElement {
   // has already put the row in the store, so it is not committed again.
   #onRemoteUserUpdate(user) {
     if (!this.#user) return;
-    const addressChanged = user.email !== this.#user.email || user.pending_email !== this.#user.pending_email;
+    const emailChanged = user.email !== this.#user.email;
+    const addressChanged = emailChanged || user.pending_email !== this.#user.pending_email;
+    // The closed input took focus with it; hand it to the field's edit button.
+    const typing = addressChanged && this.#emailField.contains(document.activeElement);
     this.#user = user;
     if (addressChanged) this.#emailField.resetToOff();
     this.render();
-    if (addressChanged) toastSuccess(t('settings.owner.addressUpdated'));
+    if (typing) this.#emailField.querySelector('[data-act="edit"]')?.focus();
+    // Only the live address is "the address"; a moved candidate is not live yet.
+    if (addressChanged) {
+      toastSuccess(emailChanged ? t('settings.owner.addressChanged') : t('settings.owner.pendingChanged'));
+    }
   }
 
   // Keep the shared store's `user` in step with the card: the app-shell
