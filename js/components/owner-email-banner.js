@@ -72,6 +72,9 @@ class FsOwnerEmailBanner extends HTMLElement {
     this.render();
     try {
       await api.resendConfirmation();
+      // A first send just went out: switch the copy to the resend wording
+      // now, the same way the Owner card does.
+      store.set({ user: { ...store.state.user, pending_email_sent: true } });
       toastSuccess(t('settings.owner.mailSent'), t('settings.owner.mailSentTo', { email: store.state.user.pending_email }));
     } catch (e) {
       toastError(t('settings.owner.resendFailed'), errorMessage(e));

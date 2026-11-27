@@ -88,6 +88,17 @@ test('pending, never sent: offers Send, not a claim of an email that never went 
   await expect(text).not.toContainText('in your inbox');
 });
 
+test('pending, never sent: after a first send the hint switches to the resend wording', async ({ page }) => {
+  const { calls } = await stubUser(page, user({ pending_email: 'new@example.org', pending_email_sent: false }));
+  await page.goto('/');
+  const send = banner(page).locator('[data-act="resend"]');
+  await send.click();
+  await expect(page.locator('.toast--success .toast__title')).toHaveText('Confirmation email sent');
+  expect(calls).toEqual(['POST /core/protected/users/me/email/resend']);
+  await expect(banner(page).locator('.owner-email-banner__text')).toContainText('or send it again');
+  await expect(send).toHaveText('Send again');
+});
+
 test('pending: resend is disabled while the request is in flight', async ({ page }) => {
   let release;
   const held = new Promise((r) => { release = r; });
@@ -187,6 +198,13 @@ test('the hint stays off the confirm-email page and returns elsewhere', async ({
   await page.goto('/settings');
   await expect(page.locator('view-settings')).toBeVisible();
   await expect(banner(page)).toBeVisible();
+
+  await page.goBack();
+  await expect(page.locator('view-home')).toBeVisible();
+  await expect(banner(page)).toBeVisible();
+  await page.goBack();
+  await expect(page.locator('view-confirm-email')).toBeVisible();
+  await expect(banner(page)).toHaveCount(0);
 });
 
 // An edit made in the real Owner card must flow through the store into the
