@@ -32,6 +32,12 @@ export function validateMessage(message) {
     case 'app_install_error':
       return isPlainObject(body)
         && typeof body.name === 'string' && typeof body.error === 'string';
+    case 'owner_user_update':
+      return isPlainObject(body)
+        && typeof body.id === 'number' && typeof body.username === 'string'
+        && typeof body.display_name === 'string' && typeof body.role === 'string'
+        && isStringOrNull(body.email) && isStringOrNull(body.pending_email)
+        && typeof body.pending_email_sent === 'boolean';
     case 'backup_update':
       return body === undefined || body === null
         || (isPlainObject(body) && (body.error === undefined || typeof body.error === 'string'));
@@ -42,6 +48,10 @@ export function validateMessage(message) {
 
 function isPlainObject(v) {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
+function isStringOrNull(v) {
+  return v === null || typeof v === 'string';
 }
 
 // Routes one validated WS message to its store patch and onMessage() consumers.
@@ -65,6 +75,9 @@ export function handle(message) {
       break;
     case 'disk_usage_update':
       store.set({ disk_usage: { ...body, disk_space_warning: body.free_gb < 5 } });
+      break;
+    case 'owner_user_update':
+      store.set({ user: body });
       break;
     case 'subscription_updated':
       queryProfile({ refresh: true }).catch(() => {});
