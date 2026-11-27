@@ -91,6 +91,12 @@ class FsEditableText extends FsElement {
       },
     }));
   }
+
+  resetToOff() {
+    if (this.#state === 'off') return;
+    this.#state = 'off';
+    this.render();
+  }
 }
 
 customElements.define('fs-editable-text', FsEditableText);
