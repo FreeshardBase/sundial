@@ -38,6 +38,7 @@
   },
   "ownerEmailBanner": {
     "pending": "Bestätige deine E-Mail-Adresse {email}, um sie fertig einzurichten. Bis dahin können dich manche Apps womöglich nicht anmelden. Öffne den Bestätigungslink in deinem Postfach oder sende ihn erneut.",
+    "pendingNeverSent": "Bestätige deine E-Mail-Adresse {email}, um sie fertig einzurichten. Bis dahin können dich manche Apps womöglich nicht anmelden. Schick dir dazu einen Bestätigungslink.",
     "none": "Dein Shard hat noch keine bestätigte E-Mail-Adresse. Bis du eine hinzufügst, können dich manche Apps womöglich nicht anmelden.",
     "add": "Adresse hinzufügen"
   },

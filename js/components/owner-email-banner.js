@@ -8,7 +8,7 @@
 //
 // Two variants, on the same split as the Owner card:
 //   pending — a confirmable candidate is on file: point at the inbox, offer
-//             resend.
+//             resend (or a first send, if nothing went out yet).
 //   none    — no address to confirm: link to the Owner card to add one.
 // A pending candidate only counts when the shard can send mail: a self-hosted
 // shard (mail disabled) sets the address directly and confirms nothing, so any
@@ -49,9 +49,9 @@ class FsOwnerEmailBanner extends HTMLElement {
     const action = pending
       ? `<button class="fs-btn owner-email-banner__action" data-act="resend" ${this.#busy ? 'disabled' : ''}>${t(neverSent ? 'settings.owner.send' : 'settings.owner.resend')}</button>`
       : `<a class="fs-btn owner-email-banner__action" href="${href('settings')}">${t('ownerEmailBanner.add')}</a>`;
-    const text = pending
-      ? t('ownerEmailBanner.pending', { email: user.pending_email })
-      : t('ownerEmailBanner.none');
+    const text = !pending ? t('ownerEmailBanner.none')
+      : neverSent ? t('ownerEmailBanner.pendingNeverSent', { email: user.pending_email })
+      : t('ownerEmailBanner.pending', { email: user.pending_email });
     this.innerHTML = `
       <div class="owner-email-banner" role="status">
         <span class="owner-email-banner__text">${text}</span>

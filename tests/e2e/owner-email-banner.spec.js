@@ -68,6 +68,7 @@ test('pending: the hint names the candidate and resends from the inbox', async (
   await expect(banner(page)).toContainText('some apps may not be able to sign you in');
   const resend = banner(page).locator('[data-act="resend"]');
   await expect(resend).toHaveText('Send again');
+  await expect(banner(page).locator('.owner-email-banner__text')).toContainText('or send it again');
   await resend.click();
   await expect(page.locator('.toast--success .toast__title')).toHaveText('Confirmation email sent');
   await expect(page.locator('.toast--success .toast__msg')).toContainText('new@example.org');
@@ -80,6 +81,11 @@ test('pending, never sent: offers Send, not a claim of an email that never went 
   await stubUser(page, user({ pending_email: 'new@example.org', pending_email_sent: false }));
   await page.goto('/');
   await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Send');
+  const text = banner(page).locator('.owner-email-banner__text');
+  await expect(text).toContainText('Confirm your email address new@example.org');
+  await expect(text).toContainText('Send yourself a confirmation link');
+  await expect(text).not.toContainText('again');
+  await expect(text).not.toContainText('in your inbox');
 });
 
 test('pending: resend is disabled while the request is in flight', async ({ page }) => {
@@ -149,7 +155,20 @@ test('German copy renders for the pending variant', async ({ page }) => {
   await stubUser(page, user({ pending_email: 'neu@example.org' }));
   await page.goto('/');
   await expect(banner(page)).toContainText('Bestätige deine E-Mail-Adresse neu@example.org');
+  await expect(banner(page).locator('.owner-email-banner__text')).toContainText('sende ihn erneut');
   await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Erneut senden');
+});
+
+test('German copy renders for the pending, never-sent variant', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('sundial.locale', 'de'));
+  await stubUser(page, user({ pending_email: 'neu@example.org', pending_email_sent: false }));
+  await page.goto('/');
+  const text = banner(page).locator('.owner-email-banner__text');
+  await expect(text).toContainText('Bestätige deine E-Mail-Adresse neu@example.org');
+  await expect(text).toContainText('Schick dir dazu einen Bestätigungslink');
+  await expect(text).not.toContainText('erneut');
+  await expect(text).not.toContainText('Postfach');
+  await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Senden');
 });
 
 // An edit made in the real Owner card must flow through the store into the
