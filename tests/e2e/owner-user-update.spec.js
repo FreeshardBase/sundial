@@ -127,3 +127,18 @@ test('the push for this device\'s own save leaves the saving field to finish', a
   await expect(page.locator('.toast--success .toast__title', { hasText: 'Confirmation email sent' })).toBeVisible();
   await expect(page.locator('fs-owner-card .pending-change__value')).toHaveText('new@example.org');
 });
+
+test('a card left behind by navigating away stops listening', async ({ page }) => {
+  await stubUser(page, user({}));
+  await page.goto('/settings');
+  await expect(emailField(page)).toBeVisible();
+  await page.evaluate(async () => {
+    const { navigate } = await import('/js/router.js');
+    navigate('');
+  });
+  await expect(page.locator('fs-owner-card')).toHaveCount(0);
+
+  await push(page, user({ pending_email: 'new@example.org' }));
+  await expect(banner(page)).toContainText('new@example.org');
+  await expect(addressToast(page)).toHaveCount(0);
+});
