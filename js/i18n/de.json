@@ -233,6 +233,7 @@
       "addressSaved": "Adresse gespeichert",
       "addressRemoved": "Adresse entfernt",
       "discarded": "Adressänderung verworfen",
+      "addressUpdated": "Deine E-Mail-Adresse wurde aktualisiert",
       "nameEmpty": "Der Name darf nicht leer sein",
       "nameFailed": "Der Name konnte nicht gespeichert werden",
       "nameInvalid": "Der Name darf höchstens 200 Zeichen lang sein.",
