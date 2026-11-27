@@ -12,8 +12,9 @@ function user(fields) {
 }
 
 // Serves GET /users/me and GET /settings, and records every other call to
-// /users/me* so tests can assert nothing was submitted.
-async function stubUser(page, row) {
+// /users/me* so tests can assert nothing was submitted. `patch`, if given,
+// answers PATCH /users/me.
+async function stubUser(page, row, { patch } = {}) {
   const calls = [];
   await page.route('**/core/protected/settings', (route) =>
     route.fulfill({ json: { email_enabled: true } }));
@@ -22,6 +23,7 @@ async function stubUser(page, row) {
     const url = new URL(req.url());
     if (req.method() === 'GET' && url.pathname.endsWith('/users/me')) return route.fulfill({ json: row });
     calls.push(`${req.method()} ${url.pathname}`);
+    if (req.method() === 'PATCH' && patch) return patch(route, req.postDataJSON());
     return route.fulfill({ status: 500, json: { detail: 'unstubbed' } });
   });
   return { calls };
@@ -39,6 +41,11 @@ const emailField = (page) => page.locator('fs-owner-card .owner-email');
 const addressToast = (page) =>
   page.locator('.toast--success .toast__title', { hasText: 'Your email address was updated' });
 
+async function startEmailEdit(page, value) {
+  await emailField(page).locator('[data-act="edit"]').click();
+  await emailField(page).locator('input').fill(value);
+}
+
 test('a confirmed address pushed over WS clears the banner without a reload', async ({ page }) => {
   await stubUser(page, user({ pending_email: 'new@example.org' }));
   await page.goto('/');
@@ -51,8 +58,7 @@ test('a confirmed address pushed over WS clears the banner without a reload', as
 test('an address change closes an open email edit without submitting it, and says so', async ({ page }) => {
   const { calls } = await stubUser(page, user({ pending_email: 'new@example.org' }));
   await page.goto('/settings');
-  await emailField(page).locator('[data-act="edit"]').click();
-  await emailField(page).locator('input').fill('half-typed@exa');
+  await startEmailEdit(page, 'half-typed@exa');
 
   await push(page, user({ email: 'new@example.org' }));
   await expect(emailField(page).locator('input')).toHaveCount(0);
@@ -65,12 +71,59 @@ test('an address change closes an open email edit without submitting it, and say
 test('a push that leaves the address alone keeps an open edit and shows no toast', async ({ page }) => {
   await stubUser(page, user({ email: 'old@example.org' }));
   await page.goto('/settings');
-  await emailField(page).locator('[data-act="edit"]').click();
-  await emailField(page).locator('input').fill('half-typed@exa');
+  await startEmailEdit(page, 'half-typed@exa');
 
   await push(page, user({ email: 'old@example.org', display_name: 'Erika Musterfrau' }));
   // The push was applied: the card shows the new name.
   await expect(page.locator('fs-owner-card .owner-name .editable-value')).toHaveText('Erika Musterfrau');
   await expect(emailField(page).locator('input')).toHaveValue('half-typed@exa');
   await expect(addressToast(page)).toHaveCount(0);
+});
+
+test('a new candidate set elsewhere closes an open edit, though the live address stays', async ({ page }) => {
+  await stubUser(page, user({ email: 'old@example.org' }));
+  await page.goto('/settings');
+  await startEmailEdit(page, 'half-typed@exa');
+
+  await push(page, user({ email: 'old@example.org', pending_email: 'other@example.org' }));
+  await expect(emailField(page).locator('input')).toHaveCount(0);
+  await expect(page.locator('fs-owner-card .pending-change__value')).toHaveText('other@example.org');
+  await expect(addressToast(page)).toBeVisible();
+});
+
+test('a live address set directly elsewhere closes an open edit', async ({ page }) => {
+  // A shard that cannot send mail takes the address as typed: only `email` moves.
+  await stubUser(page, user({ email: 'old@example.org' }));
+  await page.goto('/settings');
+  await startEmailEdit(page, 'half-typed@exa');
+
+  await push(page, user({ email: 'other@example.org' }));
+  await expect(emailField(page).locator('input')).toHaveCount(0);
+  await expect(emailField(page).locator('.editable-value')).toHaveText('other@example.org');
+  await expect(addressToast(page)).toBeVisible();
+});
+
+test('the push for this device\'s own save leaves the saving field to finish', async ({ page }) => {
+  // The server pushes before it answers the PATCH (the mail goes out in between).
+  let release;
+  const held = new Promise((r) => { release = r; });
+  await stubUser(page, user({ email: 'old@example.org' }), {
+    patch: async (route) => {
+      await held;
+      return route.fulfill({ json: user({ email: 'old@example.org', pending_email: 'new@example.org' }) });
+    },
+  });
+  await page.goto('/settings');
+  await startEmailEdit(page, 'new@example.org');
+  await emailField(page).locator('input').press('Enter');
+  await expect(emailField(page).locator('input')).toBeDisabled();
+
+  await push(page, user({ email: 'old@example.org', pending_email: 'new@example.org' }));
+  await expect(addressToast(page)).toBeVisible();
+  await expect(emailField(page).locator('input')).toBeDisabled();
+
+  release();
+  await expect(emailField(page).locator('input')).toHaveCount(0);
+  await expect(page.locator('.toast--success .toast__title', { hasText: 'Confirmation email sent' })).toBeVisible();
+  await expect(page.locator('fs-owner-card .pending-change__value')).toHaveText('new@example.org');
 });
