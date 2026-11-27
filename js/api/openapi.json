@@ -3,7 +3,7 @@
  "info": {
   "title": "Shard Core",
   "description": "Core software stack that manages all aspects of a Shard",
-  "version": "0.44.0"
+  "version": "0.45.0"
  },
  "paths": {
   "/internal/app_error/{status}": {
