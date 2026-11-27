@@ -206,8 +206,6 @@ test('German copy renders for the pending, never-sent variant', async ({ page })
   await expect(banner(page).locator('[data-act="resend"]')).toHaveText('Senden');
 });
 
-// The confirmation page is itself the confirm step; the hint's own call to
-// confirm or resend would only compete with it.
 test('the hint stays off the confirm-email page and returns elsewhere', async ({ page }) => {
   await stubUser(page, user({ pending_email: 'new@example.org' }));
   await page.goto('/?confirm_email=tok-hidden');

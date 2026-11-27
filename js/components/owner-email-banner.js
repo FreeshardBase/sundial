@@ -54,7 +54,7 @@ class FsOwnerEmailBanner extends HTMLElement {
     // never happened.
     const neverSent = pending && !user.pending_email_sent;
     const action = pending
-      ? `<button class="fs-btn owner-email-banner__action" data-act="resend" ${this.#busy ? 'disabled' : ''}>${t(neverSent ? 'settings.owner.send' : 'settings.owner.resend')}</button>`
+      ? `<button class="fs-btn owner-email-banner__action" data-act="resend" ${this.#busy ? 'disabled' : ''}>${neverSent ? t('settings.owner.send') : t('settings.owner.resend')}</button>`
       : `<a class="fs-btn owner-email-banner__action" href="${href('settings')}">${t('ownerEmailBanner.add')}</a>`;
     const text = !pending ? t('ownerEmailBanner.none')
       : neverSent ? t('ownerEmailBanner.pendingNeverSent', { email: user.pending_email })
@@ -72,8 +72,7 @@ class FsOwnerEmailBanner extends HTMLElement {
     this.render();
     try {
       await api.resendConfirmation();
-      // A first send just went out: switch the copy to the resend wording
-      // now, the same way the Owner card does.
+      // The Owner card adopts pending_email_sent from the store row.
       store.set({ user: { ...store.state.user, pending_email_sent: true } });
       toastSuccess(t('settings.owner.mailSent'), t('settings.owner.mailSentTo', { email: store.state.user.pending_email }));
     } catch (e) {
